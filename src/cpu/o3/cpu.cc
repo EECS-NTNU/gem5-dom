@@ -100,6 +100,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       freeList(name() + ".freelist", &regFile),
 
       rob(this, params),
+      dom(this, params),
 
       scoreboard(name() + ".scoreboard",
                  regFile.totalNumPhysRegs()),

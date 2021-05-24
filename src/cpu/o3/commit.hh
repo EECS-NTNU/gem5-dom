@@ -47,6 +47,7 @@
 #include "cpu/exetrace.hh"
 #include "cpu/inst_seq.hh"
 #include "cpu/timebuf.hh"
+#include "dom.hh"
 #include "enums/CommitPolicy.hh"
 #include "sim/probe/probe.hh"
 
@@ -96,6 +97,7 @@ class DefaultCommit
 
     typedef typename CPUPol::Fetch Fetch;
     typedef typename CPUPol::IEW IEW;
+    typedef typename Impl::DOM dom;
 
     typedef O3ThreadState<Impl> Thread;
 
@@ -138,7 +140,7 @@ class DefaultCommit
 
   public:
     /** Construct a DefaultCommit with the given parameters. */
-    DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params);
+    DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params, DOM *_dom);
 
     /** Returns the name of the DefaultCommit. */
     std::string name() const;
@@ -360,6 +362,9 @@ class DefaultCommit
   private:
     /** Pointer to O3CPU. */
     O3CPU *cpu;
+
+    /** Pointer to DOM */
+    DOM *dom;
 
     /** Vector of all of the threads. */
     std::vector<Thread *> thread;

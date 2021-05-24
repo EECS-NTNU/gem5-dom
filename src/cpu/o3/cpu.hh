@@ -53,12 +53,12 @@
 #include "arch/types.hh"
 #include "base/statistics.hh"
 #include "config/the_isa.hh"
+#include "cpu/activity.hh"
+#include "cpu/base.hh"
 #include "cpu/o3/comm.hh"
 #include "cpu/o3/cpu_policy.hh"
 #include "cpu/o3/scoreboard.hh"
 #include "cpu/o3/thread_state.hh"
-#include "cpu/activity.hh"
-#include "cpu/base.hh"
 #include "cpu/simple_thread.hh"
 #include "cpu/timebuf.hh"
 #include "params/DerivO3CPU.hh"
@@ -568,6 +568,9 @@ class FullO3CPU : public BaseO3CPU
 
     /** The re-order buffer. */
     typename CPUPolicy::ROB rob;
+
+    /** Delay-on-Miss */
+    typename CPUPolicy::DOM dom;
 
     /** Active Threads List */
     std::list<ThreadID> activeThreads;

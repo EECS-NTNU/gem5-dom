@@ -49,11 +49,11 @@
 #include "base/loader/symtab.hh"
 #include "base/logging.hh"
 #include "config/the_isa.hh"
+#include "cpu/base.hh"
 #include "cpu/checker/cpu.hh"
+#include "cpu/exetrace.hh"
 #include "cpu/o3/commit.hh"
 #include "cpu/o3/thread_state.hh"
-#include "cpu/base.hh"
-#include "cpu/exetrace.hh"
 #include "cpu/timebuf.hh"
 #include "debug/Activity.hh"
 #include "debug/Commit.hh"
@@ -76,7 +76,8 @@ DefaultCommit<Impl>::processTrapEvent(ThreadID tid)
 }
 
 template <class Impl>
-DefaultCommit<Impl>::DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params)
+DefaultCommit<Impl>::DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params,
+DOM *_dom)
     : commitPolicy(params.smtCommitPolicy),
       cpu(_cpu),
       iewToCommitDelay(params.iewToCommitDelay),
@@ -91,7 +92,8 @@ DefaultCommit<Impl>::DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params)
       trapLatency(params.trapLatency),
       canHandleInterrupts(true),
       avoidQuiesceLiveLock(false),
-      stats(_cpu, this)
+      stats(_cpu, this),
+      dom(_dom)
 {
     if (commitWidth > Impl::MaxWidth)
         fatal("commitWidth (%d) is larger than compiled limit (%d),\n"
