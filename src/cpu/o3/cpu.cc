@@ -85,6 +85,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       decode(this, params),
       rename(this, params),
       iew(this, params),
+      dom(this, params),
       commit(this, params),
 
       /* It is mandatory that all SMT threads use the same renaming mode as
@@ -100,7 +101,6 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       freeList(name() + ".freelist", &regFile),
 
       rob(this, params),
-      dom(this, params),
 
       scoreboard(name() + ".scoreboard",
                  regFile.totalNumPhysRegs()),
@@ -157,6 +157,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
     decode.setActiveThreads(&activeThreads);
     rename.setActiveThreads(&activeThreads);
     iew.setActiveThreads(&activeThreads);
+    dom.setActiveThreads(&activeThreads);
     commit.setActiveThreads(&activeThreads);
 
     // Give each of the stages the time buffer they will use.
@@ -179,6 +180,8 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
     commit.setRenameQueue(&renameQueue);
 
     commit.setIEWStage(&iew);
+    iew.setDOM(&dom);
+    commit.setDOM(&dom);
     rename.setIEWStage(&iew);
     rename.setCommitStage(&commit);
 
@@ -515,6 +518,8 @@ FullO3CPU<Impl>::tick()
     iew.tick();
 
     commit.tick();
+
+    dom.tick();
 
     // Now advance the time buffers
     timeBuffer.advance();

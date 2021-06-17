@@ -1,61 +1,95 @@
 #ifndef __CPU_O3_DOM_HH__
 #define __CPU_O3_DOM_HH__
 
+#include <tuple>
+
 #include "arch/registers.hh"
+#include "arch/types.hh"
+#include "base/statistics.hh"
+#include "base/stats/group.hh"
 #include "base/types.hh"
 #include "config/the_isa.hh"
+#include "cpu/inst_seq.hh"
+#include "debug/DOM.hh"
+#include "debug/DebugDOM.hh"
 
-template <class Impl>
-class DOM
+struct DerivO3CPUParams;
+
+template<class Impl>
+class DefaultDOM
 {
-    public:
-        typedef typename Impl::O3CPU O3CPU;
+    private:
+        typedef typename Impl::CPUPol CPUPol;
         typedef typename Impl::DynInstPtr DynInstPtr;
+        typedef typename Impl::O3CPU O3CPU;
 
-        DOM(O3CPU *_cpu, const DerivO3CPUParams &params);
+        O3CPU *cpu;
+
+        std::list<ThreadID> *activeThreads;
+
+        int maxNumSbEntries;
+        int maxNumRqEntries;
+
+        int sbHead[Impl::MaxThreads];
+        int sbTail[Impl::MaxThreads];
+        int width;
+
+        ThreadID numThreads;
+
+        void resetState();
+    public:
+
+        DefaultDOM(O3CPU *_cpu, const DerivO3CPUParams &params);
+
 
         void insertLoad(const DynInstPtr &inst, ThreadID tid);
         void insertBranch(const DynInstPtr &inst, ThreadID tid);
         void safeBranch(const DynInstPtr &inst, ThreadID tid);
         void mispredictBranch(const DynInstPtr &inst, ThreadID tid);
 
-        bool isSbFull(ThreadID tid)
-        { return sbList[tid].size() == maxNumSbEntries; }
+        void squashInstruction(const DynInstPtr &inst, ThreadID tid);
+        void squashThread(ThreadID tid);
+        void squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid);
 
-        bool isRqFull (ThreadID tid)
-        { return rqList[tid].size() == maxNumRqEntries; }
+        bool isSbFull(ThreadID tid);
+        bool isRqFull (ThreadID tid);
+
+        void setActiveThreads(std::list<ThreadID> *at_ptr);
 
         std::string name() const;
 
-
+        void tick();
     private:
-
-        O3CPU *cpu;
-
-        std::list<ThreadID> *activeThreads;
-
-        unsigned maxNumSbEntries;
-        unsigned maxNumRqEntries;
-
-        unsigned sbHead;
-        unsigned sbTail;
-        unsigned width;
-
-        std::array<DynInstPtr, maxNumSbEntries> sbList[Impl::MaxThreads];
-        std::queue<std::pair<int, DynInstPtr>> rqList[Impl::MaxThreads];
-
-        bool tagBetweenHeadAndTail(int sbTag);
+        bool tagCheck(int sbTag, ThreadID tid);
+        void restoreFromIndex(ThreadID tid);
 
         void stepRq(ThreadID tid);
         void stepSb(ThreadID tid);
 
-        void tick();
+        int getBranchIndex(const DynInstPtr &inst, ThreadID tid);
+        int getLoadIndex(const DynInstPtr &inst, ThreadID tid);
 
 
-        ThreadID numThreads;
+        std::vector<std::tuple<DynInstPtr, int, bool>>
+            sbList[Impl::MaxThreads];
+        std::vector<std::tuple<int, DynInstPtr>> rqList[Impl::MaxThreads];
 
-        void resetState();
+        struct DOMStats : public Stats::Group
+        {
+            DOMStats(O3CPU *cpu);
 
+            Stats::Scalar emptyCycles;
+            Stats::Scalar activeCycles;
+            Stats::Scalar branchesInserted;
+            Stats::Scalar branchesCleared;
+            Stats::Scalar timesMispredicted;
+            Stats::Scalar entriesSquashed;
+            Stats::Scalar loadsSquashed;
+            Stats::Scalar loadsInserted;
+            Stats::Scalar loadsCleared;
+            Stats::Scalar abnormalBranches;
+            Stats::Scalar abnormalLoads;
+        } domStats;
 };
 
 #endif //__CPU_O3_DOM_HH__

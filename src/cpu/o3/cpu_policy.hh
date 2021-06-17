@@ -33,6 +33,7 @@
 #include "cpu/o3/comm.hh"
 #include "cpu/o3/commit.hh"
 #include "cpu/o3/decode.hh"
+#include "cpu/o3/dom.hh"
 #include "cpu/o3/fetch.hh"
 #include "cpu/o3/free_list.hh"
 #include "cpu/o3/iew.hh"
@@ -81,6 +82,8 @@ struct SimpleCPUPolicy
     typedef DefaultRename<Impl> Rename;
     /** Typedef for Issue/Execute/Writeback. */
     typedef DefaultIEW<Impl> IEW;
+    /** Typedef for Delay-on-Miss */
+    typedef DefaultDOM<Impl> DOM;
     /** Typedef for commit. */
     typedef DefaultCommit<Impl> Commit;
 

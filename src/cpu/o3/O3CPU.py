@@ -132,7 +132,10 @@ class DerivO3CPU(BaseCPU):
     LFSTSize = Param.Unsigned(1024, "Last fetched store table size")
     SSITSize = Param.Unsigned(1024, "Store set ID table size")
 
-    numRobs = Param.Unsigned(1, "Number of Reorder Buffers");
+    numSbEntries = Param.Unsigned(64, "Max number of SB entries")
+    numRqEntries = Param.Unsigned(64, "Max number of RQ entries")
+
+    numRobs = Param.Unsigned(1, "Number of Reorder Buffers")
 
     numPhysIntRegs = Param.Unsigned(256, "Number of physical integer registers")
     numPhysFloatRegs = Param.Unsigned(256, "Number of physical floating point "

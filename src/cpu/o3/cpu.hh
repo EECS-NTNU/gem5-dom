@@ -548,6 +548,8 @@ class FullO3CPU : public BaseO3CPU
     /** The issue/execute/writeback stages. */
     typename CPUPolicy::IEW iew;
 
+    typename CPUPolicy::DOM dom;
+
     /** The commit stage. */
     typename CPUPolicy::Commit commit;
 
@@ -569,8 +571,6 @@ class FullO3CPU : public BaseO3CPU
     /** The re-order buffer. */
     typename CPUPolicy::ROB rob;
 
-    /** Delay-on-Miss */
-    typename CPUPolicy::DOM dom;
 
     /** Active Threads List */
     std::list<ThreadID> activeThreads;

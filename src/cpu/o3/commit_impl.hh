@@ -76,8 +76,7 @@ DefaultCommit<Impl>::processTrapEvent(ThreadID tid)
 }
 
 template <class Impl>
-DefaultCommit<Impl>::DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params,
-DOM *_dom)
+DefaultCommit<Impl>::DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params)
     : commitPolicy(params.smtCommitPolicy),
       cpu(_cpu),
       iewToCommitDelay(params.iewToCommitDelay),
@@ -92,8 +91,7 @@ DOM *_dom)
       trapLatency(params.trapLatency),
       canHandleInterrupts(true),
       avoidQuiesceLiveLock(false),
-      stats(_cpu, this),
-      dom(_dom)
+      stats(_cpu, this)
 {
     if (commitWidth > Impl::MaxWidth)
         fatal("commitWidth (%d) is larger than compiled limit (%d),\n"
@@ -295,6 +293,13 @@ void
 DefaultCommit<Impl>::setIEWStage(IEW *iew_stage)
 {
     iewStage = iew_stage;
+}
+
+template <class Impl>
+void
+DefaultCommit<Impl>::setDOM(DOM *_dom)
+{
+    dom = _dom;
 }
 
 template<class Impl>
@@ -574,6 +579,7 @@ DefaultCommit<Impl>::squashAll(ThreadID tid)
     youngestSeqNum[tid] = lastCommitedSeqNum[tid];
 
     rob->squash(squashed_inst, tid);
+    dom->squashFromInstSeqNum(squashed_inst, tid);
     changedROBNumEntries[tid] = true;
 
     // Send back the sequence number of the squashed instruction.
@@ -688,6 +694,7 @@ DefaultCommit<Impl>::tick()
                 DPRINTF(Commit,"[tid:%i] Still Squashing, cannot commit any"
                         " insts this cycle.\n", tid);
                 rob->doSquash(tid);
+                dom->squashThread(tid);
                 toIEW->commitInfo[tid].robSquashing = true;
                 wroteToTimeBuffer = true;
             }
@@ -898,6 +905,7 @@ DefaultCommit<Impl>::commit()
             youngestSeqNum[tid] = squashed_inst;
 
             rob->squash(squashed_inst, tid);
+            dom->squashFromInstSeqNum(squashed_inst, tid);
             changedROBNumEntries[tid] = true;
 
             toIEW->commitInfo[tid].doneSeqNum = squashed_inst;
@@ -1399,6 +1407,12 @@ DefaultCommit<Impl>::getInsts()
                     inst->seqNum, tid, inst->pcState());
 
             rob->insertInst(inst);
+            if (inst->isControl()) {
+                dom->insertBranch(inst, tid);
+            }
+            if (inst->isLoad()) {
+                dom->insertLoad(inst, tid);
+            }
 
             assert(rob->getThreadEntries(tid) <= rob->getMaxEntries(tid));
 
@@ -1428,6 +1442,10 @@ DefaultCommit<Impl>::markCompletedInsts()
 
             // Mark the instruction as ready to commit.
             fromIEW->insts[inst_num]->setCanCommit();
+            if (fromIEW->insts[inst_num]->isControl()) {
+                dom->safeBranch(fromIEW->insts[inst_num],
+                    fromIEW->insts[inst_num]->threadNumber);
+            }
         }
     }
 }

@@ -97,7 +97,7 @@ class DefaultCommit
 
     typedef typename CPUPol::Fetch Fetch;
     typedef typename CPUPol::IEW IEW;
-    typedef typename Impl::DOM dom;
+    typedef typename CPUPol::DOM DOM;
 
     typedef O3ThreadState<Impl> Thread;
 
@@ -140,7 +140,7 @@ class DefaultCommit
 
   public:
     /** Construct a DefaultCommit with the given parameters. */
-    DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params, DOM *_dom);
+    DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params);
 
     /** Returns the name of the DefaultCommit. */
     std::string name() const;
@@ -165,11 +165,16 @@ class DefaultCommit
     /** Sets the pointer to the IEW stage. */
     void setIEWStage(IEW *iew_stage);
 
+    /** Sets the pointer to the DOM structures */
+    void setDOM(DOM *_dom);
+
     /** The pointer to the IEW stage. Used solely to ensure that
      * various events (traps, interrupts, syscalls) do not occur until
      * all stores have written back.
      */
     IEW *iewStage;
+
+    DOM *dom;
 
     /** Sets pointer to list of active threads. */
     void setActiveThreads(std::list<ThreadID> *at_ptr);
@@ -362,9 +367,6 @@ class DefaultCommit
   private:
     /** Pointer to O3CPU. */
     O3CPU *cpu;
-
-    /** Pointer to DOM */
-    DOM *dom;
 
     /** Vector of all of the threads. */
     std::vector<Thread *> thread;

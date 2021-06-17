@@ -50,6 +50,7 @@
 #include "cpu/o3/scoreboard.hh"
 #include "cpu/timebuf.hh"
 #include "debug/IEW.hh"
+#include "dom.hh"
 #include "sim/probe/probe.hh"
 
 struct DerivO3CPUParams;
@@ -91,6 +92,7 @@ class DefaultIEW
     typedef typename CPUPol::IEWStruct IEWStruct;
     typedef typename CPUPol::RenameStruct RenameStruct;
     typedef typename CPUPol::IssueStruct IssueStruct;
+    typedef typename CPUPol::DOM DOM;
 
   public:
     /** Overall IEW stage status. Used to determine if the CPU can
@@ -373,6 +375,9 @@ class DefaultIEW
      */
     bool updateLSQNextCycle;
 
+    /** Sets the pointer to the DOM structures */
+    void setDOM(DOM *_dom);
+
   private:
     /** Records if there is a fetch redirect on this cycle for each thread. */
     bool fetchRedirect[Impl::MaxThreads];
@@ -387,6 +392,8 @@ class DefaultIEW
 
     /** Rename to IEW delay. */
     Cycles renameToIEWDelay;
+
+    DOM *dom;
 
     /**
      * Issue to execute delay. What this actually represents is

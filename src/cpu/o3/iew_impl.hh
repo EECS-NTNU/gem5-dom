@@ -305,6 +305,13 @@ DefaultIEW<Impl>::setTimeBuffer(TimeBuffer<TimeStruct> *tb_ptr)
     instQueue.setTimeBuffer(tb_ptr);
 }
 
+template <class Impl>
+void
+DefaultIEW<Impl>::setDOM(DOM *_dom)
+{
+    dom = _dom;
+}
+
 template<class Impl>
 void
 DefaultIEW<Impl>::setRenameQueue(TimeBuffer<RenameStruct> *rq_ptr)
@@ -1345,6 +1352,7 @@ DefaultIEW<Impl>::executeInsts()
                         tid,inst->seqNum,inst->pcState());
                 // If incorrect, then signal the ROB that it must be squashed.
                 squashDueToBranch(inst, tid);
+                dom->mispredictBranch(inst, tid);
 
                 ppMispredict->notify(inst);
 
