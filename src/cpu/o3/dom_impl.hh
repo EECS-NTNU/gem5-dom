@@ -86,7 +86,7 @@ DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
     } else if (inst->isLoad()) {
         int spot = getLoadIndex(inst, tid);
         if (spot == -1) return;
-        std::get<1>(rqList[tid].at(spot)).underShadow = false;
+        std::get<1>(rqList[tid].at(spot))->underShadow = false;
         rqList[tid].erase(rqList[tid].begin() + spot);
         ++domStats.loadsSquashed;
     }
@@ -116,7 +116,7 @@ DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
     assert(inst);
     if (sbHead[tid] != sbTail[tid]) {
         rqList[tid].push_back({sbTail[tid], inst});
-        inst.underShadow = true;
+        inst->underShadow = true;
         DPRINTF(DOM, "[tid:%i] Inserted Load into ReleaseQueue.\n", tid);
         ++domStats.loadsInserted;
     }
@@ -201,8 +201,8 @@ DefaultDOM<Impl>::restoreFromIndex(ThreadID tid)
     if (rqList[tid].empty()) return;
     while (!rqList[tid].empty() &&
         !tagCheck(std::get<0>(rqList[tid].back()), tid)) {
-        std::get<1>(rqList[tid].back()).underShadow = false
-        rqList[tid].erase(rqLi.st[tid].end() -1);
+        std::get<1>(rqList[tid].back())->underShadow = false;
+        rqList[tid].erase(rqList[tid].end() -1);
         ++domStats.loadsSquashed;
     }
     DPRINTF(DOM, "[tid:%i] Restored ReleaseQueue to new index.\n", tid);
@@ -242,12 +242,12 @@ DefaultDOM<Impl>::stepRq(ThreadID tid)
 {
     if (rqList[tid].empty()) return;
     if (!(tagCheck(std::get<0>(rqList[tid].front()), tid))) {
-        std::get<1>(rqList[tid].front()).underShadow = false;
+        std::get<1>(rqList[tid].front())->underShadow = false;
         rqList[tid].erase(rqList[tid].begin());
         ++domStats.loadsCleared;
         DPRINTF(DOM, "[tid:%i] Stepped ReleaseQueue.\n", tid);
     } else if (std::get<1>(rqList[tid].front())->isCommitted()) {
-        std::get<1>(rqList[tid].front()).underShadow = false;
+        std::get<1>(rqList[tid].front())->underShadow = false;
         rqList[tid].erase(rqList[tid].begin());
         ++domStats.abnormalLoads;
         DPRINTF(DOM, "[tid:%i] Abnormal Load stepped at ReleaseQueue.\n", tid);
