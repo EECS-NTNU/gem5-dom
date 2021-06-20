@@ -36,7 +36,7 @@ optionsDict = {
  'external_memory_system': None,
  'tlm_memory': None,
  'caches': True,
- 'l2cache': None,
+ 'l2cache': True,
  'num_dirs': 1,
  'num_l2caches': 1,
  'num_l3caches': 1,
@@ -134,8 +134,15 @@ CPUClass.numThreads = numThreads
 isa = str(m5.defines.buildEnv['TARGET_ISA']).lower()
 
 process = Process(pid = 100)
-process.executable = "./tests/test-progs/hello/bin/" + isa + "/linux/hello"
-process.cmd = [process.executable]
+#process.executable=
+#"./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/mcf_base.ia64-gcc42"
+#process.cmd=
+#["./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/mcf_base.ia64-gcc42",
+#"./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/inp.in"]
+
+process.executable = "./tests/test-progs/hello/bin/x86/linux/hello"
+process.cmd = "./tests/test-progs/hello/bin/x86/linux/hello"
+
 process.cwd = os.getcwd()
 
 system = System(cpu = [CPUClass(cpu_id=i) for i in range(1)],
