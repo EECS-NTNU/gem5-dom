@@ -673,7 +673,10 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
     } else {
         // if it came as a request from the CPU side then make sure it
         // continues towards the memory side
-        if (from_cpu_side) {
+        // If the packet is under shadow, it should not propagate.
+        if (pkt->underShadow) {
+            pkt->setMissInCache(true);
+        } else if (from_cpu_side) {
             memSidePort.sendFunctional(pkt);
         } else if (cpuSidePort.isSnooping()) {
             // if it came from the memory side, it must be a snoop request
@@ -1141,7 +1144,12 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
 
     // Access block in the tags
     Cycles tag_latency(0);
-    blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency);
+    if (pkt->isRead()) {
+        blk = tags->accessBlockShadow(pkt->getAddr(), pkt->isSecure(),
+            tag_latency, pkt->isUnderShadow());
+    } else {
+        blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency);
+    }
 
     DPRINTF(Cache, "%s for %s %s\n", __func__, pkt->print(),
             blk ? "hit " + blk->print() : "miss");

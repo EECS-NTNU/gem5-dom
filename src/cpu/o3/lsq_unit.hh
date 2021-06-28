@@ -435,6 +435,20 @@ class LSQUnit
         }
     };
 
+    class LQSnoopState : public LSQSenderState
+    {
+        using LSQSenderState::alive;
+        public:
+            LQSnoopState(LSQRequest* req)
+            : LSQSenderState(req, true) {}
+
+            virtual void
+            complete()
+            {
+
+            }
+    };
+
     /** Particularisation of the LSQSenderState to the SQ. */
     class SQSenderState : public LSQSenderState
     {
@@ -590,6 +604,9 @@ class LSQUnit
 
         /** Number of times the LSQ is blocked due to the cache. */
         Stats::Scalar blockedByCache;
+
+
+        Stats::Scalar loadsDelayedOnMiss;
     } stats;
 
   public:
@@ -637,7 +654,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 {
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
-
+    //Always update underShadow incase shadow has been cleared
+    req->underShadow = load_inst->underShadow;
     load_req.setRequest(req);
     assert(load_inst);
 
@@ -929,6 +947,25 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         // the Ruby cache controller will set
         // memData to 0x0ul if successful.
         *load_inst->memData = (uint64_t) 0x1ull;
+    }
+
+    if (req->underShadow) {
+        PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
+        ex_snoop->dataStatic(load_inst->memData);
+        ex_snoop->setExpressSnoop();
+        ex_snoop->underShadow = req->underShadow;
+        LSQSenderState *state = new LQSnoopState(req);
+        ex_snoop->senderState = state;
+        dcachePort->sendFunctional(ex_snoop);
+        if (ex_snoop->didMissInCache()) {
+            iewStage->rescheduleMemInst(load_inst);
+            load_inst->clearIssued();
+            // Must discard the request.
+            req->discard();
+            load_req.setRequest(nullptr);
+            ++stats.loadsDelayedOnMiss;
+            return NoFault;
+        }
     }
 
     // For now, load throughput is constrained by the number of

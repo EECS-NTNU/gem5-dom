@@ -128,7 +128,7 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
         // they cannot tolerate faults
         const HtmCacheFailure htm_rc =
             pkt->getHtmTransactionFailedInCacheRC();
-        if(pkt->isWrite()) {
+        if (pkt->isWrite()) {
             DPRINTF(HtmCpu,
                 "store notification (ignored) of HTM transaction failure "
                 "in cache - addr=0x%lx - rc=%s - htmUid=%d\n",
@@ -284,7 +284,9 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
                "Number of loads that were rescheduled"),
       ADD_STAT(blockedByCache, UNIT_COUNT,
                "Number of times an access to memory failed due to the cache "
-               "being blocked")
+               "being blocked"),
+      ADD_STAT(loadsDelayedOnMiss, UNIT_COUNT,
+               "Number of loads delayed because of DoM")
 {
 }
 

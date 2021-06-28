@@ -153,6 +153,38 @@ class BaseSetAssoc : public BaseTags
         return blk;
     }
 
+    CacheBlk* accessBlockShadow(Addr addr, bool is_secure, Cycles &lat,
+        bool underShadow) override
+    {
+        CacheBlk *blk = findBlock(addr, is_secure);
+
+        // Access all tags in parallel, hence one in each way.  The data side
+        // either accesses all blocks in parallel, or one block sequentially on
+        // a hit.  Sequential access with a miss doesn't access data.
+        stats.tagAccesses += allocAssoc;
+        if (sequentialAccess) {
+            if (blk != nullptr) {
+                stats.dataAccesses += 1;
+            }
+        } else {
+            stats.dataAccesses += allocAssoc;
+        }
+
+        // If a cache hit
+        if (blk != nullptr) {
+            // Update number of references to accessed block
+            blk->increaseRefCount();
+
+            // Update replacement data of accessed block
+            if (!underShadow) replacementPolicy->touch(blk->replacementData);
+        }
+
+        // The tag lookup latency is the same for a hit or a miss
+        lat = lookupLatency;
+
+        return blk;
+    }
+
     /**
      * Find replacement victim based on address. The list of evicted blocks
      * only contains the victim.

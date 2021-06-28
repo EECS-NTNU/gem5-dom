@@ -304,13 +304,15 @@ class LSQ
         std::vector<bool> _byteEnable;
         uint32_t _numOutstandingPackets;
         AtomicOpFunctorPtr _amo_op;
+        bool underShadow;
       protected:
         LSQUnit* lsqUnit() { return &_port; }
         LSQRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad) :
             _state(State::NotIssued), _senderState(nullptr),
             _port(*port), _inst(inst), _data(nullptr),
             _res(nullptr), _addr(0), _size(0), _flags(0),
-            _numOutstandingPackets(0), _amo_op(nullptr)
+            _numOutstandingPackets(0), _amo_op(nullptr),
+            underShadow(inst->underShadow)
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,
@@ -330,13 +332,31 @@ class LSQ
             _res(res), _addr(addr), _size(size),
             _flags(flags_),
             _numOutstandingPackets(0),
-            _amo_op(std::move(amo_op))
+            _amo_op(std::move(amo_op)),
+            underShadow(inst->underShadow)
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,
                       _inst->isStoreConditional() || _inst->isAtomic());
             flags.set(Flag::IsAtomic, _inst->isAtomic());
             install();
+        }
+
+        LSQRequest(LSQRequest* other) :
+        _state(other->_state), _senderState(other->_senderState),
+        numTranslatedFragments(other->numTranslatedFragments),
+        numInTranslationFragments(other->numInTranslationFragments),
+        _port(other->_port), _inst(other->_inst), _data(nullptr),
+        _res(other->_res), _addr(other->_addr), _size(other->_size),
+        _flags(other->_flags),
+        _numOutstandingPackets(other->_numOutstandingPackets),
+        _amo_op(nullptr),
+        underShadow(other->underShadow)
+        {
+            flags.set(Flag::IsLoad, true);
+            flags.set(Flag::WbStore,
+                      _inst->isStoreConditional() || _inst->isAtomic());
+            flags.set(Flag::IsAtomic, _inst->isAtomic());
         }
 
         bool
@@ -725,6 +745,7 @@ class LSQ
         using LSQRequest::numTranslatedFragments;
         using LSQRequest::_numOutstandingPackets;
         using LSQRequest::_amo_op;
+        using LSQRequest::underShadow;
       public:
         SingleDataRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad,
                           const Addr& addr, const uint32_t& size,
@@ -734,6 +755,8 @@ class LSQ
                           AtomicOpFunctorPtr amo_op = nullptr) :
             LSQRequest(port, inst, isLoad, addr, size, flags_, data, res,
                        std::move(amo_op)) {}
+        SingleDataRequest(SingleDataRequest* other) :
+            LSQRequest(other) {}
 
         inline virtual ~SingleDataRequest() {}
         virtual void initiateTranslation();

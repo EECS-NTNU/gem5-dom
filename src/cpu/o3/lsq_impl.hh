@@ -1030,6 +1030,8 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
               _inst->getHtmTransactionUid());
         }
     }
+    //Always update this, it could have changed since last time
+    _packets.back()->underShadow = underShadow;
     assert(_packets.size() == 1);
 }
 

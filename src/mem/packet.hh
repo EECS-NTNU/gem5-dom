@@ -360,6 +360,7 @@ class Packet : public Printable
     /// The size of the request or transfer.
     unsigned size;
 
+
     /**
      * Track the bytes found that satisfy a functional read.
      */
@@ -528,12 +529,19 @@ class Packet : public Printable
      */
     SenderState *popSenderState();
 
+
+    /// Whether or not the packet is under a shadow
+
+    bool underShadow;
+
+    bool missedInCache = false;
+
     /**
      * Go through the sender state stack and return the first instance
      * that is of type T (as determined by a dynamic_cast). If there
      * is no sender state of type T, NULL is returned.
      *
-     * @return The topmost state of type T
+     * @return The toEXPRESS_SNOOPpmost state of type T
      */
     template <typename T>
     T * findNextSenderState() const
@@ -829,7 +837,8 @@ class Packet : public Printable
            htmReturnReason(HtmCacheFailure::NO_FAIL),
            htmTransactionUid(0),
            headerDelay(0), snoopDelay(0),
-           payloadDelay(0), senderState(NULL)
+           payloadDelay(0), senderState(NULL),
+           underShadow(req->isUnderShadow())
     {
         flags.clear();
         if (req->hasPaddr()) {
@@ -870,7 +879,8 @@ class Packet : public Printable
            htmReturnReason(HtmCacheFailure::NO_FAIL),
            htmTransactionUid(0),
            headerDelay(0),
-           snoopDelay(0), payloadDelay(0), senderState(NULL)
+           snoopDelay(0), payloadDelay(0), senderState(NULL),
+           underShadow(req->isUnderShadow())
     {
         flags.clear();
         if (req->hasPaddr()) {
@@ -900,7 +910,8 @@ class Packet : public Printable
            headerDelay(pkt->headerDelay),
            snoopDelay(0),
            payloadDelay(pkt->payloadDelay),
-           senderState(pkt->senderState)
+           senderState(pkt->senderState),
+           underShadow(pkt->underShadow)
     {
         if (!clear_flags)
             flags.set(pkt->flags & COPY_FLAGS);
@@ -1035,6 +1046,17 @@ class Packet : public Printable
                 cmd = MemCmd::FunctionalReadError;
             }
         }
+    }
+
+    bool
+    getFunctionalResponseStatus()
+    {
+        if (cmd != MemCmd::FunctionalReadError &&
+            cmd != MemCmd::FunctionalWriteError) panic("AAA");
+        if (isWrite()) {
+            return cmd != MemCmd::FunctionalWriteError;
+        }
+        return cmd != MemCmd::FunctionalReadError;
     }
 
     void
@@ -1348,6 +1370,24 @@ class Packet : public Printable
                                     other->getSize(),
                                     other->hasData() ?
                                     other->getPtr<uint8_t>() : NULL);
+    }
+
+    bool
+    isUnderShadow() const
+    {
+        return underShadow;
+    }
+
+    bool
+    didMissInCache() const
+    {
+        return missedInCache;
+    }
+
+    void
+    setMissInCache(bool miss)
+    {
+        missedInCache = miss;
     }
 
     /**

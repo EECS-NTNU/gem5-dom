@@ -344,6 +344,8 @@ class Request
      */
     Addr _paddr = 0;
 
+    bool underShadow = false;
+
     /**
      * The size of the request. This field must be set when vaddr or
      * paddr is written via setVirt() or a phys basec constructor, so it is
@@ -498,6 +500,18 @@ class Request
         assert(hasStreamId());
         _substreamId = ssid;
         privateFlags.set(VALID_SUBSTREAM_ID);
+    }
+
+    void
+    setUnderShadow(bool shadow)
+    {
+        underShadow = shadow;
+    }
+
+    bool
+    isUnderShadow()
+    {
+        return underShadow;
     }
 
     /**

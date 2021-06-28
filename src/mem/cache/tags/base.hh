@@ -292,6 +292,18 @@ class BaseTags : public ClockedObject
      */
     virtual CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat) = 0;
 
+
+    /**
+     * @param addr
+     * @param is_secure
+     * @param lat
+     * @param underShadow
+     * @return
+     *
+     */
+    virtual CacheBlk* accessBlockShadow(Addr addr, bool is_secure, Cycles &lat,
+      bool underShadow) = 0;
+
     /**
      * Generate the tag from the given address.
      *

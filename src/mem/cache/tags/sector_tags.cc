@@ -172,6 +172,46 @@ SectorTags::accessBlock(Addr addr, bool is_secure, Cycles &lat)
     return blk;
 }
 
+CacheBlk*
+SectorTags::accessBlockShadow(Addr addr, bool is_secure,
+    Cycles &lat, bool underShadow)
+{
+    CacheBlk *blk = findBlock(addr, is_secure);
+
+    // Access all tags in parallel, hence one in each way.  The data side
+    // either accesses all blocks in parallel, or one block sequentially on
+    // a hit.  Sequential access with a miss doesn't access data.
+    stats.tagAccesses += allocAssoc;
+    if (sequentialAccess) {
+        if (blk != nullptr) {
+            stats.dataAccesses += 1;
+        }
+    } else {
+        stats.dataAccesses += allocAssoc*numBlocksPerSector;
+    }
+
+    // If a cache hit
+    if (blk != nullptr) {
+        // Update number of references to accessed block
+        blk->increaseRefCount();
+
+        // Get block's sector
+        SectorSubBlk* sub_blk = static_cast<SectorSubBlk*>(blk);
+        const SectorBlk* sector_blk = sub_blk->getSectorBlock();
+
+        // Update replacement data of accessed block, which is shared with
+        // the whole sector it belongs to. If under shadow, we do not affect
+        // replacement state.
+        if (!underShadow)
+            replacementPolicy->touch(sector_blk->replacementData);
+    }
+
+    // The tag lookup latency is the same for a hit or a miss
+    lat = lookupLatency;
+
+    return blk;
+}
+
 void
 SectorTags::insertBlock(const PacketPtr pkt, CacheBlk *blk)
 {
