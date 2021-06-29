@@ -957,14 +957,23 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         LSQSenderState *state = new LQSnoopState(req);
         ex_snoop->senderState = state;
         dcachePort->sendFunctional(ex_snoop);
+        DPRINTF(LSQUnit, "Issued snoop to cache"
+            "Missed: %d\n", ex_snoop->didMissInCache());
         if (ex_snoop->didMissInCache()) {
             iewStage->rescheduleMemInst(load_inst);
             load_inst->clearIssued();
+            load_inst->effAddrValid(false);
             // Must discard the request.
             req->discard();
             load_req.setRequest(nullptr);
             ++stats.loadsDelayedOnMiss;
-            return NoFault;
+            return std::make_shared<GenericISA::M5InformFault>(
+                "Shadowed Load blocked in cache [sn:%llx] PC %s\n",
+                load_inst->seqNum, load_inst->pcState());
+            /* return std::make_shared<GenericISA::M5InformFaultBase>(
+            / "Shadowed Load blocked in cache [sn:%llx] PC %s\n",
+            / load_inst->seqNum, load_inst->pcState());
+            */
         }
     }
 

@@ -35,6 +35,8 @@ DefaultDOM<Impl>::squashThread(ThreadID tid)
     sbList[tid].clear();
     domStats.loadsSquashed += rqList[tid].size();
     rqList[tid].clear();
+    sbTail[tid] = sbHead[tid];
+    DPRINTF(DebugDOM, "Squashed Thread %d\n", tid);
 }
 
 template <class Impl>
@@ -44,15 +46,24 @@ DefaultDOM<Impl>::squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid)
     if (sbList[tid].empty()) {
         domStats.loadsSquashed += rqList[tid].size();
         rqList[tid].clear();
+        DPRINTF(DebugDOM, "Squashing all outstanding rq loads\n");
         return;
     }
+    int squashedEntries = 0;
     while (!sbList[tid].empty() &&
         std::get<0>(sbList[tid].back())->seqNum > seqNum) {
         ++domStats.entriesSquashed;
+        squashedEntries++;
         sbList[tid].pop_back();
     }
-    sbTail[tid] = (std::get<1>(sbList[tid].back()) + 1) % maxNumRqEntries;
-    sbHead[tid] = (std::get<1>(sbList[tid].front()) + 1) % maxNumRqEntries;
+    if (sbList[tid].size() > 0) {
+        sbTail[tid] = (std::get<1>(sbList[tid].back()) + 1) % maxNumSbEntries;
+        sbHead[tid] = (std::get<1>(sbList[tid].front())) % maxNumSbEntries;
+    } else {
+        sbTail[tid] = sbHead[tid];
+    }
+    DPRINTF(DebugDOM, "Squashed %d SB entries from SeqNum\n",
+        squashedEntries);
     restoreFromIndex(tid);
 }
 
@@ -76,11 +87,13 @@ DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
 {
     if (inst->isControl()) {
         int spot = getBranchIndex(inst, tid);
+        // If not in our buffer, just leave
         if (spot == -1) return;
         sbList[tid].erase(sbList[tid].begin() + spot);
         ++domStats.entriesSquashed;
         sbTail[tid] = (std::get<1>(sbList[tid].back()) + 1) % maxNumRqEntries;
         sbHead[tid] = (std::get<1>(sbList[tid].front()) + 1) % maxNumRqEntries;
+        DPRINTF(DebugDOM, "Squashed single ctrl inst. Restoring from index\n");
         restoreFromIndex(tid);
 
     } else if (inst->isLoad()) {
@@ -89,6 +102,7 @@ DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
         std::get<1>(rqList[tid].at(spot))->underShadow = false;
         rqList[tid].erase(rqList[tid].begin() + spot);
         ++domStats.loadsSquashed;
+        DPRINTF(DebugDOM, "Squashed single load. No need to restore\n");
     }
 }
 
@@ -155,7 +169,7 @@ DefaultDOM<Impl>::safeBranch(const DynInstPtr &inst, ThreadID tid)
     assert(inst);
     int spot = getBranchIndex(inst, tid);
     if (spot == -1) {
-        DPRINTF(DOM, "[tid:%i] Branch not found to clear\n");
+        DPRINTF(DOM, "[tid:%i] Branch not found to clear\n", tid);
         return;
     }
     std::get<2>(sbList[tid].at(spot)) = false;
@@ -289,6 +303,10 @@ DefaultDOM<Impl>::tick()
         } else {
             ++domStats.activeCycles;
         }
+
+        // Sanity checks
+        assert(!(sbList[i].size() == 0 && sbHead[i] != sbTail[i]));
+        assert(!(sbHead[i] == sbTail[i] && sbList[i].size() > 0));
     }
 
     DPRINTF(DOM, "Ticked DOM.\n");

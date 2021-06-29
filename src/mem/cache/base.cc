@@ -49,6 +49,7 @@
 #include "base/logging.hh"
 #include "debug/Cache.hh"
 #include "debug/CacheComp.hh"
+#include "debug/CacheDOM.hh"
 #include "debug/CachePort.hh"
 #include "debug/CacheRepl.hh"
 #include "debug/CacheVerbose.hh"
@@ -635,6 +636,18 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
     CacheBlk *blk = tags->findBlock(pkt->getAddr(), is_secure);
     MSHR *mshr = mshrQueue.findMatch(blk_addr, is_secure);
 
+    // This indicates a DoM check
+    if (pkt->underShadow && pkt->isExpressSnoop()) {
+        if (blk || mshr) {
+            pkt->setMissInCache(false);
+        } else {
+            pkt->setMissInCache(true);
+        }
+        DPRINTF(CacheDOM, "Handled express snoop: Miss: %d \n",
+        pkt->didMissInCache());
+        return ;
+    }
+
     pkt->pushLabel(name());
 
     CacheBlkPrintWrapper cbpw(blk);
@@ -673,10 +686,7 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
     } else {
         // if it came as a request from the CPU side then make sure it
         // continues towards the memory side
-        // If the packet is under shadow, it should not propagate.
-        if (pkt->underShadow) {
-            pkt->setMissInCache(true);
-        } else if (from_cpu_side) {
+        if (from_cpu_side) {
             memSidePort.sendFunctional(pkt);
         } else if (cpuSidePort.isSnooping()) {
             // if it came from the memory side, it must be a snoop request

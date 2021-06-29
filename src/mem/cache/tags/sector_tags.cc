@@ -190,7 +190,8 @@ SectorTags::accessBlockShadow(Addr addr, bool is_secure,
         stats.dataAccesses += allocAssoc*numBlocksPerSector;
     }
 
-    // If a cache hit
+    // We should have scoped these out
+    assert(!(blk != nullptr && underShadow));
     if (blk != nullptr) {
         // Update number of references to accessed block
         blk->increaseRefCount();
