@@ -134,10 +134,10 @@ CPUClass.numThreads = numThreads
 isa = str(m5.defines.buildEnv['TARGET_ISA']).lower()
 
 process = Process(pid = 100)
-#process.executable=
-#"./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/mcf_base.ia64-gcc42"
+#process.executable =
+# "./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/mcf_base.ia64-gcc42"
 #process.cmd=
-#["./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/mcf_base.ia64-gcc42",
+# ["./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/mcf_base.ia64-gcc42",
 #"./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/inp.in"]
 
 process.executable = "./tests/test-progs/hello/bin/x86/linux/hello"
