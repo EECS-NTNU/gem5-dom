@@ -287,7 +287,9 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
                "Number of times an access to memory failed due to the cache "
                "being blocked"),
       ADD_STAT(loadsDelayedOnMiss, UNIT_COUNT,
-               "Number of loads delayed because of DoM")
+               "Number of loads delayed because of DoM"),
+      ADD_STAT(issuedSnoops, UNIT_COUNT,
+               "Number of snoops issued because of DoM")
 {
 }
 

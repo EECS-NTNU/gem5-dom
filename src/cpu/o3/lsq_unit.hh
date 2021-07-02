@@ -607,8 +607,9 @@ class LSQUnit
         /** Number of times the LSQ is blocked due to the cache. */
         Stats::Scalar blockedByCache;
 
-
         Stats::Scalar loadsDelayedOnMiss;
+
+        Stats::Scalar issuedSnoops;
     } stats;
 
   public:
@@ -960,14 +961,13 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         LSQSenderState *state = new LQSnoopState(req);
         ex_snoop->senderState = state;
         dcachePort->sendFunctional(ex_snoop);
+        ++stats.issuedSnoops;
         DPRINTF(DOM, "Issued snoop to cache"
             "Missed: %d\n", ex_snoop->didMissInCache());
         if (ex_snoop->didMissInCache()) {
             iewStage->delayMemInst(load_inst);
             ++stats.loadsDelayedOnMiss;
-
             load_inst->clearIssued();
-
             DPRINTF(DebugDOM, "Returning ShadowFault\n");
             return std::make_shared<ShadowFault>();
         }

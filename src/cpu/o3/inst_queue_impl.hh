@@ -213,7 +213,12 @@ IQStats::IQStats(O3CPU *cpu, const unsigned &total_width)
              "Inst issue rate", instsIssued / cpu->baseStats.numCycles),
     ADD_STAT(fuBusy, UNIT_COUNT, "FU busy when requested"),
     ADD_STAT(fuBusyRate, UNIT_RATE(Stats::Units::Count, Stats::Units::Count),
-             "FU busy rate (busy events/executed inst)")
+             "FU busy rate (busy events/executed inst)"),
+    ADD_STAT(delayedLoads, UNIT_COUNT, "Number of loads delayed"),
+    ADD_STAT(squashedDelayedLoads, UNIT_COUNT,
+             "Number of delayed loads that were squashed"),
+    ADD_STAT(reissuedDelayedLoads, UNIT_COUNT,
+             "Number of delayed loads that were reissued")
 {
     instsAdded
         .prereq(instsAdded);
@@ -1129,10 +1134,10 @@ void
 InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
 {
     DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
-
     delayed_inst->clearIssued();
     delayed_inst->clearCanIssue();
     delayedMemInsts.push_back(delayed_inst);
+    ++iqStats.delayedLoads;
 }
 
 
@@ -1208,6 +1213,7 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             DPRINTF(DOM, "Squashed a load in delay queue\n");
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
             i--;
+            ++iqStats.squashedDelayedLoads;
         } else if (!delayedMemInsts.at(i)->underShadow) {
             DPRINTF(DebugDOM, "Acquired a non-speculative load\n");
             DynInstPtr mem_inst = std::move(
@@ -1215,6 +1221,7 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
             mem_inst->savedReq->setStateToRequest();
             mem_inst->getFault() = NoFault;
+            ++iqStats.reissuedDelayedLoads;
             return mem_inst;
         }
     }
