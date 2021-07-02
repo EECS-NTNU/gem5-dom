@@ -69,6 +69,8 @@ class DefaultDOM
         int getBranchIndex(const DynInstPtr &inst, ThreadID tid);
         int getLoadIndex(const DynInstPtr &inst, ThreadID tid);
 
+        void clearDeadEntries();
+
 
         std::vector<std::tuple<DynInstPtr, int, bool>>
             sbList[Impl::MaxThreads];

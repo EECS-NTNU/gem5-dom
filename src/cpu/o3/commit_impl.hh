@@ -139,7 +139,8 @@ void
 DefaultCommit<Impl>::regProbePoints()
 {
     ppCommit = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(), "Commit");
-    ppCommitStall = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(), "CommitStall");
+    ppCommitStall = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(),
+        "CommitStall");
     ppSquash = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(), "Squash");
 }
 
@@ -694,7 +695,6 @@ DefaultCommit<Impl>::tick()
                 DPRINTF(Commit,"[tid:%i] Still Squashing, cannot commit any"
                         " insts this cycle.\n", tid);
                 rob->doSquash(tid);
-                dom->squashThread(tid);
                 toIEW->commitInfo[tid].robSquashing = true;
                 wroteToTimeBuffer = true;
             }
@@ -1172,7 +1172,7 @@ DefaultCommit<Impl>::commitInsts()
                 // pipeline reached a place to handle the interrupt. In that
                 // case squash now to make sure the interrupt is handled.
                 //
-                // If we don't do this, we might end up in a live lock situation
+                // If we don't do this, we might end up in a live lock
                 if (!interrupt && avoidQuiesceLiveLock &&
                     onInstBoundary && cpu->checkInterrupts(0))
                     squashAfter(tid, head_inst);
@@ -1404,7 +1404,7 @@ DefaultCommit<Impl>::getInsts()
             changedROBNumEntries[tid] = true;
 
             DPRINTF(Commit, "[tid:%i] [sn:%llu] Inserting PC %s into ROB.\n",
-                    inst->seqNum, tid, inst->pcState());
+                    tid, inst->seqNum, inst->pcState());
 
             rob->insertInst(inst);
             if (inst->isControl()) {

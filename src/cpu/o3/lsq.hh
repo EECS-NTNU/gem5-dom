@@ -650,6 +650,12 @@ class LSQ
             setState(State::Fault);
         }
 
+        void
+        setStateToRequest()
+        {
+            setState(State::Request);
+        }
+
         /**
          * The LSQ entry is cleared
          */

@@ -1,0 +1,3542 @@
+Global frequency set at 1000000000000 ticks per second
+      0: Creating MemDepUnit 0 object.
+      0: Creating MemDepUnit 1 object.
+      0: Creating MemDepUnit 2 object.
+      0: Creating MemDepUnit 3 object.
+      0: system.cpu.iew.lsq.thread0: Creating LSQUnit0 object.
+      0: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+      0: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 0
+      0: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+      0: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 0
+gem5 Simulator System.  http://gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 21.0.0.0
+gem5 compiled Jun 30 2021 13:47:55
+gem5 started Jun 30 2021 13:53:49
+gem5 executing on Darkstar5, pid 213860
+command line: ./build/X86/gem5.opt --debug-flags=CacheDOM,DOM,DebugDOM,LSQUnit,LSQ,MemDepUnit dom/dom_se.py
+
+**** REAL SIMULATION ****
+      0: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+      0: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 0
+      0: system.cpu.dom: Squashing all outstanding rq loads
+      0: system.cpu.dom: Trying to step SB
+      0: system.cpu.dom: Trying to step RQ
+      0: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+      0: system.cpu.dom: Ticked DOM.
+   1000: system.cpu.iew.lsq.thread0: Squashing until [sn:0]!(Loads:0 Stores:0)
+   1000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+   1000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 0
+   1000: system.cpu.dom: Trying to step SB
+   1000: system.cpu.dom: Trying to step RQ
+   1000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   1000: system.cpu.dom: Ticked DOM.
+   2000: system.cpu.dom: Trying to step SB
+   2000: system.cpu.dom: Trying to step RQ
+   2000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   2000: system.cpu.dom: Ticked DOM.
+   3000: system.cpu.dom: Trying to step SB
+   3000: system.cpu.dom: Trying to step RQ
+   3000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   3000: system.cpu.dom: Ticked DOM.
+   4000: system.cpu.dom: Trying to step SB
+   4000: system.cpu.dom: Trying to step RQ
+   4000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   4000: system.cpu.dom: Ticked DOM.
+   5000: system.cpu.dom: Trying to step SB
+   5000: system.cpu.dom: Trying to step RQ
+   5000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   5000: system.cpu.dom: Ticked DOM.
+   6000: system.cpu.dom: Trying to step SB
+   6000: system.cpu.dom: Trying to step RQ
+   6000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   6000: system.cpu.dom: Ticked DOM.
+   7000: system.cpu.dom: Trying to step SB
+   7000: system.cpu.dom: Trying to step RQ
+   7000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   7000: system.cpu.dom: Ticked DOM.
+   8000: system.cpu.dom: Trying to step SB
+   8000: system.cpu.dom: Trying to step RQ
+   8000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   8000: system.cpu.dom: Ticked DOM.
+   9000: system.cpu.dom: Trying to step SB
+   9000: system.cpu.dom: Trying to step RQ
+   9000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+   9000: system.cpu.dom: Ticked DOM.
+  10000: system.cpu.dom: Trying to step SB
+  10000: system.cpu.dom: Trying to step RQ
+  10000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+  10000: system.cpu.dom: Ticked DOM.
+  11000: system.cpu.dom: Trying to step SB
+  11000: system.cpu.dom: Trying to step RQ
+  11000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+  11000: system.cpu.dom: Ticked DOM.
+  91000: system.cpu.dom: Trying to step SB
+  91000: system.cpu.dom: Trying to step RQ
+  91000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+  91000: system.cpu.dom: Ticked DOM.
+  92000: system.cpu.dom: Trying to step SB
+  92000: system.cpu.dom: Trying to step RQ
+  92000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+  92000: system.cpu.dom: Ticked DOM.
+  93000: system.cpu.dom: Trying to step SB
+  93000: system.cpu.dom: Trying to step RQ
+  93000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+  93000: system.cpu.dom: Ticked DOM.
+  94000: system.cpu.dom: Trying to insert load
+  94000: system.cpu.dom: Trying to step SB
+  94000: system.cpu.dom: Trying to step RQ
+  94000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+  94000: system.cpu.dom: Ticked DOM.
+  95000: system.cpu.iew.lsq.thread0: Inserting load PC (0x400196=>0x400197).(0=>1), idx:0 [sn:3]
+  95000: system.cpu.memDep0: No dependency for inst PC (0x400196=>0x400197).(0=>1) [sn:3].
+  95000: system.cpu.memDep0: Adding instruction [sn:3] to the ready list.
+  95000: system.cpu.memDep0: Issuing instruction PC 0x400196 [sn:3].
+  95000: system.cpu.dom: Trying to step SB
+  95000: system.cpu.dom: Trying to step RQ
+  95000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 0, SBTail: 0
+  95000: system.cpu.dom: Ticked DOM.
+  96000: system.cpu.iew.lsq.thread0: Inserting store PC (0x40019e=>0x40019f).(0=>1), idx:0 [sn:9]
+  96000: system.cpu.memDep0: No dependency for inst PC (0x40019e=>0x40019f).(0=>1) [sn:9].
+  96000: system.cpu.memDep0: Inserting store/atomic PC (0x40019e=>0x40019f).(0=>1) [sn:9].
+  96000: system.cpu.iew.lsq.thread0: Inserting store PC (0x40019f=>0x4001a0).(0=>1), idx:1 [sn:11]
+  96000: system.cpu.memDep0: No dependency for inst PC (0x40019f=>0x4001a0).(0=>1) [sn:11].
+  96000: system.cpu.memDep0: Inserting store/atomic PC (0x40019f=>0x4001a0).(0=>1) [sn:11].
+  96000: system.cpu.iew.lsq.thread0: Executing load PC (0x400196=>0x400197).(0=>1), [sn:3]
+  96000: system.cpu.iew.lsq.thread0: Read called, load idx: 0, store idx: 1, storeHead: 0 addr: 0x94e20
+  96000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:3] PC (0x400196=>0x400197).(0=>1)
+  96000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+  96000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 2
+  96000: system.cpu.dom: Trying to insert branch
+  96000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+  96000: system.cpu.dom: Trying to step SB
+  96000: system.cpu.dom: Trying to step RQ
+  96000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 0, SBTail: 1
+  96000: system.cpu.dom: Ticked DOM.
+  97000: system.cpu.iew.lsq.thread0: Inserting store PC (0x4001b5=>0x4001ba).(2=>3), idx:2 [sn:18]
+  97000: system.cpu.memDep0: No dependency for inst PC (0x4001b5=>0x4001ba).(2=>3) [sn:18].
+  97000: system.cpu.memDep0: Inserting store/atomic PC (0x4001b5=>0x4001ba).(2=>3) [sn:18].
+  97000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x40019e=>0x40019f).(0=>1) [sn:9].
+  97000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+  97000: system.cpu.memDep0: Adding instruction [sn:9] to the ready list.
+  97000: system.cpu.memDep0: Issuing instruction PC 0x40019e [sn:9].
+  97000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+  97000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+  97000: system.cpu.dom: Trying to step SB
+  97000: system.cpu.dom: Trying to step RQ
+  97000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 0, SBTail: 1
+  97000: system.cpu.dom: Ticked DOM.
+  98000: system.cpu.iew.lsq.thread0: Executing store PC (0x40019e=>0x40019f).(0=>1) [sn:9]
+  98000: system.cpu.iew.lsq.thread0: Doing write to store idx 0, addr 0x94e18 | storeHead:0 [sn:9]
+  98000: system.cpu.memDep0: Completed mem instruction PC (0x40019e=>0x40019f).(0=>1) [sn:9].
+  98000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x40019f=>0x4001a0).(0=>1) [sn:11].
+  98000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+  98000: system.cpu.memDep0: Adding instruction [sn:11] to the ready list.
+  98000: system.cpu.memDep0: Issuing instruction PC 0x40019f [sn:11].
+  98000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+  98000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+  98000: system.cpu.dom: Trying to step SB
+  98000: system.cpu.dom: Trying to step RQ
+  98000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 0, SBTail: 1
+  98000: system.cpu.dom: Ticked DOM.
+  99000: system.cpu.iew.lsq.thread0: Executing store PC (0x40019f=>0x4001a0).(0=>1) [sn:11]
+  99000: system.cpu.iew.lsq.thread0: Doing write to store idx 1, addr 0x94e10 | storeHead:0 [sn:11]
+  99000: system.cpu.memDep0: Completed mem instruction PC (0x40019f=>0x4001a0).(0=>1) [sn:11].
+  99000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x4001b5=>0x4001ba).(2=>3) [sn:18].
+  99000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+  99000: system.cpu.memDep0: Adding instruction [sn:18] to the ready list.
+  99000: system.cpu.memDep0: Issuing instruction PC 0x4001b5 [sn:18].
+  99000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+  99000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+  99000: system.cpu.dom: Trying to step SB
+  99000: system.cpu.dom: Trying to step RQ
+  99000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 0, SBTail: 1
+  99000: system.cpu.dom: Ticked DOM.
+ 100000: system.cpu.iew.lsq.thread0: Executing store PC (0x4001b5=>0x4001ba).(2=>3) [sn:18]
+ 100000: system.cpu.iew.lsq.thread0: Doing write to store idx 2, addr 0x94e08 | storeHead:0 [sn:18]
+ 100000: system.cpu.memDep0: Completed mem instruction PC (0x4001b5=>0x4001ba).(2=>3) [sn:18].
+ 100000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+ 100000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+ 100000: system.cpu.dom: Trying to safe branch
+ 100000: system.cpu.dom: [tid:0] Declared Branch Safe.
+ 100000: system.cpu.dom: Trying to step SB
+ 100000: system.cpu.dom: [tid:0] Stepped ShadowBuffer.
+ 100000: system.cpu.dom: Trying to step RQ
+ 100000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 100000: system.cpu.dom: Ticked DOM.
+ 101000: system.cpu.dom: Trying to step SB
+ 101000: system.cpu.dom: Trying to step RQ
+ 101000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 101000: system.cpu.dom: Ticked DOM.
+ 102000: system.cpu.dom: Trying to step SB
+ 102000: system.cpu.dom: Trying to step RQ
+ 102000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 102000: system.cpu.dom: Ticked DOM.
+ 103000: system.cpu.dom: Trying to step SB
+ 103000: system.cpu.dom: Trying to step RQ
+ 103000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 103000: system.cpu.dom: Ticked DOM.
+ 104000: system.cpu.dom: Trying to step SB
+ 104000: system.cpu.dom: Trying to step RQ
+ 104000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 104000: system.cpu.dom: Ticked DOM.
+ 105000: system.cpu.dom: Trying to step SB
+ 105000: system.cpu.dom: Trying to step RQ
+ 105000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 105000: system.cpu.dom: Ticked DOM.
+ 106000: system.cpu.dom: Trying to step SB
+ 106000: system.cpu.dom: Trying to step RQ
+ 106000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 106000: system.cpu.dom: Ticked DOM.
+ 107000: system.cpu.dom: Trying to step SB
+ 107000: system.cpu.dom: Trying to step RQ
+ 107000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 107000: system.cpu.dom: Ticked DOM.
+ 108000: system.cpu.dom: Trying to step SB
+ 108000: system.cpu.dom: Trying to step RQ
+ 108000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 108000: system.cpu.dom: Ticked DOM.
+ 109000: system.cpu.dom: Trying to step SB
+ 109000: system.cpu.dom: Trying to step RQ
+ 109000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 109000: system.cpu.dom: Ticked DOM.
+ 110000: system.cpu.dom: Trying to step SB
+ 110000: system.cpu.dom: Trying to step RQ
+ 110000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 110000: system.cpu.dom: Ticked DOM.
+ 185000: system.cpu.memDep0: Completed mem instruction PC (0x400196=>0x400197).(0=>1) [sn:3].
+ 185000: system.cpu.dom: Trying to step SB
+ 185000: system.cpu.dom: Trying to step RQ
+ 185000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 185000: system.cpu.dom: Ticked DOM.
+ 186000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+ 186000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+ 186000: system.cpu.dom: Trying to step SB
+ 186000: system.cpu.dom: Trying to step RQ
+ 186000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 186000: system.cpu.dom: Ticked DOM.
+ 187000: system.cpu.dom: Trying to step SB
+ 187000: system.cpu.dom: Trying to step RQ
+ 187000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 187000: system.cpu.dom: Ticked DOM.
+ 188000: system.cpu.iew.lsq.thread0: Committing head load instruction, PC (0x400196=>0x400197).(0=>1)
+ 188000: system.cpu.dom: Trying to step SB
+ 188000: system.cpu.dom: Trying to step RQ
+ 188000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 188000: system.cpu.dom: Ticked DOM.
+ 189000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x40019e=>0x40019f).(0=>1) [sn:9]
+ 189000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x40019f=>0x4001a0).(0=>1) [sn:11]
+ 189000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 189000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+ 189000: system.cpu.dom: Trying to step SB
+ 189000: system.cpu.dom: Trying to step RQ
+ 189000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 189000: system.cpu.dom: Ticked DOM.
+ 190000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:1 PC:(0x40019e=>0x40019f).(0=>1) to Addr:0x94e18, data:0 [sn:9]
+ 190000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x4001b5=>0x4001ba).(2=>3) [sn:18]
+ 190000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 190000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+ 190000: system.cpu.dom: Trying to step SB
+ 190000: system.cpu.dom: Trying to step RQ
+ 190000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 190000: system.cpu.dom: Ticked DOM.
+ 191000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 191000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+ 191000: system.cpu.dom: Trying to step SB
+ 191000: system.cpu.dom: Trying to step RQ
+ 191000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 191000: system.cpu.dom: Ticked DOM.
+ 192000: system.cpu.iew.lsq.thread0: Completing store [sn:9], idx:0, store head idx:1
+ 192000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:2 PC:(0x40019f=>0x4001a0).(0=>1) to Addr:0x94e10, data:0x18 [sn:11]
+ 192000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 192000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 2
+ 192000: system.cpu.dom: Trying to step SB
+ 192000: system.cpu.dom: Trying to step RQ
+ 192000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 192000: system.cpu.dom: Ticked DOM.
+ 193000: system.cpu.dom: Trying to step SB
+ 193000: system.cpu.dom: Trying to step RQ
+ 193000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 193000: system.cpu.dom: Ticked DOM.
+ 194000: system.cpu.iew.lsq.thread0: Completing store [sn:11], idx:1, store head idx:2
+ 194000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:3 PC:(0x4001b5=>0x4001ba).(2=>3) to Addr:0x94e08, data:0xba [sn:18]
+ 194000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 194000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 1
+ 194000: system.cpu.dom: Trying to step SB
+ 194000: system.cpu.dom: Trying to step RQ
+ 194000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 194000: system.cpu.dom: Ticked DOM.
+ 195000: system.cpu.dom: Trying to step SB
+ 195000: system.cpu.dom: Trying to step RQ
+ 195000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 195000: system.cpu.dom: Ticked DOM.
+ 196000: system.cpu.iew.lsq.thread0: Completing store [sn:18], idx:2, store head idx:3
+ 196000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a00=>0x409a02).(0=>1), idx:3 [sn:22]
+ 196000: system.cpu.memDep0: No dependency for inst PC (0x409a00=>0x409a02).(0=>1) [sn:22].
+ 196000: system.cpu.memDep0: Adding instruction [sn:22] to the ready list.
+ 196000: system.cpu.memDep0: Inserting store/atomic PC (0x409a00=>0x409a02).(0=>1) [sn:22].
+ 196000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a08=>0x409a0a).(0=>1), idx:4 [sn:26]
+ 196000: system.cpu.memDep0: No dependency for inst PC (0x409a08=>0x409a0a).(0=>1) [sn:26].
+ 196000: system.cpu.memDep0: Inserting store/atomic PC (0x409a08=>0x409a0a).(0=>1) [sn:26].
+ 196000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a0d=>0x409a0f).(0=>1), idx:5 [sn:29]
+ 196000: system.cpu.memDep0: No dependency for inst PC (0x409a0d=>0x409a0f).(0=>1) [sn:29].
+ 196000: system.cpu.memDep0: Inserting store/atomic PC (0x409a0d=>0x409a0f).(0=>1) [sn:29].
+ 196000: system.cpu.memDep0: Issuing instruction PC 0x409a00 [sn:22].
+ 196000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 196000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 3
+ 196000: system.cpu.dom: Trying to step SB
+ 196000: system.cpu.dom: Trying to step RQ
+ 196000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 196000: system.cpu.dom: Ticked DOM.
+ 197000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a12=>0x409a14).(0=>1), idx:6 [sn:32]
+ 197000: system.cpu.memDep0: No dependency for inst PC (0x409a12=>0x409a14).(0=>1) [sn:32].
+ 197000: system.cpu.memDep0: Inserting store/atomic PC (0x409a12=>0x409a14).(0=>1) [sn:32].
+ 197000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a14=>0x409a15).(0=>1), idx:7 [sn:34]
+ 197000: system.cpu.memDep0: No dependency for inst PC (0x409a14=>0x409a15).(0=>1) [sn:34].
+ 197000: system.cpu.memDep0: Inserting store/atomic PC (0x409a14=>0x409a15).(0=>1) [sn:34].
+ 197000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a15=>0x409a16).(0=>1), idx:8 [sn:36]
+ 197000: system.cpu.memDep0: No dependency for inst PC (0x409a15=>0x409a16).(0=>1) [sn:36].
+ 197000: system.cpu.memDep0: Inserting store/atomic PC (0x409a15=>0x409a16).(0=>1) [sn:36].
+ 197000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a00=>0x409a02).(0=>1) [sn:22]
+ 197000: system.cpu.iew.lsq.thread0: Doing write to store idx 3, addr 0x94e00 | storeHead:3 [sn:22]
+ 197000: system.cpu.memDep0: Completed mem instruction PC (0x409a00=>0x409a02).(0=>1) [sn:22].
+ 197000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a08=>0x409a0a).(0=>1) [sn:26].
+ 197000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 197000: system.cpu.memDep0: Adding instruction [sn:26] to the ready list.
+ 197000: system.cpu.memDep0: Issuing instruction PC 0x409a08 [sn:26].
+ 197000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 197000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 197000: system.cpu.dom: Trying to step SB
+ 197000: system.cpu.dom: Trying to step RQ
+ 197000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 1, SBTail: 1
+ 197000: system.cpu.dom: Ticked DOM.
+ 198000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a1d=>0x409a22).(0=>1), idx:9 [sn:40]
+ 198000: system.cpu.memDep0: No dependency for inst PC (0x409a1d=>0x409a22).(0=>1) [sn:40].
+ 198000: system.cpu.memDep0: Inserting store/atomic PC (0x409a1d=>0x409a22).(0=>1) [sn:40].
+ 198000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a31=>0x409a36).(0=>1), idx:10 [sn:45]
+ 198000: system.cpu.memDep0: No dependency for inst PC (0x409a31=>0x409a36).(0=>1) [sn:45].
+ 198000: system.cpu.memDep0: Inserting store/atomic PC (0x409a31=>0x409a36).(0=>1) [sn:45].
+ 198000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a08=>0x409a0a).(0=>1) [sn:26]
+ 198000: system.cpu.iew.lsq.thread0: Doing write to store idx 4, addr 0x94df8 | storeHead:3 [sn:26]
+ 198000: system.cpu.memDep0: Completed mem instruction PC (0x409a08=>0x409a0a).(0=>1) [sn:26].
+ 198000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a0d=>0x409a0f).(0=>1) [sn:29].
+ 198000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 198000: system.cpu.memDep0: Adding instruction [sn:29] to the ready list.
+ 198000: system.cpu.memDep0: Issuing instruction PC 0x409a0d [sn:29].
+ 198000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 198000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 198000: system.cpu.dom: Trying to insert branch
+ 198000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 198000: system.cpu.dom: Trying to step SB
+ 198000: system.cpu.dom: Trying to step RQ
+ 198000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 198000: system.cpu.dom: Ticked DOM.
+ 199000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a36=>0x409a3b).(0=>1), idx:11 [sn:46]
+ 199000: system.cpu.memDep0: No dependency for inst PC (0x409a36=>0x409a3b).(0=>1) [sn:46].
+ 199000: system.cpu.memDep0: Inserting store/atomic PC (0x409a36=>0x409a3b).(0=>1) [sn:46].
+ 199000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a0d=>0x409a0f).(0=>1) [sn:29]
+ 199000: system.cpu.iew.lsq.thread0: Doing write to store idx 5, addr 0x94df0 | storeHead:3 [sn:29]
+ 199000: system.cpu.memDep0: Completed mem instruction PC (0x409a0d=>0x409a0f).(0=>1) [sn:29].
+ 199000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a12=>0x409a14).(0=>1) [sn:32].
+ 199000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 199000: system.cpu.memDep0: Adding instruction [sn:32] to the ready list.
+ 199000: system.cpu.memDep0: Issuing instruction PC 0x409a12 [sn:32].
+ 199000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 199000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 9
+ 199000: system.cpu.dom: Trying to step SB
+ 199000: system.cpu.dom: Trying to step RQ
+ 199000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 199000: system.cpu.dom: Ticked DOM.
+ 200000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a12=>0x409a14).(0=>1) [sn:32]
+ 200000: system.cpu.iew.lsq.thread0: Doing write to store idx 6, addr 0x94de8 | storeHead:3 [sn:32]
+ 200000: system.cpu.memDep0: Completed mem instruction PC (0x409a12=>0x409a14).(0=>1) [sn:32].
+ 200000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a14=>0x409a15).(0=>1) [sn:34].
+ 200000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 200000: system.cpu.memDep0: Adding instruction [sn:34] to the ready list.
+ 200000: system.cpu.memDep0: Issuing instruction PC 0x409a14 [sn:34].
+ 200000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a00=>0x409a02).(0=>1) [sn:22]
+ 200000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 200000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 9
+ 200000: system.cpu.dom: Trying to step SB
+ 200000: system.cpu.dom: Trying to step RQ
+ 200000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 200000: system.cpu.dom: Ticked DOM.
+ 201000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a14=>0x409a15).(0=>1) [sn:34]
+ 201000: system.cpu.iew.lsq.thread0: Doing write to store idx 7, addr 0x94de0 | storeHead:3 [sn:34]
+ 201000: system.cpu.memDep0: Completed mem instruction PC (0x409a14=>0x409a15).(0=>1) [sn:34].
+ 201000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a15=>0x409a16).(0=>1) [sn:36].
+ 201000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 201000: system.cpu.memDep0: Adding instruction [sn:36] to the ready list.
+ 201000: system.cpu.memDep0: Issuing instruction PC 0x409a15 [sn:36].
+ 201000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:4 PC:(0x409a00=>0x409a02).(0=>1) to Addr:0x94e00, data:0 [sn:22]
+ 201000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a08=>0x409a0a).(0=>1) [sn:26]
+ 201000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 201000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 9
+ 201000: system.cpu.dom: Trying to step SB
+ 201000: system.cpu.dom: Trying to step RQ
+ 201000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 201000: system.cpu.dom: Ticked DOM.
+ 202000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a15=>0x409a16).(0=>1) [sn:36]
+ 202000: system.cpu.iew.lsq.thread0: Doing write to store idx 8, addr 0x94dd8 | storeHead:3 [sn:36]
+ 202000: system.cpu.memDep0: Completed mem instruction PC (0x409a15=>0x409a16).(0=>1) [sn:36].
+ 202000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a0d=>0x409a0f).(0=>1) [sn:29]
+ 202000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 202000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 9
+ 202000: system.cpu.dom: Trying to step SB
+ 202000: system.cpu.dom: Trying to step RQ
+ 202000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 202000: system.cpu.dom: Ticked DOM.
+ 203000: system.cpu.iew.lsq.thread0: Completing store [sn:22], idx:3, store head idx:4
+ 203000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a36=>0x409a3b).(0=>1) [sn:46].
+ 203000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 203000: system.cpu.memDep0: Adding instruction [sn:46] to the ready list.
+ 203000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a31=>0x409a36).(0=>1) [sn:45].
+ 203000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 203000: system.cpu.memDep0: Adding instruction [sn:45] to the ready list.
+ 203000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a1d=>0x409a22).(0=>1) [sn:40].
+ 203000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 203000: system.cpu.memDep0: Adding instruction [sn:40] to the ready list.
+ 203000: system.cpu.memDep0: Issuing instruction PC 0x409a1d [sn:40].
+ 203000: system.cpu.memDep0: Issuing instruction PC 0x409a31 [sn:45].
+ 203000: system.cpu.memDep0: Issuing instruction PC 0x409a36 [sn:46].
+ 203000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:5 PC:(0x409a08=>0x409a0a).(0=>1) to Addr:0x94df8, data:0 [sn:26]
+ 203000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a12=>0x409a14).(0=>1) [sn:32]
+ 203000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 203000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 203000: system.cpu.dom: Trying to step SB
+ 203000: system.cpu.dom: Trying to step RQ
+ 203000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 203000: system.cpu.dom: Ticked DOM.
+ 204000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a1d=>0x409a22).(0=>1) [sn:40]
+ 204000: system.cpu.iew.lsq.thread0: Doing write to store idx 9, addr 0x94bf8 | storeHead:4 [sn:40]
+ 204000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a31=>0x409a36).(0=>1) [sn:45]
+ 204000: system.cpu.iew.lsq.thread0: Doing write to store idx 10, addr 0x94bf0 | storeHead:4 [sn:45]
+ 204000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a36=>0x409a3b).(0=>1) [sn:46]
+ 204000: system.cpu.iew.lsq.thread0: Doing write to store idx 11, addr 0x94be8 | storeHead:4 [sn:46]
+ 204000: system.cpu.memDep0: Completed mem instruction PC (0x409a1d=>0x409a22).(0=>1) [sn:40].
+ 204000: system.cpu.memDep0: Completed mem instruction PC (0x409a31=>0x409a36).(0=>1) [sn:45].
+ 204000: system.cpu.memDep0: Completed mem instruction PC (0x409a36=>0x409a3b).(0=>1) [sn:46].
+ 204000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a14=>0x409a15).(0=>1) [sn:34]
+ 204000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 204000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 204000: system.cpu.dom: Trying to step SB
+ 204000: system.cpu.dom: Trying to step RQ
+ 204000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 204000: system.cpu.dom: Ticked DOM.
+ 205000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a15=>0x409a16).(0=>1) [sn:36]
+ 205000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 205000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 205000: system.cpu.dom: Trying to step SB
+ 205000: system.cpu.dom: Trying to step RQ
+ 205000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 1, SBTail: 2
+ 205000: system.cpu.dom: Ticked DOM.
+ 206000: system.cpu.dom: Trying to handle mispredicted branch
+ 206000: system.cpu.dom: Done searching, spot is 0
+ 206000: system.cpu.dom: Done popping off entries
+ 206000: system.cpu.dom: [tid:0] Restored ShadowBuffer to mispredicted instruction.
+ 206000: system.cpu.dom: Trying to restore rq from index
+ 206000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 206000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 206000: system.cpu.dom: Trying to step SB
+ 206000: system.cpu.dom: [tid:0] Stepped ShadowBuffer.
+ 206000: system.cpu.dom: Trying to step RQ
+ 206000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 206000: system.cpu.dom: Ticked DOM.
+ 207000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a1d=>0x409a22).(0=>1) [sn:40]
+ 207000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 207000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 207000: system.cpu.dom: Squashing all outstanding rq loads
+ 207000: system.cpu.dom: Trying to safe branch
+ 207000: system.cpu.dom: [tid:0] Branch not found to clear
+ 207000: system.cpu.dom: Trying to step SB
+ 207000: system.cpu.dom: Trying to step RQ
+ 207000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 207000: system.cpu.dom: Ticked DOM.
+ 208000: system.cpu.iew.lsq.thread0: Squashing until [sn:49]!(Loads:0 Stores:8)
+ 208000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 208000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 208000: system.cpu.dom: Trying to step SB
+ 208000: system.cpu.dom: Trying to step RQ
+ 208000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 208000: system.cpu.dom: Ticked DOM.
+ 209000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a31=>0x409a36).(0=>1) [sn:45]
+ 209000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a36=>0x409a3b).(0=>1) [sn:46]
+ 209000: system.cpu.dom: Trying to step SB
+ 209000: system.cpu.dom: Trying to step RQ
+ 209000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 209000: system.cpu.dom: Ticked DOM.
+ 210000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 210000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 210000: system.cpu.dom: Trying to step SB
+ 210000: system.cpu.dom: Trying to step RQ
+ 210000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 210000: system.cpu.dom: Ticked DOM.
+ 211000: system.cpu.dom: Trying to step SB
+ 211000: system.cpu.dom: Trying to step RQ
+ 211000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 211000: system.cpu.dom: Ticked DOM.
+ 212000: system.cpu.dom: Trying to step SB
+ 212000: system.cpu.dom: Trying to step RQ
+ 212000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 212000: system.cpu.dom: Ticked DOM.
+ 213000: system.cpu.dom: Trying to step SB
+ 213000: system.cpu.dom: Trying to step RQ
+ 213000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 213000: system.cpu.dom: Ticked DOM.
+ 214000: system.cpu.dom: Trying to step SB
+ 214000: system.cpu.dom: Trying to step RQ
+ 214000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 214000: system.cpu.dom: Ticked DOM.
+ 215000: system.cpu.dom: Trying to step SB
+ 215000: system.cpu.dom: Trying to step RQ
+ 215000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 215000: system.cpu.dom: Ticked DOM.
+ 216000: system.cpu.dom: Trying to step SB
+ 216000: system.cpu.dom: Trying to step RQ
+ 216000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 216000: system.cpu.dom: Ticked DOM.
+ 217000: system.cpu.dom: Trying to step SB
+ 217000: system.cpu.dom: Trying to step RQ
+ 217000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 217000: system.cpu.dom: Ticked DOM.
+ 218000: system.cpu.dom: Trying to step SB
+ 218000: system.cpu.dom: Trying to step RQ
+ 218000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 218000: system.cpu.dom: Ticked DOM.
+ 219000: system.cpu.dom: Trying to step SB
+ 219000: system.cpu.dom: Trying to step RQ
+ 219000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 219000: system.cpu.dom: Ticked DOM.
+ 220000: system.cpu.dom: Trying to step SB
+ 220000: system.cpu.dom: Trying to step RQ
+ 220000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 220000: system.cpu.dom: Ticked DOM.
+ 221000: system.cpu.dom: Trying to step SB
+ 221000: system.cpu.dom: Trying to step RQ
+ 221000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 221000: system.cpu.dom: Ticked DOM.
+ 222000: system.cpu.dom: Trying to step SB
+ 222000: system.cpu.dom: Trying to step RQ
+ 222000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 222000: system.cpu.dom: Ticked DOM.
+ 223000: system.cpu.dom: Trying to step SB
+ 223000: system.cpu.dom: Trying to step RQ
+ 223000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 223000: system.cpu.dom: Ticked DOM.
+ 224000: system.cpu.dom: Trying to step SB
+ 224000: system.cpu.dom: Trying to step RQ
+ 224000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 224000: system.cpu.dom: Ticked DOM.
+ 225000: system.cpu.dom: Trying to step SB
+ 225000: system.cpu.dom: Trying to step RQ
+ 225000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 225000: system.cpu.dom: Ticked DOM.
+ 226000: system.cpu.dom: Trying to step SB
+ 226000: system.cpu.dom: Trying to step RQ
+ 226000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 226000: system.cpu.dom: Ticked DOM.
+ 227000: system.cpu.dom: Trying to step SB
+ 227000: system.cpu.dom: Trying to step RQ
+ 227000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 227000: system.cpu.dom: Ticked DOM.
+ 228000: system.cpu.dom: Trying to step SB
+ 228000: system.cpu.dom: Trying to step RQ
+ 228000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 228000: system.cpu.dom: Ticked DOM.
+ 229000: system.cpu.dom: Trying to step SB
+ 229000: system.cpu.dom: Trying to step RQ
+ 229000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 229000: system.cpu.dom: Ticked DOM.
+ 230000: system.cpu.dom: Trying to step SB
+ 230000: system.cpu.dom: Trying to step RQ
+ 230000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 230000: system.cpu.dom: Ticked DOM.
+ 231000: system.cpu.dom: Trying to step SB
+ 231000: system.cpu.dom: Trying to step RQ
+ 231000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 231000: system.cpu.dom: Ticked DOM.
+ 232000: system.cpu.dom: Trying to step SB
+ 232000: system.cpu.dom: Trying to step RQ
+ 232000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 232000: system.cpu.dom: Ticked DOM.
+ 233000: system.cpu.dom: Trying to step SB
+ 233000: system.cpu.dom: Trying to step RQ
+ 233000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 233000: system.cpu.dom: Ticked DOM.
+ 234000: system.cpu.dom: Trying to step SB
+ 234000: system.cpu.dom: Trying to step RQ
+ 234000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 234000: system.cpu.dom: Ticked DOM.
+ 235000: system.cpu.dom: Trying to step SB
+ 235000: system.cpu.dom: Trying to step RQ
+ 235000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 235000: system.cpu.dom: Ticked DOM.
+ 236000: system.cpu.dom: Trying to step SB
+ 236000: system.cpu.dom: Trying to step RQ
+ 236000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 236000: system.cpu.dom: Ticked DOM.
+ 237000: system.cpu.dom: Trying to step SB
+ 237000: system.cpu.dom: Trying to step RQ
+ 237000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 237000: system.cpu.dom: Ticked DOM.
+ 238000: system.cpu.dom: Trying to step SB
+ 238000: system.cpu.dom: Trying to step RQ
+ 238000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 238000: system.cpu.dom: Ticked DOM.
+ 239000: system.cpu.dom: Trying to step SB
+ 239000: system.cpu.dom: Trying to step RQ
+ 239000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 239000: system.cpu.dom: Ticked DOM.
+ 240000: system.cpu.dom: Trying to step SB
+ 240000: system.cpu.dom: Trying to step RQ
+ 240000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 240000: system.cpu.dom: Ticked DOM.
+ 241000: system.cpu.dom: Trying to step SB
+ 241000: system.cpu.dom: Trying to step RQ
+ 241000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 241000: system.cpu.dom: Ticked DOM.
+ 242000: system.cpu.dom: Trying to step SB
+ 242000: system.cpu.dom: Trying to step RQ
+ 242000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 242000: system.cpu.dom: Ticked DOM.
+ 243000: system.cpu.dom: Trying to step SB
+ 243000: system.cpu.dom: Trying to step RQ
+ 243000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 243000: system.cpu.dom: Ticked DOM.
+ 244000: system.cpu.dom: Trying to step SB
+ 244000: system.cpu.dom: Trying to step RQ
+ 244000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 244000: system.cpu.dom: Ticked DOM.
+ 245000: system.cpu.dom: Trying to step SB
+ 245000: system.cpu.dom: Trying to step RQ
+ 245000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 245000: system.cpu.dom: Ticked DOM.
+ 246000: system.cpu.dom: Trying to step SB
+ 246000: system.cpu.dom: Trying to step RQ
+ 246000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 246000: system.cpu.dom: Ticked DOM.
+ 247000: system.cpu.dom: Trying to step SB
+ 247000: system.cpu.dom: Trying to step RQ
+ 247000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 247000: system.cpu.dom: Ticked DOM.
+ 248000: system.cpu.dom: Trying to step SB
+ 248000: system.cpu.dom: Trying to step RQ
+ 248000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 248000: system.cpu.dom: Ticked DOM.
+ 249000: system.cpu.dom: Trying to step SB
+ 249000: system.cpu.dom: Trying to step RQ
+ 249000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 249000: system.cpu.dom: Ticked DOM.
+ 250000: system.cpu.dom: Trying to step SB
+ 250000: system.cpu.dom: Trying to step RQ
+ 250000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 250000: system.cpu.dom: Ticked DOM.
+ 251000: system.cpu.dom: Trying to step SB
+ 251000: system.cpu.dom: Trying to step RQ
+ 251000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 251000: system.cpu.dom: Ticked DOM.
+ 252000: system.cpu.dom: Trying to step SB
+ 252000: system.cpu.dom: Trying to step RQ
+ 252000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 252000: system.cpu.dom: Ticked DOM.
+ 253000: system.cpu.dom: Trying to step SB
+ 253000: system.cpu.dom: Trying to step RQ
+ 253000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 253000: system.cpu.dom: Ticked DOM.
+ 254000: system.cpu.dom: Trying to step SB
+ 254000: system.cpu.dom: Trying to step RQ
+ 254000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 254000: system.cpu.dom: Ticked DOM.
+ 255000: system.cpu.dom: Trying to step SB
+ 255000: system.cpu.dom: Trying to step RQ
+ 255000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 255000: system.cpu.dom: Ticked DOM.
+ 256000: system.cpu.dom: Trying to step SB
+ 256000: system.cpu.dom: Trying to step RQ
+ 256000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 256000: system.cpu.dom: Ticked DOM.
+ 257000: system.cpu.dom: Trying to step SB
+ 257000: system.cpu.dom: Trying to step RQ
+ 257000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 257000: system.cpu.dom: Ticked DOM.
+ 258000: system.cpu.dom: Trying to step SB
+ 258000: system.cpu.dom: Trying to step RQ
+ 258000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 258000: system.cpu.dom: Ticked DOM.
+ 259000: system.cpu.dom: Trying to step SB
+ 259000: system.cpu.dom: Trying to step RQ
+ 259000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 259000: system.cpu.dom: Ticked DOM.
+ 260000: system.cpu.dom: Trying to step SB
+ 260000: system.cpu.dom: Trying to step RQ
+ 260000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 260000: system.cpu.dom: Ticked DOM.
+ 261000: system.cpu.dom: Trying to step SB
+ 261000: system.cpu.dom: Trying to step RQ
+ 261000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 261000: system.cpu.dom: Ticked DOM.
+ 262000: system.cpu.dom: Trying to step SB
+ 262000: system.cpu.dom: Trying to step RQ
+ 262000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 262000: system.cpu.dom: Ticked DOM.
+ 263000: system.cpu.dom: Trying to step SB
+ 263000: system.cpu.dom: Trying to step RQ
+ 263000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 263000: system.cpu.dom: Ticked DOM.
+ 264000: system.cpu.dom: Trying to step SB
+ 264000: system.cpu.dom: Trying to step RQ
+ 264000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 264000: system.cpu.dom: Ticked DOM.
+ 265000: system.cpu.dom: Trying to step SB
+ 265000: system.cpu.dom: Trying to step RQ
+ 265000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 265000: system.cpu.dom: Ticked DOM.
+ 266000: system.cpu.dom: Trying to step SB
+ 266000: system.cpu.dom: Trying to step RQ
+ 266000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 266000: system.cpu.dom: Ticked DOM.
+ 267000: system.cpu.dom: Trying to step SB
+ 267000: system.cpu.dom: Trying to step RQ
+ 267000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 267000: system.cpu.dom: Ticked DOM.
+ 268000: system.cpu.dom: Trying to step SB
+ 268000: system.cpu.dom: Trying to step RQ
+ 268000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 268000: system.cpu.dom: Ticked DOM.
+ 269000: system.cpu.dom: Trying to step SB
+ 269000: system.cpu.dom: Trying to step RQ
+ 269000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 269000: system.cpu.dom: Ticked DOM.
+ 270000: system.cpu.dom: Trying to step SB
+ 270000: system.cpu.dom: Trying to step RQ
+ 270000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 270000: system.cpu.dom: Ticked DOM.
+ 271000: system.cpu.dom: Trying to step SB
+ 271000: system.cpu.dom: Trying to step RQ
+ 271000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 271000: system.cpu.dom: Ticked DOM.
+ 272000: system.cpu.dom: Trying to step SB
+ 272000: system.cpu.dom: Trying to step RQ
+ 272000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 272000: system.cpu.dom: Ticked DOM.
+ 273000: system.cpu.dom: Trying to step SB
+ 273000: system.cpu.dom: Trying to step RQ
+ 273000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 273000: system.cpu.dom: Ticked DOM.
+ 274000: system.cpu.dom: Trying to insert load
+ 274000: system.cpu.dom: Trying to step SB
+ 274000: system.cpu.dom: Trying to step RQ
+ 274000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 2, SBTail: 2
+ 274000: system.cpu.dom: Ticked DOM.
+ 275000: system.cpu.iew.lsq.thread0: Inserting load PC (0x409a4f=>0x409a57).(0=>1), idx:1 [sn:50]
+ 275000: system.cpu.memDep0: No dependency for inst PC (0x409a4f=>0x409a57).(0=>1) [sn:50].
+ 275000: system.cpu.memDep0: Adding instruction [sn:50] to the ready list.
+ 275000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a57=>0x409a5d).(1=>2), idx:12 [sn:52]
+ 275000: system.cpu.memDep0: No dependency for inst PC (0x409a57=>0x409a5d).(1=>2) [sn:52].
+ 275000: system.cpu.memDep0: Inserting store/atomic PC (0x409a57=>0x409a5d).(1=>2) [sn:52].
+ 275000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a5d=>0x409a64).(1=>2), idx:13 [sn:54]
+ 275000: system.cpu.memDep0: No dependency for inst PC (0x409a5d=>0x409a64).(1=>2) [sn:54].
+ 275000: system.cpu.memDep0: Inserting store/atomic PC (0x409a5d=>0x409a64).(1=>2) [sn:54].
+ 275000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a64=>0x409a6b).(1=>2), idx:14 [sn:56]
+ 275000: system.cpu.memDep0: No dependency for inst PC (0x409a64=>0x409a6b).(1=>2) [sn:56].
+ 275000: system.cpu.memDep0: Inserting store/atomic PC (0x409a64=>0x409a6b).(1=>2) [sn:56].
+ 275000: system.cpu.memDep0: Issuing instruction PC 0x409a4f [sn:50].
+ 275000: system.cpu.dom: Trying to insert load
+ 275000: system.cpu.dom: Trying to insert branch
+ 275000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 275000: system.cpu.dom: Trying to step SB
+ 275000: system.cpu.dom: Trying to step RQ
+ 275000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 2, SBTail: 3
+ 275000: system.cpu.dom: Ticked DOM.
+ 276000: system.cpu.iew.lsq.thread0: Inserting load PC (0x409a70=>0x409a73).(0=>1), idx:2 [sn:59]
+ 276000: system.cpu.memDep0: No dependency for inst PC (0x409a70=>0x409a73).(0=>1) [sn:59].
+ 276000: system.cpu.memDep0: Adding instruction [sn:59] to the ready list.
+ 276000: system.cpu.iew.lsq.thread0: Executing load PC (0x409a4f=>0x409a57).(0=>1), [sn:50]
+ 276000: system.cpu.iew.lsq.thread0: Read called, load idx: 1, store idx: 13, storeHead: 4 addr: 0x94e10
+ 276000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:50] PC (0x409a4f=>0x409a57).(0=>1)
+ 276000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a57=>0x409a5d).(1=>2) [sn:52].
+ 276000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 276000: system.cpu.memDep0: Adding instruction [sn:52] to the ready list.
+ 276000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a5d=>0x409a64).(1=>2) [sn:54].
+ 276000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 276000: system.cpu.memDep0: Adding instruction [sn:54] to the ready list.
+ 276000: system.cpu.memDep0: Issuing instruction PC 0x409a57 [sn:52].
+ 276000: system.cpu.memDep0: Issuing instruction PC 0x409a5d [sn:54].
+ 276000: system.cpu.memDep0: Issuing instruction PC 0x409a70 [sn:59].
+ 276000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 2
+ 276000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 11
+ 276000: system.cpu.dom: Trying to step SB
+ 276000: system.cpu.dom: Trying to step RQ
+ 276000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 2, SBTail: 3
+ 276000: system.cpu.dom: Ticked DOM.
+ 277000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a57=>0x409a5d).(1=>2) [sn:52]
+ 277000: system.cpu.iew.lsq.thread0: Doing write to store idx 12, addr 0x807b0 | storeHead:4 [sn:52]
+ 277000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a5d=>0x409a64).(1=>2) [sn:54]
+ 277000: system.cpu.iew.lsq.thread0: Doing write to store idx 13, addr 0x92df8 | storeHead:4 [sn:54]
+ 277000: system.cpu.iew.lsq.thread0: Executing load PC (0x409a70=>0x409a73).(0=>1), [sn:59]
+ 277000: system.cpu.iew.lsq.thread0: Read called, load idx: 2, store idx: 16, storeHead: 4 addr: 0x94e38
+ 277000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:59] PC (0x409a70=>0x409a73).(0=>1)
+ 277000: system.cpu.memDep0: Completed mem instruction PC (0x409a57=>0x409a5d).(1=>2) [sn:52].
+ 277000: system.cpu.memDep0: Completed mem instruction PC (0x409a5d=>0x409a64).(1=>2) [sn:54].
+ 277000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 2
+ 277000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 11
+ 277000: system.cpu.dom: Trying to step SB
+ 277000: system.cpu.dom: Trying to step RQ
+ 277000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 2, SBTail: 3
+ 277000: system.cpu.dom: Ticked DOM.
+ 278000: system.cpu.iew.lsq.thread0: Completing store [sn:26], idx:4, store head idx:5
+ 278000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:6 PC:(0x409a0d=>0x409a0f).(0=>1) to Addr:0x94df0, data:0 [sn:29]
+ 278000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 2
+ 278000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 10
+ 278000: system.cpu.dom: Trying to step SB
+ 278000: system.cpu.dom: Trying to step RQ
+ 278000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 2, SBTail: 3
+ 278000: system.cpu.dom: Ticked DOM.
+ 279000: system.cpu.memDep0: Completed mem instruction PC (0x409a4f=>0x409a57).(0=>1) [sn:50].
+ 279000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a64=>0x409a6b).(1=>2) [sn:56].
+ 279000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 279000: system.cpu.memDep0: Adding instruction [sn:56] to the ready list.
+ 279000: system.cpu.memDep0: Completed mem instruction PC (0x409a70=>0x409a73).(0=>1) [sn:59].
+ 279000: system.cpu.memDep0: Issuing instruction PC 0x409a64 [sn:56].
+ 279000: system.cpu.dom: Trying to step SB
+ 279000: system.cpu.dom: Trying to step RQ
+ 279000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 2, SBTail: 3
+ 279000: system.cpu.dom: Ticked DOM.
+ 280000: system.cpu.iew.lsq.thread0: Completing store [sn:29], idx:5, store head idx:6
+ 280000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a64=>0x409a6b).(1=>2) [sn:56]
+ 280000: system.cpu.iew.lsq.thread0: Doing write to store idx 14, addr 0x7f9f8 | storeHead:6 [sn:56]
+ 280000: system.cpu.memDep0: Completed mem instruction PC (0x409a64=>0x409a6b).(1=>2) [sn:56].
+ 280000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:7 PC:(0x409a12=>0x409a14).(0=>1) to Addr:0x94de8, data:0 [sn:32]
+ 280000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 2
+ 280000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 9
+ 280000: system.cpu.dom: Trying to step SB
+ 280000: system.cpu.dom: Trying to step RQ
+ 280000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 2, SBTail: 3
+ 280000: system.cpu.dom: Ticked DOM.
+ 281000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 2
+ 281000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 9
+ 281000: system.cpu.dom: Trying to step SB
+ 281000: system.cpu.dom: Trying to step RQ
+ 281000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 2, SBTail: 3
+ 281000: system.cpu.dom: Ticked DOM.
+ 282000: system.cpu.iew.lsq.thread0: Completing store [sn:32], idx:6, store head idx:7
+ 282000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:8 PC:(0x409a14=>0x409a15).(0=>1) to Addr:0x94de0, data:0 [sn:34]
+ 282000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a57=>0x409a5d).(1=>2) [sn:52]
+ 282000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a5d=>0x409a64).(1=>2) [sn:54]
+ 282000: system.cpu.iew.lsq.thread0: Committing head load instruction, PC (0x409a4f=>0x409a57).(0=>1)
+ 282000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+ 282000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 282000: system.cpu.dom: Trying to safe branch
+ 282000: system.cpu.dom: [tid:0] Declared Branch Safe.
+ 282000: system.cpu.dom: Trying to step SB
+ 282000: system.cpu.dom: [tid:0] Stepped ShadowBuffer.
+ 282000: system.cpu.dom: Trying to step RQ
+ 282000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 282000: system.cpu.dom: Ticked DOM.
+ 283000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a64=>0x409a6b).(1=>2) [sn:56]
+ 283000: system.cpu.iew.lsq.thread0: Committing head load instruction, PC (0x409a70=>0x409a73).(0=>1)
+ 283000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 283000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 8
+ 283000: system.cpu.dom: Trying to step SB
+ 283000: system.cpu.dom: Trying to step RQ
+ 283000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 283000: system.cpu.dom: Ticked DOM.
+ 284000: system.cpu.iew.lsq.thread0: Completing store [sn:34], idx:7, store head idx:8
+ 284000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:9 PC:(0x409a15=>0x409a16).(0=>1) to Addr:0x94dd8, data:0 [sn:36]
+ 284000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 284000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 7
+ 284000: system.cpu.dom: Trying to step SB
+ 284000: system.cpu.dom: Trying to step RQ
+ 284000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 284000: system.cpu.dom: Ticked DOM.
+ 285000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 285000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 7
+ 285000: system.cpu.dom: Trying to step SB
+ 285000: system.cpu.dom: Trying to step RQ
+ 285000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 285000: system.cpu.dom: Ticked DOM.
+ 286000: system.cpu.iew.lsq.thread0: Completing store [sn:36], idx:8, store head idx:9
+ 286000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:10 PC:(0x409a1d=>0x409a22).(0=>1) to Addr:0x94bf8, data:0x74 [sn:40]
+ 286000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 286000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 286000: system.cpu.dom: Trying to step SB
+ 286000: system.cpu.dom: Trying to step RQ
+ 286000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 286000: system.cpu.dom: Ticked DOM.
+ 287000: system.cpu.dom: Trying to step SB
+ 287000: system.cpu.dom: Trying to step RQ
+ 287000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 287000: system.cpu.dom: Ticked DOM.
+ 288000: system.cpu.dom: Trying to step SB
+ 288000: system.cpu.dom: Trying to step RQ
+ 288000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 288000: system.cpu.dom: Ticked DOM.
+ 289000: system.cpu.dom: Trying to step SB
+ 289000: system.cpu.dom: Trying to step RQ
+ 289000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 289000: system.cpu.dom: Ticked DOM.
+ 290000: system.cpu.dom: Trying to step SB
+ 290000: system.cpu.dom: Trying to step RQ
+ 290000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 290000: system.cpu.dom: Ticked DOM.
+ 291000: system.cpu.dom: Trying to step SB
+ 291000: system.cpu.dom: Trying to step RQ
+ 291000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 291000: system.cpu.dom: Ticked DOM.
+ 292000: system.cpu.dom: Trying to step SB
+ 292000: system.cpu.dom: Trying to step RQ
+ 292000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 292000: system.cpu.dom: Ticked DOM.
+ 293000: system.cpu.dom: Trying to step SB
+ 293000: system.cpu.dom: Trying to step RQ
+ 293000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 293000: system.cpu.dom: Ticked DOM.
+ 294000: system.cpu.dom: Trying to step SB
+ 294000: system.cpu.dom: Trying to step RQ
+ 294000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 294000: system.cpu.dom: Ticked DOM.
+ 295000: system.cpu.dom: Trying to step SB
+ 295000: system.cpu.dom: Trying to step RQ
+ 295000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 295000: system.cpu.dom: Ticked DOM.
+ 296000: system.cpu.dom: Trying to step SB
+ 296000: system.cpu.dom: Trying to step RQ
+ 296000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 296000: system.cpu.dom: Ticked DOM.
+ 297000: system.cpu.dom: Trying to step SB
+ 297000: system.cpu.dom: Trying to step RQ
+ 297000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 297000: system.cpu.dom: Ticked DOM.
+ 298000: system.cpu.dom: Trying to step SB
+ 298000: system.cpu.dom: Trying to step RQ
+ 298000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 298000: system.cpu.dom: Ticked DOM.
+ 299000: system.cpu.dom: Trying to step SB
+ 299000: system.cpu.dom: Trying to step RQ
+ 299000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 299000: system.cpu.dom: Ticked DOM.
+ 300000: system.cpu.dom: Trying to step SB
+ 300000: system.cpu.dom: Trying to step RQ
+ 300000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 300000: system.cpu.dom: Ticked DOM.
+ 301000: system.cpu.dom: Trying to step SB
+ 301000: system.cpu.dom: Trying to step RQ
+ 301000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 301000: system.cpu.dom: Ticked DOM.
+ 302000: system.cpu.dom: Trying to step SB
+ 302000: system.cpu.dom: Trying to step RQ
+ 302000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 302000: system.cpu.dom: Ticked DOM.
+ 303000: system.cpu.dom: Trying to step SB
+ 303000: system.cpu.dom: Trying to step RQ
+ 303000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 303000: system.cpu.dom: Ticked DOM.
+ 304000: system.cpu.dom: Trying to step SB
+ 304000: system.cpu.dom: Trying to step RQ
+ 304000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 304000: system.cpu.dom: Ticked DOM.
+ 305000: system.cpu.dom: Trying to step SB
+ 305000: system.cpu.dom: Trying to step RQ
+ 305000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 305000: system.cpu.dom: Ticked DOM.
+ 306000: system.cpu.dom: Trying to step SB
+ 306000: system.cpu.dom: Trying to step RQ
+ 306000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 306000: system.cpu.dom: Ticked DOM.
+ 307000: system.cpu.dom: Trying to step SB
+ 307000: system.cpu.dom: Trying to step RQ
+ 307000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 307000: system.cpu.dom: Ticked DOM.
+ 308000: system.cpu.dom: Trying to step SB
+ 308000: system.cpu.dom: Trying to step RQ
+ 308000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 308000: system.cpu.dom: Ticked DOM.
+ 309000: system.cpu.dom: Trying to step SB
+ 309000: system.cpu.dom: Trying to step RQ
+ 309000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 309000: system.cpu.dom: Ticked DOM.
+ 310000: system.cpu.dom: Trying to step SB
+ 310000: system.cpu.dom: Trying to step RQ
+ 310000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 310000: system.cpu.dom: Ticked DOM.
+ 311000: system.cpu.dom: Trying to step SB
+ 311000: system.cpu.dom: Trying to step RQ
+ 311000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 311000: system.cpu.dom: Ticked DOM.
+ 312000: system.cpu.dom: Trying to step SB
+ 312000: system.cpu.dom: Trying to step RQ
+ 312000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 312000: system.cpu.dom: Ticked DOM.
+ 313000: system.cpu.dom: Trying to step SB
+ 313000: system.cpu.dom: Trying to step RQ
+ 313000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 313000: system.cpu.dom: Ticked DOM.
+ 314000: system.cpu.dom: Trying to step SB
+ 314000: system.cpu.dom: Trying to step RQ
+ 314000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 314000: system.cpu.dom: Ticked DOM.
+ 315000: system.cpu.dom: Trying to step SB
+ 315000: system.cpu.dom: Trying to step RQ
+ 315000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 315000: system.cpu.dom: Ticked DOM.
+ 316000: system.cpu.dom: Trying to step SB
+ 316000: system.cpu.dom: Trying to step RQ
+ 316000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 316000: system.cpu.dom: Ticked DOM.
+ 317000: system.cpu.dom: Trying to step SB
+ 317000: system.cpu.dom: Trying to step RQ
+ 317000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 317000: system.cpu.dom: Ticked DOM.
+ 318000: system.cpu.dom: Trying to step SB
+ 318000: system.cpu.dom: Trying to step RQ
+ 318000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 318000: system.cpu.dom: Ticked DOM.
+ 319000: system.cpu.dom: Trying to step SB
+ 319000: system.cpu.dom: Trying to step RQ
+ 319000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 319000: system.cpu.dom: Ticked DOM.
+ 320000: system.cpu.dom: Trying to step SB
+ 320000: system.cpu.dom: Trying to step RQ
+ 320000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 320000: system.cpu.dom: Ticked DOM.
+ 321000: system.cpu.dom: Trying to step SB
+ 321000: system.cpu.dom: Trying to step RQ
+ 321000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 321000: system.cpu.dom: Ticked DOM.
+ 322000: system.cpu.dom: Trying to step SB
+ 322000: system.cpu.dom: Trying to step RQ
+ 322000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 322000: system.cpu.dom: Ticked DOM.
+ 323000: system.cpu.dom: Trying to step SB
+ 323000: system.cpu.dom: Trying to step RQ
+ 323000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 323000: system.cpu.dom: Ticked DOM.
+ 324000: system.cpu.dom: Trying to step SB
+ 324000: system.cpu.dom: Trying to step RQ
+ 324000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 324000: system.cpu.dom: Ticked DOM.
+ 325000: system.cpu.dom: Trying to step SB
+ 325000: system.cpu.dom: Trying to step RQ
+ 325000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 325000: system.cpu.dom: Ticked DOM.
+ 326000: system.cpu.dom: Trying to step SB
+ 326000: system.cpu.dom: Trying to step RQ
+ 326000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 326000: system.cpu.dom: Ticked DOM.
+ 327000: system.cpu.dom: Trying to step SB
+ 327000: system.cpu.dom: Trying to step RQ
+ 327000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 327000: system.cpu.dom: Ticked DOM.
+ 328000: system.cpu.dom: Trying to step SB
+ 328000: system.cpu.dom: Trying to step RQ
+ 328000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 328000: system.cpu.dom: Ticked DOM.
+ 329000: system.cpu.dom: Trying to step SB
+ 329000: system.cpu.dom: Trying to step RQ
+ 329000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 329000: system.cpu.dom: Ticked DOM.
+ 330000: system.cpu.dom: Trying to step SB
+ 330000: system.cpu.dom: Trying to step RQ
+ 330000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 330000: system.cpu.dom: Ticked DOM.
+ 331000: system.cpu.dom: Trying to step SB
+ 331000: system.cpu.dom: Trying to step RQ
+ 331000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 331000: system.cpu.dom: Ticked DOM.
+ 332000: system.cpu.dom: Trying to step SB
+ 332000: system.cpu.dom: Trying to step RQ
+ 332000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 332000: system.cpu.dom: Ticked DOM.
+ 333000: system.cpu.dom: Trying to step SB
+ 333000: system.cpu.dom: Trying to step RQ
+ 333000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 333000: system.cpu.dom: Ticked DOM.
+ 334000: system.cpu.dom: Trying to step SB
+ 334000: system.cpu.dom: Trying to step RQ
+ 334000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 334000: system.cpu.dom: Ticked DOM.
+ 335000: system.cpu.dom: Trying to step SB
+ 335000: system.cpu.dom: Trying to step RQ
+ 335000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 335000: system.cpu.dom: Ticked DOM.
+ 336000: system.cpu.dom: Trying to step SB
+ 336000: system.cpu.dom: Trying to step RQ
+ 336000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 336000: system.cpu.dom: Ticked DOM.
+ 337000: system.cpu.dom: Trying to step SB
+ 337000: system.cpu.dom: Trying to step RQ
+ 337000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 337000: system.cpu.dom: Ticked DOM.
+ 338000: system.cpu.dom: Trying to step SB
+ 338000: system.cpu.dom: Trying to step RQ
+ 338000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 338000: system.cpu.dom: Ticked DOM.
+ 339000: system.cpu.dom: Trying to step SB
+ 339000: system.cpu.dom: Trying to step RQ
+ 339000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 339000: system.cpu.dom: Ticked DOM.
+ 340000: system.cpu.dom: Trying to step SB
+ 340000: system.cpu.dom: Trying to step RQ
+ 340000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 340000: system.cpu.dom: Ticked DOM.
+ 341000: system.cpu.dom: Trying to step SB
+ 341000: system.cpu.dom: Trying to step RQ
+ 341000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 341000: system.cpu.dom: Ticked DOM.
+ 342000: system.cpu.dom: Trying to step SB
+ 342000: system.cpu.dom: Trying to step RQ
+ 342000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 342000: system.cpu.dom: Ticked DOM.
+ 343000: system.cpu.dom: Trying to step SB
+ 343000: system.cpu.dom: Trying to step RQ
+ 343000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 343000: system.cpu.dom: Ticked DOM.
+ 344000: system.cpu.dom: Trying to step SB
+ 344000: system.cpu.dom: Trying to step RQ
+ 344000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 344000: system.cpu.dom: Ticked DOM.
+ 345000: system.cpu.dom: Trying to step SB
+ 345000: system.cpu.dom: Trying to step RQ
+ 345000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 345000: system.cpu.dom: Ticked DOM.
+ 346000: system.cpu.dom: Trying to step SB
+ 346000: system.cpu.dom: Trying to step RQ
+ 346000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 346000: system.cpu.dom: Ticked DOM.
+ 347000: system.cpu.dom: Trying to step SB
+ 347000: system.cpu.dom: Trying to step RQ
+ 347000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 347000: system.cpu.dom: Ticked DOM.
+ 348000: system.cpu.dom: Trying to step SB
+ 348000: system.cpu.dom: Trying to step RQ
+ 348000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 348000: system.cpu.dom: Ticked DOM.
+ 349000: system.cpu.dom: Trying to step SB
+ 349000: system.cpu.dom: Trying to step RQ
+ 349000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 349000: system.cpu.dom: Ticked DOM.
+ 350000: system.cpu.dom: Trying to step SB
+ 350000: system.cpu.dom: Trying to step RQ
+ 350000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 3, SBTail: 3
+ 350000: system.cpu.dom: Ticked DOM.
+ 351000: system.cpu.dom: Trying to insert branch
+ 351000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 351000: system.cpu.dom: Trying to step SB
+ 351000: system.cpu.dom: Trying to step RQ
+ 351000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 3, SBTail: 4
+ 351000: system.cpu.dom: Ticked DOM.
+ 352000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409a7c=>0x409a81).(2=>3), idx:15 [sn:68]
+ 352000: system.cpu.memDep0: No dependency for inst PC (0x409a7c=>0x409a81).(2=>3) [sn:68].
+ 352000: system.cpu.memDep0: Inserting store/atomic PC (0x409a7c=>0x409a81).(2=>3) [sn:68].
+ 352000: system.cpu.dom: Trying to step SB
+ 352000: system.cpu.dom: Trying to step RQ
+ 352000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 3, SBTail: 4
+ 352000: system.cpu.dom: Ticked DOM.
+ 353000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a7c=>0x409a81).(2=>3) [sn:68].
+ 353000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 353000: system.cpu.memDep0: Adding instruction [sn:68] to the ready list.
+ 353000: system.cpu.memDep0: Issuing instruction PC 0x409a7c [sn:68].
+ 353000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 353000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 7
+ 353000: system.cpu.dom: Trying to step SB
+ 353000: system.cpu.dom: Trying to step RQ
+ 353000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 3, SBTail: 4
+ 353000: system.cpu.dom: Ticked DOM.
+ 354000: system.cpu.iew.lsq.thread0: Executing store PC (0x409a7c=>0x409a81).(2=>3) [sn:68]
+ 354000: system.cpu.iew.lsq.thread0: Doing write to store idx 15, addr 0x94bd8 | storeHead:9 [sn:68]
+ 354000: system.cpu.memDep0: Completed mem instruction PC (0x409a7c=>0x409a81).(2=>3) [sn:68].
+ 354000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 354000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 7
+ 354000: system.cpu.dom: Trying to step SB
+ 354000: system.cpu.dom: Trying to step RQ
+ 354000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 3, SBTail: 4
+ 354000: system.cpu.dom: Ticked DOM.
+ 355000: system.cpu.dom: Trying to safe branch
+ 355000: system.cpu.dom: [tid:0] Declared Branch Safe.
+ 355000: system.cpu.dom: Trying to step SB
+ 355000: system.cpu.dom: [tid:0] Stepped ShadowBuffer.
+ 355000: system.cpu.dom: Trying to step RQ
+ 355000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 355000: system.cpu.dom: Ticked DOM.
+ 356000: system.cpu.dom: Trying to step SB
+ 356000: system.cpu.dom: Trying to step RQ
+ 356000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 356000: system.cpu.dom: Ticked DOM.
+ 357000: system.cpu.iew.lsq.thread0: Marking store as able to write back, PC (0x409a7c=>0x409a81).(2=>3) [sn:68]
+ 357000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 357000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 7
+ 357000: system.cpu.dom: Trying to step SB
+ 357000: system.cpu.dom: Trying to step RQ
+ 357000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 357000: system.cpu.dom: Ticked DOM.
+ 358000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 358000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 7
+ 358000: system.cpu.dom: Trying to step SB
+ 358000: system.cpu.dom: Trying to step RQ
+ 358000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 358000: system.cpu.dom: Ticked DOM.
+ 359000: system.cpu.dom: Trying to step SB
+ 359000: system.cpu.dom: Trying to step RQ
+ 359000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 359000: system.cpu.dom: Ticked DOM.
+ 360000: system.cpu.dom: Trying to step SB
+ 360000: system.cpu.dom: Trying to step RQ
+ 360000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 360000: system.cpu.dom: Ticked DOM.
+ 361000: system.cpu.iew.lsq.thread0: Completing store [sn:40], idx:9, store head idx:10
+ 361000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:11 PC:(0x409a31=>0x409a36).(0=>1) to Addr:0x94bf0, data:0xf0 [sn:45]
+ 361000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 361000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 361000: system.cpu.dom: Trying to step SB
+ 361000: system.cpu.dom: Trying to step RQ
+ 361000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 361000: system.cpu.dom: Ticked DOM.
+ 362000: system.cpu.dom: Trying to step SB
+ 362000: system.cpu.dom: Trying to step RQ
+ 362000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 362000: system.cpu.dom: Ticked DOM.
+ 363000: system.cpu.iew.lsq.thread0: Completing store [sn:45], idx:10, store head idx:11
+ 363000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:12 PC:(0x409a36=>0x409a3b).(0=>1) to Addr:0x94be8, data:0x60 [sn:46]
+ 363000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 363000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 5
+ 363000: system.cpu.dom: Trying to step SB
+ 363000: system.cpu.dom: Trying to step RQ
+ 363000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 363000: system.cpu.dom: Ticked DOM.
+ 364000: system.cpu.dom: Trying to step SB
+ 364000: system.cpu.dom: Trying to step RQ
+ 364000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 364000: system.cpu.dom: Ticked DOM.
+ 365000: system.cpu.iew.lsq.thread0: Completing store [sn:46], idx:11, store head idx:12
+ 365000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:13 PC:(0x409a57=>0x409a5d).(1=>2) to Addr:0x807b0, data:0 [sn:52]
+ 365000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 0
+ 365000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 4
+ 365000: system.cpu.dom: Trying to step SB
+ 365000: system.cpu.dom: Trying to step RQ
+ 365000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 365000: system.cpu.dom: Ticked DOM.
+ 366000: system.cpu.dom: Trying to step SB
+ 366000: system.cpu.dom: Trying to step RQ
+ 366000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 366000: system.cpu.dom: Ticked DOM.
+ 367000: system.cpu.dom: Trying to step SB
+ 367000: system.cpu.dom: Trying to step RQ
+ 367000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 367000: system.cpu.dom: Ticked DOM.
+ 368000: system.cpu.dom: Trying to step SB
+ 368000: system.cpu.dom: Trying to step RQ
+ 368000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 368000: system.cpu.dom: Ticked DOM.
+ 369000: system.cpu.dom: Trying to step SB
+ 369000: system.cpu.dom: Trying to step RQ
+ 369000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 369000: system.cpu.dom: Ticked DOM.
+ 370000: system.cpu.dom: Trying to step SB
+ 370000: system.cpu.dom: Trying to step RQ
+ 370000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 370000: system.cpu.dom: Ticked DOM.
+ 371000: system.cpu.dom: Trying to step SB
+ 371000: system.cpu.dom: Trying to step RQ
+ 371000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 371000: system.cpu.dom: Ticked DOM.
+ 372000: system.cpu.dom: Trying to step SB
+ 372000: system.cpu.dom: Trying to step RQ
+ 372000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 372000: system.cpu.dom: Ticked DOM.
+ 373000: system.cpu.dom: Trying to step SB
+ 373000: system.cpu.dom: Trying to step RQ
+ 373000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 373000: system.cpu.dom: Ticked DOM.
+ 374000: system.cpu.dom: Trying to step SB
+ 374000: system.cpu.dom: Trying to step RQ
+ 374000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 374000: system.cpu.dom: Ticked DOM.
+ 375000: system.cpu.dom: Trying to step SB
+ 375000: system.cpu.dom: Trying to step RQ
+ 375000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 375000: system.cpu.dom: Ticked DOM.
+ 376000: system.cpu.dom: Trying to step SB
+ 376000: system.cpu.dom: Trying to step RQ
+ 376000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 376000: system.cpu.dom: Ticked DOM.
+ 377000: system.cpu.dom: Trying to step SB
+ 377000: system.cpu.dom: Trying to step RQ
+ 377000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 377000: system.cpu.dom: Ticked DOM.
+ 378000: system.cpu.dom: Trying to step SB
+ 378000: system.cpu.dom: Trying to step RQ
+ 378000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 378000: system.cpu.dom: Ticked DOM.
+ 379000: system.cpu.dom: Trying to step SB
+ 379000: system.cpu.dom: Trying to step RQ
+ 379000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 379000: system.cpu.dom: Ticked DOM.
+ 380000: system.cpu.dom: Trying to step SB
+ 380000: system.cpu.dom: Trying to step RQ
+ 380000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 380000: system.cpu.dom: Ticked DOM.
+ 381000: system.cpu.dom: Trying to step SB
+ 381000: system.cpu.dom: Trying to step RQ
+ 381000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 381000: system.cpu.dom: Ticked DOM.
+ 382000: system.cpu.dom: Trying to step SB
+ 382000: system.cpu.dom: Trying to step RQ
+ 382000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 382000: system.cpu.dom: Ticked DOM.
+ 383000: system.cpu.dom: Trying to step SB
+ 383000: system.cpu.dom: Trying to step RQ
+ 383000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 383000: system.cpu.dom: Ticked DOM.
+ 384000: system.cpu.dom: Trying to step SB
+ 384000: system.cpu.dom: Trying to step RQ
+ 384000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 384000: system.cpu.dom: Ticked DOM.
+ 385000: system.cpu.dom: Trying to step SB
+ 385000: system.cpu.dom: Trying to step RQ
+ 385000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 385000: system.cpu.dom: Ticked DOM.
+ 386000: system.cpu.dom: Trying to step SB
+ 386000: system.cpu.dom: Trying to step RQ
+ 386000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 386000: system.cpu.dom: Ticked DOM.
+ 387000: system.cpu.dom: Trying to step SB
+ 387000: system.cpu.dom: Trying to step RQ
+ 387000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 387000: system.cpu.dom: Ticked DOM.
+ 388000: system.cpu.dom: Trying to step SB
+ 388000: system.cpu.dom: Trying to step RQ
+ 388000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 388000: system.cpu.dom: Ticked DOM.
+ 389000: system.cpu.dom: Trying to step SB
+ 389000: system.cpu.dom: Trying to step RQ
+ 389000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 389000: system.cpu.dom: Ticked DOM.
+ 390000: system.cpu.dom: Trying to step SB
+ 390000: system.cpu.dom: Trying to step RQ
+ 390000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 390000: system.cpu.dom: Ticked DOM.
+ 391000: system.cpu.dom: Trying to step SB
+ 391000: system.cpu.dom: Trying to step RQ
+ 391000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 391000: system.cpu.dom: Ticked DOM.
+ 392000: system.cpu.dom: Trying to step SB
+ 392000: system.cpu.dom: Trying to step RQ
+ 392000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 392000: system.cpu.dom: Ticked DOM.
+ 393000: system.cpu.dom: Trying to step SB
+ 393000: system.cpu.dom: Trying to step RQ
+ 393000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 393000: system.cpu.dom: Ticked DOM.
+ 394000: system.cpu.dom: Trying to step SB
+ 394000: system.cpu.dom: Trying to step RQ
+ 394000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 394000: system.cpu.dom: Ticked DOM.
+ 395000: system.cpu.dom: Trying to step SB
+ 395000: system.cpu.dom: Trying to step RQ
+ 395000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 395000: system.cpu.dom: Ticked DOM.
+ 396000: system.cpu.dom: Trying to step SB
+ 396000: system.cpu.dom: Trying to step RQ
+ 396000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 396000: system.cpu.dom: Ticked DOM.
+ 397000: system.cpu.dom: Trying to step SB
+ 397000: system.cpu.dom: Trying to step RQ
+ 397000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 397000: system.cpu.dom: Ticked DOM.
+ 398000: system.cpu.dom: Trying to step SB
+ 398000: system.cpu.dom: Trying to step RQ
+ 398000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 398000: system.cpu.dom: Ticked DOM.
+ 399000: system.cpu.dom: Trying to step SB
+ 399000: system.cpu.dom: Trying to step RQ
+ 399000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 399000: system.cpu.dom: Ticked DOM.
+ 400000: system.cpu.dom: Trying to step SB
+ 400000: system.cpu.dom: Trying to step RQ
+ 400000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 400000: system.cpu.dom: Ticked DOM.
+ 401000: system.cpu.dom: Trying to step SB
+ 401000: system.cpu.dom: Trying to step RQ
+ 401000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 401000: system.cpu.dom: Ticked DOM.
+ 402000: system.cpu.dom: Trying to step SB
+ 402000: system.cpu.dom: Trying to step RQ
+ 402000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 402000: system.cpu.dom: Ticked DOM.
+ 403000: system.cpu.dom: Trying to step SB
+ 403000: system.cpu.dom: Trying to step RQ
+ 403000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 403000: system.cpu.dom: Ticked DOM.
+ 404000: system.cpu.dom: Trying to step SB
+ 404000: system.cpu.dom: Trying to step RQ
+ 404000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 404000: system.cpu.dom: Ticked DOM.
+ 405000: system.cpu.dom: Trying to step SB
+ 405000: system.cpu.dom: Trying to step RQ
+ 405000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 405000: system.cpu.dom: Ticked DOM.
+ 406000: system.cpu.dom: Trying to step SB
+ 406000: system.cpu.dom: Trying to step RQ
+ 406000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 406000: system.cpu.dom: Ticked DOM.
+ 407000: system.cpu.dom: Trying to step SB
+ 407000: system.cpu.dom: Trying to step RQ
+ 407000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 407000: system.cpu.dom: Ticked DOM.
+ 408000: system.cpu.dom: Trying to step SB
+ 408000: system.cpu.dom: Trying to step RQ
+ 408000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 408000: system.cpu.dom: Ticked DOM.
+ 409000: system.cpu.dom: Trying to step SB
+ 409000: system.cpu.dom: Trying to step RQ
+ 409000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 409000: system.cpu.dom: Ticked DOM.
+ 410000: system.cpu.dom: Trying to step SB
+ 410000: system.cpu.dom: Trying to step RQ
+ 410000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 410000: system.cpu.dom: Ticked DOM.
+ 411000: system.cpu.dom: Trying to step SB
+ 411000: system.cpu.dom: Trying to step RQ
+ 411000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 411000: system.cpu.dom: Ticked DOM.
+ 412000: system.cpu.dom: Trying to step SB
+ 412000: system.cpu.dom: Trying to step RQ
+ 412000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 412000: system.cpu.dom: Ticked DOM.
+ 413000: system.cpu.dom: Trying to step SB
+ 413000: system.cpu.dom: Trying to step RQ
+ 413000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 413000: system.cpu.dom: Ticked DOM.
+ 414000: system.cpu.dom: Trying to step SB
+ 414000: system.cpu.dom: Trying to step RQ
+ 414000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 414000: system.cpu.dom: Ticked DOM.
+ 415000: system.cpu.dom: Trying to step SB
+ 415000: system.cpu.dom: Trying to step RQ
+ 415000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 415000: system.cpu.dom: Ticked DOM.
+ 416000: system.cpu.dom: Trying to step SB
+ 416000: system.cpu.dom: Trying to step RQ
+ 416000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 416000: system.cpu.dom: Ticked DOM.
+ 417000: system.cpu.dom: Trying to step SB
+ 417000: system.cpu.dom: Trying to step RQ
+ 417000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 417000: system.cpu.dom: Ticked DOM.
+ 418000: system.cpu.dom: Trying to step SB
+ 418000: system.cpu.dom: Trying to step RQ
+ 418000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 418000: system.cpu.dom: Ticked DOM.
+ 419000: system.cpu.dom: Trying to step SB
+ 419000: system.cpu.dom: Trying to step RQ
+ 419000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 419000: system.cpu.dom: Ticked DOM.
+ 420000: system.cpu.dom: Trying to step SB
+ 420000: system.cpu.dom: Trying to step RQ
+ 420000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 420000: system.cpu.dom: Ticked DOM.
+ 421000: system.cpu.dom: Trying to step SB
+ 421000: system.cpu.dom: Trying to step RQ
+ 421000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 421000: system.cpu.dom: Ticked DOM.
+ 422000: system.cpu.dom: Trying to step SB
+ 422000: system.cpu.dom: Trying to step RQ
+ 422000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 422000: system.cpu.dom: Ticked DOM.
+ 423000: system.cpu.dom: Trying to step SB
+ 423000: system.cpu.dom: Trying to step RQ
+ 423000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 423000: system.cpu.dom: Ticked DOM.
+ 424000: system.cpu.dom: Trying to step SB
+ 424000: system.cpu.dom: Trying to step RQ
+ 424000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 424000: system.cpu.dom: Ticked DOM.
+ 425000: system.cpu.dom: Trying to step SB
+ 425000: system.cpu.dom: Trying to step RQ
+ 425000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 425000: system.cpu.dom: Ticked DOM.
+ 426000: system.cpu.dom: Trying to step SB
+ 426000: system.cpu.dom: Trying to step RQ
+ 426000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 426000: system.cpu.dom: Ticked DOM.
+ 427000: system.cpu.dom: Trying to step SB
+ 427000: system.cpu.dom: Trying to step RQ
+ 427000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 427000: system.cpu.dom: Ticked DOM.
+ 428000: system.cpu.dom: Trying to step SB
+ 428000: system.cpu.dom: Trying to step RQ
+ 428000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 428000: system.cpu.dom: Ticked DOM.
+ 429000: system.cpu.dom: Trying to step SB
+ 429000: system.cpu.dom: Trying to step RQ
+ 429000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 429000: system.cpu.dom: Ticked DOM.
+ 430000: system.cpu.dom: Trying to step SB
+ 430000: system.cpu.dom: Trying to step RQ
+ 430000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 430000: system.cpu.dom: Ticked DOM.
+ 431000: system.cpu.dom: Trying to step SB
+ 431000: system.cpu.dom: Trying to step RQ
+ 431000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 431000: system.cpu.dom: Ticked DOM.
+ 432000: system.cpu.dom: Trying to step SB
+ 432000: system.cpu.dom: Trying to step RQ
+ 432000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 432000: system.cpu.dom: Ticked DOM.
+ 433000: system.cpu.dom: Trying to step SB
+ 433000: system.cpu.dom: Trying to step RQ
+ 433000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 433000: system.cpu.dom: Ticked DOM.
+ 434000: system.cpu.dom: Trying to step SB
+ 434000: system.cpu.dom: Trying to step RQ
+ 434000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 434000: system.cpu.dom: Ticked DOM.
+ 435000: system.cpu.dom: Trying to step SB
+ 435000: system.cpu.dom: Trying to step RQ
+ 435000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 435000: system.cpu.dom: Ticked DOM.
+ 436000: system.cpu.dom: Trying to step SB
+ 436000: system.cpu.dom: Trying to step RQ
+ 436000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 436000: system.cpu.dom: Ticked DOM.
+ 437000: system.cpu.dom: Trying to step SB
+ 437000: system.cpu.dom: Trying to step RQ
+ 437000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 437000: system.cpu.dom: Ticked DOM.
+ 438000: system.cpu.dom: Trying to step SB
+ 438000: system.cpu.dom: Trying to step RQ
+ 438000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 438000: system.cpu.dom: Ticked DOM.
+ 439000: system.cpu.dom: Trying to step SB
+ 439000: system.cpu.dom: Trying to step RQ
+ 439000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 439000: system.cpu.dom: Ticked DOM.
+ 440000: system.cpu.dom: Trying to step SB
+ 440000: system.cpu.dom: Trying to step RQ
+ 440000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 440000: system.cpu.dom: Ticked DOM.
+ 441000: system.cpu.dom: Trying to step SB
+ 441000: system.cpu.dom: Trying to step RQ
+ 441000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 441000: system.cpu.dom: Ticked DOM.
+ 442000: system.cpu.dom: Trying to step SB
+ 442000: system.cpu.dom: Trying to step RQ
+ 442000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 442000: system.cpu.dom: Ticked DOM.
+ 443000: system.cpu.dom: Trying to step SB
+ 443000: system.cpu.dom: Trying to step RQ
+ 443000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 443000: system.cpu.dom: Ticked DOM.
+ 444000: system.cpu.dom: Trying to step SB
+ 444000: system.cpu.dom: Trying to step RQ
+ 444000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 444000: system.cpu.dom: Ticked DOM.
+ 445000: system.cpu.dom: Trying to step SB
+ 445000: system.cpu.dom: Trying to step RQ
+ 445000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 445000: system.cpu.dom: Ticked DOM.
+ 446000: system.cpu.dom: Trying to step SB
+ 446000: system.cpu.dom: Trying to step RQ
+ 446000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 446000: system.cpu.dom: Ticked DOM.
+ 447000: system.cpu.dom: Trying to step SB
+ 447000: system.cpu.dom: Trying to step RQ
+ 447000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 447000: system.cpu.dom: Ticked DOM.
+ 448000: system.cpu.dom: Trying to step SB
+ 448000: system.cpu.dom: Trying to step RQ
+ 448000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 448000: system.cpu.dom: Ticked DOM.
+ 449000: system.cpu.dom: Trying to step SB
+ 449000: system.cpu.dom: Trying to step RQ
+ 449000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 449000: system.cpu.dom: Ticked DOM.
+ 450000: system.cpu.dom: Trying to step SB
+ 450000: system.cpu.dom: Trying to step RQ
+ 450000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 450000: system.cpu.dom: Ticked DOM.
+ 451000: system.cpu.dom: Trying to step SB
+ 451000: system.cpu.dom: Trying to step RQ
+ 451000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 451000: system.cpu.dom: Ticked DOM.
+ 452000: system.cpu.dom: Trying to step SB
+ 452000: system.cpu.dom: Trying to step RQ
+ 452000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 452000: system.cpu.dom: Ticked DOM.
+ 453000: system.cpu.dom: Trying to step SB
+ 453000: system.cpu.dom: Trying to step RQ
+ 453000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 453000: system.cpu.dom: Ticked DOM.
+ 454000: system.cpu.dom: Trying to step SB
+ 454000: system.cpu.dom: Trying to step RQ
+ 454000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 454000: system.cpu.dom: Ticked DOM.
+ 455000: system.cpu.dom: Trying to step SB
+ 455000: system.cpu.dom: Trying to step RQ
+ 455000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 455000: system.cpu.dom: Ticked DOM.
+ 456000: system.cpu.dom: Trying to step SB
+ 456000: system.cpu.dom: Trying to step RQ
+ 456000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 0
+Entries in RQ: 0
+SBHead: 4, SBTail: 4
+ 456000: system.cpu.dom: Ticked DOM.
+ 457000: system.cpu.dom: Trying to insert load
+ 457000: system.cpu.dom: Trying to insert branch
+ 457000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 457000: system.cpu.dom: Trying to step SB
+ 457000: system.cpu.dom: Trying to step RQ
+ 457000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 1
+Entries in RQ: 0
+SBHead: 4, SBTail: 5
+ 457000: system.cpu.dom: Ticked DOM.
+ 458000: system.cpu.iew.lsq.thread0: Inserting load PC (0x415b00=>0x415b03).(0=>1), idx:3 [sn:82]
+ 458000: system.cpu.memDep0: No dependency for inst PC (0x415b00=>0x415b03).(0=>1) [sn:82].
+ 458000: system.cpu.memDep0: Adding instruction [sn:82] to the ready list.
+ 458000: system.cpu.memDep0: Issuing instruction PC 0x415b00 [sn:82].
+ 458000: system.cpu.dom: Trying to insert branch
+ 458000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 458000: system.cpu.dom: Trying to step SB
+ 458000: system.cpu.dom: Trying to step RQ
+ 458000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 2
+Entries in RQ: 0
+SBHead: 4, SBTail: 6
+ 458000: system.cpu.dom: Ticked DOM.
+ 459000: system.cpu.iew.lsq.thread0: Executing load PC (0x415b00=>0x415b03).(0=>1), [sn:82]
+ 459000: system.cpu.iew.lsq.thread0: Read called, load idx: 3, store idx: 17, storeHead: 12 addr: 0x94e40
+ 459000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:82] PC (0x415b00=>0x415b03).(0=>1)
+ 459000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 1
+ 459000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 4
+ 459000: system.cpu.dom: Trying to insert load
+ 459000: system.cpu.dom: [tid:0] Inserted Load into ReleaseQueue.
+ 459000: system.cpu.dom: Trying to insert branch
+ 459000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 459000: system.cpu.dom: Trying to insert load
+ 459000: system.cpu.dom: [tid:0] Inserted Load into ReleaseQueue.
+ 459000: system.cpu.dom: Trying to step SB
+ 459000: system.cpu.dom: Trying to step RQ
+ 459000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 459000: system.cpu.dom: Ticked DOM.
+ 460000: system.cpu.iew.lsq.thread0: Inserting load PC (0x415b1a=>0x415b21).(0=>1), idx:4 [sn:98]
+ 460000: system.cpu.memDep0: No dependency for inst PC (0x415b1a=>0x415b21).(0=>1) [sn:98].
+ 460000: system.cpu.iew.lsq.thread0: Inserting load PC (0x415b21=>0x415b25).(0=>1), idx:5 [sn:100]
+ 460000: system.cpu.memDep0: No dependency for inst PC (0x415b21=>0x415b25).(0=>1) [sn:100].
+ 460000: system.cpu.memDep0: Adding instruction [sn:100] to the ready list.
+ 460000: system.cpu.iew.lsq.thread0: Inserting store PC (0x415b2a=>0x415b34).(2=>3), idx:16 [sn:104]
+ 460000: system.cpu.memDep0: No dependency for inst PC (0x415b2a=>0x415b34).(2=>3) [sn:104].
+ 460000: system.cpu.memDep0: Inserting store/atomic PC (0x415b2a=>0x415b34).(2=>3) [sn:104].
+ 460000: system.cpu.memDep0: Issuing instruction PC 0x415b21 [sn:100].
+ 460000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 3
+ 460000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 5
+ 460000: system.cpu.dom: Trying to step SB
+ 460000: system.cpu.dom: Trying to step RQ
+ 460000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 460000: system.cpu.dom: Ticked DOM.
+ 461000: system.cpu.iew.lsq.thread0: Inserting store PC (0x415b34=>0x415b3a).(1=>2), idx:17 [sn:106]
+ 461000: system.cpu.memDep0: No dependency for inst PC (0x415b34=>0x415b3a).(1=>2) [sn:106].
+ 461000: system.cpu.memDep0: Inserting store/atomic PC (0x415b34=>0x415b3a).(1=>2) [sn:106].
+ 461000: system.cpu.iew.lsq.thread0: Executing load PC (0x415b21=>0x415b25).(0=>1), [sn:100]
+ 461000: system.cpu.iew.lsq.thread0: Read called, load idx: 5, store idx: 17, storeHead: 12 addr: 0x94e48
+ 461000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:100] PC (0x415b21=>0x415b25).(0=>1)
+ 461000: system.cpu.dcache: Handled express snoop: Miss: 0 
+ 461000: system.cpu.iew.lsq.thread0: Issued snoop to cacheMissed: 0
+ 461000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x415b2a=>0x415b34).(2=>3) [sn:104].
+ 461000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 461000: system.cpu.memDep0: Adding instruction [sn:104] to the ready list.
+ 461000: system.cpu.memDep0: Issuing instruction PC 0x415b2a [sn:104].
+ 461000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 3
+ 461000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 461000: system.cpu.dom: Trying to step SB
+ 461000: system.cpu.dom: Trying to step RQ
+ 461000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 461000: system.cpu.dom: Ticked DOM.
+ 462000: system.cpu.iew.lsq.thread0: Executing store PC (0x415b2a=>0x415b34).(2=>3) [sn:104]
+ 462000: system.cpu.iew.lsq.thread0: Doing write to store idx 16, addr 0x93590 | storeHead:12 [sn:104]
+ 462000: system.cpu.memDep0: Completed mem instruction PC (0x415b2a=>0x415b34).(2=>3) [sn:104].
+ 462000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 3
+ 462000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 462000: system.cpu.dom: Trying to step SB
+ 462000: system.cpu.dom: Trying to step RQ
+ 462000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 462000: system.cpu.dom: Ticked DOM.
+ 463000: system.cpu.dom: Trying to step SB
+ 463000: system.cpu.dom: Trying to step RQ
+ 463000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 463000: system.cpu.dom: Ticked DOM.
+ 464000: system.cpu.dom: Trying to step SB
+ 464000: system.cpu.dom: Trying to step RQ
+ 464000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 464000: system.cpu.dom: Ticked DOM.
+ 465000: system.cpu.dom: Trying to step SB
+ 465000: system.cpu.dom: Trying to step RQ
+ 465000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 465000: system.cpu.dom: Ticked DOM.
+ 466000: system.cpu.dom: Trying to step SB
+ 466000: system.cpu.dom: Trying to step RQ
+ 466000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 466000: system.cpu.dom: Ticked DOM.
+ 467000: system.cpu.dom: Trying to step SB
+ 467000: system.cpu.dom: Trying to step RQ
+ 467000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 467000: system.cpu.dom: Ticked DOM.
+ 468000: system.cpu.iew.lsq.thread0: Completing store [sn:52], idx:12, store head idx:13
+ 468000: system.cpu.iew.lsq.thread0: D-Cache: Writing back store idx:14 PC:(0x409a5d=>0x409a64).(1=>2) to Addr:0x92df8, data:0x38 [sn:54]
+ 468000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 3
+ 468000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 5
+ 468000: system.cpu.dom: Trying to step SB
+ 468000: system.cpu.dom: Trying to step RQ
+ 468000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 468000: system.cpu.dom: Ticked DOM.
+ 469000: system.cpu.dom: Trying to step SB
+ 469000: system.cpu.dom: Trying to step RQ
+ 469000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 469000: system.cpu.dom: Ticked DOM.
+ 470000: system.cpu.dom: Trying to step SB
+ 470000: system.cpu.dom: Trying to step RQ
+ 470000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 470000: system.cpu.dom: Ticked DOM.
+ 471000: system.cpu.dom: Trying to step SB
+ 471000: system.cpu.dom: Trying to step RQ
+ 471000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 471000: system.cpu.dom: Ticked DOM.
+ 472000: system.cpu.dom: Trying to step SB
+ 472000: system.cpu.dom: Trying to step RQ
+ 472000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 472000: system.cpu.dom: Ticked DOM.
+ 473000: system.cpu.dom: Trying to step SB
+ 473000: system.cpu.dom: Trying to step RQ
+ 473000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 473000: system.cpu.dom: Ticked DOM.
+ 474000: system.cpu.dom: Trying to step SB
+ 474000: system.cpu.dom: Trying to step RQ
+ 474000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 474000: system.cpu.dom: Ticked DOM.
+ 475000: system.cpu.dom: Trying to step SB
+ 475000: system.cpu.dom: Trying to step RQ
+ 475000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 475000: system.cpu.dom: Ticked DOM.
+ 476000: system.cpu.dom: Trying to step SB
+ 476000: system.cpu.dom: Trying to step RQ
+ 476000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 476000: system.cpu.dom: Ticked DOM.
+ 477000: system.cpu.dom: Trying to step SB
+ 477000: system.cpu.dom: Trying to step RQ
+ 477000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 477000: system.cpu.dom: Ticked DOM.
+ 478000: system.cpu.dom: Trying to step SB
+ 478000: system.cpu.dom: Trying to step RQ
+ 478000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 478000: system.cpu.dom: Ticked DOM.
+ 479000: system.cpu.dom: Trying to step SB
+ 479000: system.cpu.dom: Trying to step RQ
+ 479000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 479000: system.cpu.dom: Ticked DOM.
+ 480000: system.cpu.dom: Trying to step SB
+ 480000: system.cpu.dom: Trying to step RQ
+ 480000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 480000: system.cpu.dom: Ticked DOM.
+ 481000: system.cpu.dom: Trying to step SB
+ 481000: system.cpu.dom: Trying to step RQ
+ 481000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 481000: system.cpu.dom: Ticked DOM.
+ 482000: system.cpu.dom: Trying to step SB
+ 482000: system.cpu.dom: Trying to step RQ
+ 482000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 482000: system.cpu.dom: Ticked DOM.
+ 483000: system.cpu.dom: Trying to step SB
+ 483000: system.cpu.dom: Trying to step RQ
+ 483000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 483000: system.cpu.dom: Ticked DOM.
+ 484000: system.cpu.dom: Trying to step SB
+ 484000: system.cpu.dom: Trying to step RQ
+ 484000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 484000: system.cpu.dom: Ticked DOM.
+ 485000: system.cpu.dom: Trying to step SB
+ 485000: system.cpu.dom: Trying to step RQ
+ 485000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 485000: system.cpu.dom: Ticked DOM.
+ 486000: system.cpu.dom: Trying to step SB
+ 486000: system.cpu.dom: Trying to step RQ
+ 486000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 486000: system.cpu.dom: Ticked DOM.
+ 487000: system.cpu.dom: Trying to step SB
+ 487000: system.cpu.dom: Trying to step RQ
+ 487000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 487000: system.cpu.dom: Ticked DOM.
+ 488000: system.cpu.dom: Trying to step SB
+ 488000: system.cpu.dom: Trying to step RQ
+ 488000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 488000: system.cpu.dom: Ticked DOM.
+ 489000: system.cpu.dom: Trying to step SB
+ 489000: system.cpu.dom: Trying to step RQ
+ 489000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 489000: system.cpu.dom: Ticked DOM.
+ 490000: system.cpu.dom: Trying to step SB
+ 490000: system.cpu.dom: Trying to step RQ
+ 490000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 490000: system.cpu.dom: Ticked DOM.
+ 491000: system.cpu.dom: Trying to step SB
+ 491000: system.cpu.dom: Trying to step RQ
+ 491000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 491000: system.cpu.dom: Ticked DOM.
+ 492000: system.cpu.dom: Trying to step SB
+ 492000: system.cpu.dom: Trying to step RQ
+ 492000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 492000: system.cpu.dom: Ticked DOM.
+ 493000: system.cpu.dom: Trying to step SB
+ 493000: system.cpu.dom: Trying to step RQ
+ 493000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 493000: system.cpu.dom: Ticked DOM.
+ 494000: system.cpu.dom: Trying to step SB
+ 494000: system.cpu.dom: Trying to step RQ
+ 494000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 494000: system.cpu.dom: Ticked DOM.
+ 495000: system.cpu.dom: Trying to step SB
+ 495000: system.cpu.dom: Trying to step RQ
+ 495000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 495000: system.cpu.dom: Ticked DOM.
+ 496000: system.cpu.dom: Trying to step SB
+ 496000: system.cpu.dom: Trying to step RQ
+ 496000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 496000: system.cpu.dom: Ticked DOM.
+ 497000: system.cpu.dom: Trying to step SB
+ 497000: system.cpu.dom: Trying to step RQ
+ 497000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 497000: system.cpu.dom: Ticked DOM.
+ 498000: system.cpu.dom: Trying to step SB
+ 498000: system.cpu.dom: Trying to step RQ
+ 498000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 498000: system.cpu.dom: Ticked DOM.
+ 499000: system.cpu.dom: Trying to step SB
+ 499000: system.cpu.dom: Trying to step RQ
+ 499000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 499000: system.cpu.dom: Ticked DOM.
+ 500000: system.cpu.dom: Trying to step SB
+ 500000: system.cpu.dom: Trying to step RQ
+ 500000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 500000: system.cpu.dom: Ticked DOM.
+ 501000: system.cpu.dom: Trying to step SB
+ 501000: system.cpu.dom: Trying to step RQ
+ 501000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 501000: system.cpu.dom: Ticked DOM.
+ 502000: system.cpu.dom: Trying to step SB
+ 502000: system.cpu.dom: Trying to step RQ
+ 502000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 502000: system.cpu.dom: Ticked DOM.
+ 503000: system.cpu.dom: Trying to step SB
+ 503000: system.cpu.dom: Trying to step RQ
+ 503000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 503000: system.cpu.dom: Ticked DOM.
+ 504000: system.cpu.dom: Trying to step SB
+ 504000: system.cpu.dom: Trying to step RQ
+ 504000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 504000: system.cpu.dom: Ticked DOM.
+ 505000: system.cpu.dom: Trying to step SB
+ 505000: system.cpu.dom: Trying to step RQ
+ 505000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 505000: system.cpu.dom: Ticked DOM.
+ 506000: system.cpu.dom: Trying to step SB
+ 506000: system.cpu.dom: Trying to step RQ
+ 506000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 506000: system.cpu.dom: Ticked DOM.
+ 507000: system.cpu.dom: Trying to step SB
+ 507000: system.cpu.dom: Trying to step RQ
+ 507000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 507000: system.cpu.dom: Ticked DOM.
+ 508000: system.cpu.dom: Trying to step SB
+ 508000: system.cpu.dom: Trying to step RQ
+ 508000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 508000: system.cpu.dom: Ticked DOM.
+ 509000: system.cpu.dom: Trying to step SB
+ 509000: system.cpu.dom: Trying to step RQ
+ 509000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 509000: system.cpu.dom: Ticked DOM.
+ 510000: system.cpu.dom: Trying to step SB
+ 510000: system.cpu.dom: Trying to step RQ
+ 510000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 510000: system.cpu.dom: Ticked DOM.
+ 511000: system.cpu.dom: Trying to step SB
+ 511000: system.cpu.dom: Trying to step RQ
+ 511000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 511000: system.cpu.dom: Ticked DOM.
+ 512000: system.cpu.dom: Trying to step SB
+ 512000: system.cpu.dom: Trying to step RQ
+ 512000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 512000: system.cpu.dom: Ticked DOM.
+ 513000: system.cpu.dom: Trying to step SB
+ 513000: system.cpu.dom: Trying to step RQ
+ 513000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 513000: system.cpu.dom: Ticked DOM.
+ 514000: system.cpu.dom: Trying to step SB
+ 514000: system.cpu.dom: Trying to step RQ
+ 514000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 514000: system.cpu.dom: Ticked DOM.
+ 515000: system.cpu.dom: Trying to step SB
+ 515000: system.cpu.dom: Trying to step RQ
+ 515000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 515000: system.cpu.dom: Ticked DOM.
+ 516000: system.cpu.dom: Trying to step SB
+ 516000: system.cpu.dom: Trying to step RQ
+ 516000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 516000: system.cpu.dom: Ticked DOM.
+ 517000: system.cpu.dom: Trying to step SB
+ 517000: system.cpu.dom: Trying to step RQ
+ 517000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 517000: system.cpu.dom: Ticked DOM.
+ 518000: system.cpu.dom: Trying to step SB
+ 518000: system.cpu.dom: Trying to step RQ
+ 518000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 518000: system.cpu.dom: Ticked DOM.
+ 519000: system.cpu.dom: Trying to step SB
+ 519000: system.cpu.dom: Trying to step RQ
+ 519000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 519000: system.cpu.dom: Ticked DOM.
+ 520000: system.cpu.dom: Trying to step SB
+ 520000: system.cpu.dom: Trying to step RQ
+ 520000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 520000: system.cpu.dom: Ticked DOM.
+ 521000: system.cpu.dom: Trying to step SB
+ 521000: system.cpu.dom: Trying to step RQ
+ 521000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 521000: system.cpu.dom: Ticked DOM.
+ 522000: system.cpu.dom: Trying to step SB
+ 522000: system.cpu.dom: Trying to step RQ
+ 522000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 522000: system.cpu.dom: Ticked DOM.
+ 523000: system.cpu.dom: Trying to step SB
+ 523000: system.cpu.dom: Trying to step RQ
+ 523000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 523000: system.cpu.dom: Ticked DOM.
+ 524000: system.cpu.dom: Trying to step SB
+ 524000: system.cpu.dom: Trying to step RQ
+ 524000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 524000: system.cpu.dom: Ticked DOM.
+ 525000: system.cpu.dom: Trying to step SB
+ 525000: system.cpu.dom: Trying to step RQ
+ 525000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 525000: system.cpu.dom: Ticked DOM.
+ 526000: system.cpu.dom: Trying to step SB
+ 526000: system.cpu.dom: Trying to step RQ
+ 526000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 526000: system.cpu.dom: Ticked DOM.
+ 527000: system.cpu.dom: Trying to step SB
+ 527000: system.cpu.dom: Trying to step RQ
+ 527000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 527000: system.cpu.dom: Ticked DOM.
+ 528000: system.cpu.dom: Trying to step SB
+ 528000: system.cpu.dom: Trying to step RQ
+ 528000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 528000: system.cpu.dom: Ticked DOM.
+ 529000: system.cpu.dom: Trying to step SB
+ 529000: system.cpu.dom: Trying to step RQ
+ 529000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 529000: system.cpu.dom: Ticked DOM.
+ 530000: system.cpu.dom: Trying to step SB
+ 530000: system.cpu.dom: Trying to step RQ
+ 530000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 530000: system.cpu.dom: Ticked DOM.
+ 531000: system.cpu.dom: Trying to step SB
+ 531000: system.cpu.dom: Trying to step RQ
+ 531000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 531000: system.cpu.dom: Ticked DOM.
+ 532000: system.cpu.dom: Trying to step SB
+ 532000: system.cpu.dom: Trying to step RQ
+ 532000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 532000: system.cpu.dom: Ticked DOM.
+ 533000: system.cpu.dom: Trying to step SB
+ 533000: system.cpu.dom: Trying to step RQ
+ 533000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 533000: system.cpu.dom: Ticked DOM.
+ 534000: system.cpu.dom: Trying to step SB
+ 534000: system.cpu.dom: Trying to step RQ
+ 534000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 3
+Entries in RQ: 2
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 7
+ 534000: system.cpu.dom: Ticked DOM.
+ 535000: system.cpu.dom: Trying to insert load
+ 535000: system.cpu.dom: [tid:0] Inserted Load into ReleaseQueue.
+ 535000: system.cpu.dom: Trying to insert branch
+ 535000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 535000: system.cpu.dom: Trying to step SB
+ 535000: system.cpu.dom: Trying to step RQ
+ 535000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 4
+Entries in RQ: 3
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 8
+ 535000: system.cpu.dom: Ticked DOM.
+ 536000: system.cpu.iew.lsq.thread0: Inserting load PC (0x415b44=>0x415b47).(0=>1), idx:6 [sn:111]
+ 536000: system.cpu.memDep0: No dependency for inst PC (0x415b44=>0x415b47).(0=>1) [sn:111].
+ 536000: system.cpu.dom: Trying to insert branch
+ 536000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 536000: system.cpu.dom: Trying to insert load
+ 536000: system.cpu.dom: [tid:0] Inserted Load into ReleaseQueue.
+ 536000: system.cpu.dom: Trying to insert branch
+ 536000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 536000: system.cpu.dom: Trying to step SB
+ 536000: system.cpu.dom: Trying to step RQ
+ 536000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 6
+Entries in RQ: 4
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 10
+ 536000: system.cpu.dom: Ticked DOM.
+ 537000: system.cpu.iew.lsq.thread0: Inserting load PC (0x415b55=>0x415b57).(0=>1), idx:7 [sn:121]
+ 537000: system.cpu.memDep0: No dependency for inst PC (0x415b55=>0x415b57).(0=>1) [sn:121].
+ 537000: system.cpu.memDep0: Adding instruction [sn:121] to the ready list.
+ 537000: system.cpu.memDep0: Issuing instruction PC 0x415b55 [sn:121].
+ 537000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 5
+ 537000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 5
+ 537000: system.cpu.dom: Trying to step SB
+ 537000: system.cpu.dom: Trying to step RQ
+ 537000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 6
+Entries in RQ: 4
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 10
+ 537000: system.cpu.dom: Ticked DOM.
+ 538000: system.cpu.iew.lsq.thread0: Executing load PC (0x415b55=>0x415b57).(0=>1), [sn:121]
+ 538000: system.cpu.iew.lsq.thread0: Read called, load idx: 7, store idx: 19, storeHead: 13 addr: 0x94bd8
+ 538000: system.cpu.iew.lsq.thread0: Forwarding from store idx 16 to load to addr 0x7fffffffebd8
+ 538000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x415b44=>0x415b47).(0=>1) [sn:111].
+ 538000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 538000: system.cpu.memDep0: Adding instruction [sn:111] to the ready list.
+ 538000: system.cpu.memDep0: Issuing instruction PC 0x415b44 [sn:111].
+ 538000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 5
+ 538000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 5
+ 538000: system.cpu.dom: Trying to insert load
+ 538000: system.cpu.dom: [tid:0] Inserted Load into ReleaseQueue.
+ 538000: system.cpu.dom: Trying to insert branch
+ 538000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 538000: system.cpu.dom: Trying to step SB
+ 538000: system.cpu.dom: Trying to step RQ
+ 538000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 7
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 11
+ 538000: system.cpu.dom: Ticked DOM.
+ 539000: system.cpu.iew.lsq.thread0: Inserting load PC (0x409a81=>0x409a88).(1=>2), idx:8 [sn:125]
+ 539000: system.cpu.memDep0: No dependency for inst PC (0x409a81=>0x409a88).(1=>2) [sn:125].
+ 539000: system.cpu.iew.lsq.thread0: Executing load PC (0x415b44=>0x415b47).(0=>1), [sn:111]
+ 539000: system.cpu.iew.lsq.thread0: Read called, load idx: 6, store idx: 19, storeHead: 13 addr: 0x94e50
+ 539000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:111] PC (0x415b44=>0x415b47).(0=>1)
+ 539000: system.cpu.dcache: Handled express snoop: Miss: 0 
+ 539000: system.cpu.iew.lsq.thread0: Issued snoop to cacheMissed: 0
+ 539000: system.cpu.memDep0: Completed mem instruction PC (0x415b55=>0x415b57).(0=>1) [sn:121].
+ 539000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 6
+ 539000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 5
+ 539000: system.cpu.dom: Trying to insert branch
+ 539000: system.cpu.dom: [tid:0] Inserted Branch into ShadowBuffer .
+ 539000: system.cpu.dom: Trying to step SB
+ 539000: system.cpu.dom: Trying to step RQ
+ 539000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 539000: system.cpu.dom: Ticked DOM.
+ 540000: system.cpu.iew.lsq.thread0: Inserting store PC (0x409aa1=>0x409aa6).(2=>3), idx:18 [sn:135]
+ 540000: system.cpu.memDep0: No dependency for inst PC (0x409aa1=>0x409aa6).(2=>3) [sn:135].
+ 540000: system.cpu.memDep0: Inserting store/atomic PC (0x409aa1=>0x409aa6).(2=>3) [sn:135].
+ 540000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409a81=>0x409a88).(1=>2) [sn:125].
+ 540000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 540000: system.cpu.memDep0: Adding instruction [sn:125] to the ready list.
+ 540000: system.cpu.memDep0: Issuing instruction PC 0x409a81 [sn:125].
+ 540000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 6
+ 540000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 540000: system.cpu.dom: Trying to safe branch
+ 540000: system.cpu.dom: [tid:0] Declared Branch Safe.
+ 540000: system.cpu.dom: Trying to step SB
+ 540000: system.cpu.dom: Trying to step RQ
+ 540000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 540000: system.cpu.dom: Ticked DOM.
+ 541000: system.cpu.iew.lsq.thread0: Executing load PC (0x409a81=>0x409a88).(1=>2), [sn:125]
+ 541000: system.cpu.iew.lsq.thread0: Read called, load idx: 8, store idx: 19, storeHead: 13 addr: 0x807b0
+ 541000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:125] PC (0x409a81=>0x409a88).(1=>2)
+ 541000: system.cpu.dcache: Handled express snoop: Miss: 0 
+ 541000: system.cpu.iew.lsq.thread0: Issued snoop to cacheMissed: 0
+ 541000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x409aa1=>0x409aa6).(2=>3) [sn:135].
+ 541000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 541000: system.cpu.memDep0: Adding instruction [sn:135] to the ready list.
+ 541000: system.cpu.memDep0: Issuing instruction PC 0x409aa1 [sn:135].
+ 541000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 6
+ 541000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 541000: system.cpu.dom: Trying to safe branch
+ 541000: system.cpu.dom: [tid:0] Declared Branch Safe.
+ 541000: system.cpu.dom: Trying to step SB
+ 541000: system.cpu.dom: Trying to step RQ
+ 541000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 541000: system.cpu.dom: Ticked DOM.
+ 542000: system.cpu.iew.lsq.thread0: Executing store PC (0x409aa1=>0x409aa6).(2=>3) [sn:135]
+ 542000: system.cpu.iew.lsq.thread0: Doing write to store idx 18, addr 0x94bd8 | storeHead:13 [sn:135]
+ 542000: system.cpu.memDep0: Completed mem instruction PC (0x409aa1=>0x409aa6).(2=>3) [sn:135].
+ 542000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 6
+ 542000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 542000: system.cpu.dom: Trying to step SB
+ 542000: system.cpu.dom: Trying to step RQ
+ 542000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 542000: system.cpu.dom: Ticked DOM.
+ 543000: system.cpu.memDep0: Completed mem instruction PC (0x409a81=>0x409a88).(1=>2) [sn:125].
+ 543000: system.cpu.dom: Trying to safe branch
+ 543000: system.cpu.dom: [tid:0] Declared Branch Safe.
+ 543000: system.cpu.dom: Trying to step SB
+ 543000: system.cpu.dom: Trying to step RQ
+ 543000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 543000: system.cpu.dom: Ticked DOM.
+ 544000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 6
+ 544000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 544000: system.cpu.dom: Trying to step SB
+ 544000: system.cpu.dom: Trying to step RQ
+ 544000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 544000: system.cpu.dom: Ticked DOM.
+ 545000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 6
+ 545000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 545000: system.cpu.dom: Trying to step SB
+ 545000: system.cpu.dom: Trying to step RQ
+ 545000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 545000: system.cpu.dom: Ticked DOM.
+ 546000: system.cpu.dom: Trying to safe branch
+ 546000: system.cpu.dom: [tid:0] Declared Branch Safe.
+ 546000: system.cpu.dom: Trying to step SB
+ 546000: system.cpu.dom: Trying to step RQ
+ 546000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 546000: system.cpu.dom: Ticked DOM.
+ 547000: system.cpu.dom: Trying to step SB
+ 547000: system.cpu.dom: Trying to step RQ
+ 547000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 547000: system.cpu.dom: Ticked DOM.
+ 548000: system.cpu.dom: Trying to step SB
+ 548000: system.cpu.dom: Trying to step RQ
+ 548000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 548000: system.cpu.dom: Ticked DOM.
+ 549000: system.cpu.dom: Trying to step SB
+ 549000: system.cpu.dom: Trying to step RQ
+ 549000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 549000: system.cpu.dom: Ticked DOM.
+ 550000: system.cpu.dom: Trying to step SB
+ 550000: system.cpu.dom: Trying to step RQ
+ 550000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 550000: system.cpu.dom: Ticked DOM.
+ 551000: system.cpu.dom: Trying to step SB
+ 551000: system.cpu.dom: Trying to step RQ
+ 551000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 551000: system.cpu.dom: Ticked DOM.
+ 552000: system.cpu.dom: Trying to step SB
+ 552000: system.cpu.dom: Trying to step RQ
+ 552000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 552000: system.cpu.dom: Ticked DOM.
+ 553000: system.cpu.dom: Trying to step SB
+ 553000: system.cpu.dom: Trying to step RQ
+ 553000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 553000: system.cpu.dom: Ticked DOM.
+ 554000: system.cpu.dom: Trying to step SB
+ 554000: system.cpu.dom: Trying to step RQ
+ 554000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 554000: system.cpu.dom: Ticked DOM.
+ 555000: system.cpu.dom: Trying to step SB
+ 555000: system.cpu.dom: Trying to step RQ
+ 555000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 555000: system.cpu.dom: Ticked DOM.
+ 556000: system.cpu.dom: Trying to step SB
+ 556000: system.cpu.dom: Trying to step RQ
+ 556000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 556000: system.cpu.dom: Ticked DOM.
+ 557000: system.cpu.dom: Trying to step SB
+ 557000: system.cpu.dom: Trying to step RQ
+ 557000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 557000: system.cpu.dom: Ticked DOM.
+ 558000: system.cpu.dom: Trying to step SB
+ 558000: system.cpu.dom: Trying to step RQ
+ 558000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 558000: system.cpu.dom: Ticked DOM.
+ 559000: system.cpu.dom: Trying to step SB
+ 559000: system.cpu.dom: Trying to step RQ
+ 559000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 559000: system.cpu.dom: Ticked DOM.
+ 560000: system.cpu.dom: Trying to step SB
+ 560000: system.cpu.dom: Trying to step RQ
+ 560000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 560000: system.cpu.dom: Ticked DOM.
+ 561000: system.cpu.dom: Trying to step SB
+ 561000: system.cpu.dom: Trying to step RQ
+ 561000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 561000: system.cpu.dom: Ticked DOM.
+ 562000: system.cpu.dom: Trying to step SB
+ 562000: system.cpu.dom: Trying to step RQ
+ 562000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 562000: system.cpu.dom: Ticked DOM.
+ 563000: system.cpu.dom: Trying to step SB
+ 563000: system.cpu.dom: Trying to step RQ
+ 563000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 563000: system.cpu.dom: Ticked DOM.
+ 564000: system.cpu.dom: Trying to step SB
+ 564000: system.cpu.dom: Trying to step RQ
+ 564000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 564000: system.cpu.dom: Ticked DOM.
+ 565000: system.cpu.dom: Trying to step SB
+ 565000: system.cpu.dom: Trying to step RQ
+ 565000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 565000: system.cpu.dom: Ticked DOM.
+ 566000: system.cpu.dom: Trying to step SB
+ 566000: system.cpu.dom: Trying to step RQ
+ 566000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 566000: system.cpu.dom: Ticked DOM.
+ 567000: system.cpu.memDep0: Completed mem instruction PC (0x415b00=>0x415b03).(0=>1) [sn:82].
+ 567000: system.cpu.dom: Trying to step SB
+ 567000: system.cpu.dom: Trying to step RQ
+ 567000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 567000: system.cpu.dom: Ticked DOM.
+ 568000: system.cpu.memDep0: Completed mem instruction PC (0x415b21=>0x415b25).(0=>1) [sn:100].
+ 568000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x415b34=>0x415b3a).(1=>2) [sn:106].
+ 568000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 568000: system.cpu.memDep0: Adding instruction [sn:106] to the ready list.
+ 568000: system.cpu.memDep0: Marking registers as ready for instruction PC (0x415b1a=>0x415b21).(0=>1) [sn:98].
+ 568000: system.cpu.memDep0: Instruction has its memory dependencies resolved, adding it to the ready list.
+ 568000: system.cpu.memDep0: Adding instruction [sn:98] to the ready list.
+ 568000: system.cpu.memDep0: Issuing instruction PC 0x415b1a [sn:98].
+ 568000: system.cpu.memDep0: Issuing instruction PC 0x415b34 [sn:106].
+ 568000: system.cpu.iew.lsq.thread0: LQ size: 34, #loads occupied: 6
+ 568000: system.cpu.iew.lsq.thread0: SQ size: 34, #stores occupied: 6
+ 568000: system.cpu.dom: Trying to step SB
+ 568000: system.cpu.dom: Trying to step RQ
+ 568000: system.cpu.dom: Current State for thread 0: 
+Entries in SB: 8
+Entries in RQ: 5
+sbTag for head of RQ: 6
+SBHead: 4, SBTail: 12
+ 568000: system.cpu.dom: Ticked DOM.
+ 569000: system.cpu.iew.lsq.thread0: Executing load PC (0x415b1a=>0x415b21).(0=>1), [sn:98]
+ 569000: system.cpu.iew.lsq.thread0: Read called, load idx: 4, store idx: 17, storeHead: 13 addr: 0x5ec70
+ 569000: system.cpu.iew.lsq.thread0: Doing memory access for inst [sn:98] PC (0x415b1a=>0x415b21).(0=>1)
+ 569000: system.cpu.dcache: Handled express snoop: Miss: 1 
+ 569000: system.cpu.iew.lsq.thread0: Issued snoop to cacheMissed: 1
+ 569000: system.cpu.iq: Delaying mem inst [sn:98]
+ 569000: system.cpu.iew.lsq.thread0: Returning Shadow Fault

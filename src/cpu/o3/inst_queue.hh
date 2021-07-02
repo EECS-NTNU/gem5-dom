@@ -49,8 +49,9 @@
 
 #include "base/statistics.hh"
 #include "base/types.hh"
-#include "cpu/o3/dep_graph.hh"
 #include "cpu/inst_seq.hh"
+#include "cpu/o3/dep_graph.hh"
+#include "cpu/o3/lsq.hh"
 #include "cpu/op_class.hh"
 #include "cpu/timebuf.hh"
 #include "enums/SMTQueuePolicy.hh"
@@ -198,6 +199,8 @@ class InstructionQueue
      */
     DynInstPtr getBlockedMemInstToExecute();
 
+    DynInstPtr getDelayedMemInstToExecute();
+
     /**
      * Records the instruction as the producer of a register without
      * adding it to the rest of the IQ.
@@ -234,6 +237,8 @@ class InstructionQueue
      * replayMemInst() is called.
      */
     void rescheduleMemInst(const DynInstPtr &resched_inst);
+
+    void delayMemInst(const DynInstPtr &delayed_inst);
 
     /** Replays a memory instruction. It must be rescheduled first. */
     void replayMemInst(const DynInstPtr &replay_inst);
@@ -318,6 +323,8 @@ class InstructionQueue
 
     /** List of instructions that have been cache blocked. */
     std::list<DynInstPtr> blockedMemInsts;
+
+    std::vector<DynInstPtr> delayedMemInsts;
 
     /** List of instructions that were cache blocked, but a retry has been seen
      * since, so they can now be retried. May fail again go on the blocked list.

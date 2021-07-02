@@ -122,8 +122,10 @@ template <class Impl>
 void
 DefaultIEW<Impl>::regProbePoints()
 {
-    ppDispatch = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(), "Dispatch");
-    ppMispredict = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(), "Mispredict");
+    ppDispatch = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(),
+        "Dispatch");
+    ppMispredict = new ProbePointArg<DynInstPtr>(cpu->getProbeManager(),
+        "Mispredict");
     /**
      * Probe point with dynamic instruction as the argument used to probe when
      * an instruction starts to execute.
@@ -262,8 +264,10 @@ DefaultIEW<Impl>::startupStage()
             instQueue.numFreeEntries(tid);
 
         toRename->iewInfo[tid].usedLSQ = true;
-        toRename->iewInfo[tid].freeLQEntries = ldstQueue.numFreeLoadEntries(tid);
-        toRename->iewInfo[tid].freeSQEntries = ldstQueue.numFreeStoreEntries(tid);
+        toRename->iewInfo[tid].freeLQEntries =
+            ldstQueue.numFreeLoadEntries(tid);
+        toRename->iewInfo[tid].freeSQEntries =
+            ldstQueue.numFreeStoreEntries(tid);
     }
 
     // Initialize the checker's dcache port here
@@ -553,6 +557,13 @@ void
 DefaultIEW<Impl>::rescheduleMemInst(const DynInstPtr& inst)
 {
     instQueue.rescheduleMemInst(inst);
+}
+
+template<class Impl>
+void
+DefaultIEW<Impl>::delayMemInst(const DynInstPtr& inst)
+{
+    instQueue.delayMemInst(inst);
 }
 
 template<class Impl>
@@ -1286,10 +1297,10 @@ DefaultIEW<Impl>::executeInsts()
                 // If the store had a fault then it may not have a mem req
                 if (fault != NoFault || !inst->readPredicate() ||
                         !inst->isStoreConditional()) {
-                    // If the instruction faulted, then we need to send it along
-                    // to commit without the instruction completing.
-                    // Send this instruction to commit, also make sure iew stage
-                    // realizes there is activity.
+                    // If the instruction faulted, then we need to send it
+                    // along to commit without the instruction completing.
+                    // Send this instruction to commit, also make sure iew
+                    // stage realizes there is activity.
                     inst->setExecuted();
                     instToCommit(inst);
                     activityThisCycle();
@@ -1449,7 +1460,8 @@ DefaultIEW<Impl>::writebackInsts()
         // E.g. Strictly ordered loads have not actually executed when they
         // are first sent to commit.  Instead commit must tell the LSQ
         // when it's ready to execute the strictly ordered load.
-        if (!inst->isSquashed() && inst->isExecuted() && inst->getFault() == NoFault) {
+        if (!inst->isSquashed() && inst->isExecuted()
+            && inst->getFault() == NoFault) {
             int dependents = instQueue.wakeDependents(inst);
 
             for (int i = 0; i < inst->numDestRegs(); i++) {

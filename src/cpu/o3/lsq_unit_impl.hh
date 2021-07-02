@@ -51,6 +51,7 @@
 #include "cpu/o3/lsq.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "debug/Activity.hh"
+#include "debug/DebugDOM.hh"
 #include "debug/HtmCpu.hh"
 #include "debug/IEW.hh"
 #include "debug/LSQUnit.hh"
@@ -578,8 +579,8 @@ LSQUnit<Impl>::checkViolations(typename LoadQueue::iterator& loadIt,
                     }
                 }
 
-                // Otherwise, mark the load has a possible load violation
-                // and if we see a snoop before it's commited, we need to squash
+                // Otherwise, mark the load has a possible load violation and
+                // if we see a snoop before it's commited, we need to squash
                 ld_inst->possibleLoadViolation(true);
                 DPRINTF(LSQUnit, "Found possible load violation at addr: %#x"
                         " between instructions [sn:%lli] and [sn:%lli]\n",
@@ -626,6 +627,9 @@ LSQUnit<Impl>::executeLoad(const DynInstPtr &inst)
     assert(!inst->isSquashed());
 
     load_fault = inst->initiateAcc();
+    DPRINTF(DebugDOM, "Finished load acces,"
+    "fault is : %s\n", load_fault != NoFault ? load_fault->name() :
+    "none");
 
     if (load_fault == NoFault && !inst->readMemAccPredicate()) {
         assert(inst->readPredicate());
@@ -639,8 +643,8 @@ LSQUnit<Impl>::executeLoad(const DynInstPtr &inst)
     if (inst->isTranslationDelayed() && load_fault == NoFault)
         return load_fault;
 
-    if (load_fault != NoFault && inst->translationCompleted() &&
-        inst->savedReq->isPartialFault() && !inst->savedReq->isComplete()) {
+    if (load_fault != NoFault && inst->translationCompleted() && inst->savedReq
+        && inst->savedReq->isPartialFault() && !inst->savedReq->isComplete()) {
         assert(inst->savedReq->isSplit());
         // If we have a partial fault where the mem access is not complete yet
         // then the cache must have been blocked. This load will be re-executed
@@ -648,10 +652,16 @@ LSQUnit<Impl>::executeLoad(const DynInstPtr &inst)
         // mem access is complete.
         return NoFault;
     }
-
+    // If the instruction faulted and is under shadow, reschedule it
+    if (load_fault != NoFault && load_fault->isShadow()) {
+        iewStage->activityThisCycle();
+        DPRINTF(DebugDOM, "Caught Fault: %s. Not committing\n",
+            load_fault->name());
+        return NoFault;
+    }
     // If the instruction faulted or predicated false, then we need to send it
     // along to commit without the instruction completing.
-    if (load_fault != NoFault || !inst->readPredicate()) {
+    else if (load_fault != NoFault || !inst->readPredicate()) {
         // Send this instruction to commit, also make sure iew stage
         // realizes there is activity.  Mark it as executed unless it
         // is a strictly ordered load that needs to hit the head of

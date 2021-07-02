@@ -58,6 +58,7 @@ class FaultBase
     virtual void invoke(ThreadContext * tc, const StaticInstPtr &inst=
                         StaticInst::nullStaticInstPtr);
     virtual ~FaultBase() {};
+    virtual bool isShadow() {return false; }
 };
 
 class UnimpFault : public FaultBase
@@ -150,6 +151,13 @@ class GenericHtmFailureFault : public FaultBase
     HtmFailureFaultCause getHtmFailureFaultCause() const { return cause; }
     void invoke(ThreadContext *tc, const StaticInstPtr &inst =
                 StaticInst::nullStaticInstPtr) override;
+};
+
+class ShadowFault : public FaultBase
+{
+  public:
+    FaultName name() const override { return "Shadow fault"; }
+    bool isShadow() override { return true; }
 };
 
 #endif // __FAULTS_HH__

@@ -54,6 +54,8 @@
 #include "config/the_isa.hh"
 #include "cpu/inst_seq.hh"
 #include "cpu/timebuf.hh"
+#include "debug/DOM.hh"
+#include "debug/DebugDOM.hh"
 #include "debug/HtmCpu.hh"
 #include "debug/LSQUnit.hh"
 #include "mem/packet.hh"
@@ -654,6 +656,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 {
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
+
     //Always update underShadow incase shadow has been cleared
     req->underShadow = load_inst->underShadow;
     load_req.setRequest(req);
@@ -957,23 +960,16 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         LSQSenderState *state = new LQSnoopState(req);
         ex_snoop->senderState = state;
         dcachePort->sendFunctional(ex_snoop);
-        DPRINTF(LSQUnit, "Issued snoop to cache"
+        DPRINTF(DOM, "Issued snoop to cache"
             "Missed: %d\n", ex_snoop->didMissInCache());
         if (ex_snoop->didMissInCache()) {
-            iewStage->rescheduleMemInst(load_inst);
-            load_inst->clearIssued();
-            load_inst->effAddrValid(false);
-            // Must discard the request.
-            req->discard();
-            load_req.setRequest(nullptr);
+            iewStage->delayMemInst(load_inst);
             ++stats.loadsDelayedOnMiss;
-            return std::make_shared<GenericISA::M5InformFault>(
-                "Shadowed Load blocked in cache [sn:%llx] PC %s\n",
-                load_inst->seqNum, load_inst->pcState());
-            /* return std::make_shared<GenericISA::M5InformFaultBase>(
-            / "Shadowed Load blocked in cache [sn:%llx] PC %s\n",
-            / load_inst->seqNum, load_inst->pcState());
-            */
+
+            load_inst->clearIssued();
+
+            DPRINTF(DebugDOM, "Returning ShadowFault\n");
+            return std::make_shared<ShadowFault>();
         }
     }
 

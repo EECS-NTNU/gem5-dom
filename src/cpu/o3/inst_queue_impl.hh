@@ -48,6 +48,8 @@
 #include "base/logging.hh"
 #include "cpu/o3/fu_pool.hh"
 #include "cpu/o3/inst_queue.hh"
+#include "debug/DOM.hh"
+#include "debug/DebugDOM.hh"
 #include "debug/IQ.hh"
 #include "enums/OpClass.hh"
 #include "params/DerivO3CPU.hh"
@@ -418,6 +420,7 @@ InstructionQueue<Impl>::resetState()
     }
     nonSpecInsts.clear();
     listOrder.clear();
+    delayedMemInsts.clear();
     deferredMemInsts.clear();
     blockedMemInsts.clear();
     retryMemInsts.clear();
@@ -773,6 +776,12 @@ InstructionQueue<Impl>::scheduleReadyInsts()
     IssueStruct *i2e_info = issueToExecuteQueue->access(0);
 
     DynInstPtr mem_inst;
+    DPRINTF(DebugDOM, "num delayed mems: %d\n",
+        delayedMemInsts.size());
+    while ((mem_inst = std::move(getDelayedMemInstToExecute()))) {
+        addReadyMemInst(mem_inst);
+    }
+
     while ((mem_inst = std::move(getDeferredMemInstToExecute()))) {
         addReadyMemInst(mem_inst);
     }
@@ -1114,6 +1123,19 @@ InstructionQueue<Impl>::rescheduleMemInst(const DynInstPtr &resched_inst)
     memDepUnit[resched_inst->threadNumber].reschedule(resched_inst);
 }
 
+
+template <class Impl>
+void
+InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
+{
+    DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
+
+    delayed_inst->clearIssued();
+    delayed_inst->clearCanIssue();
+    delayedMemInsts.push_back(delayed_inst);
+}
+
+
 template <class Impl>
 void
 InstructionQueue<Impl>::replayMemInst(const DynInstPtr &replay_inst)
@@ -1169,9 +1191,34 @@ InstructionQueue<Impl>::getBlockedMemInstToExecute()
         return nullptr;
     } else {
         DynInstPtr mem_inst = std::move(retryMemInsts.front());
-        retryMemInsts.pop_front();
+        retryMemInsts.erase(retryMemInsts.begin());
         return mem_inst;
     }
+}
+
+template <class Impl>
+typename Impl::DynInstPtr
+InstructionQueue<Impl>::getDelayedMemInstToExecute()
+{
+
+    for (int i = 0; i < delayedMemInsts.size(); i++) {
+        if (delayedMemInsts.at(i)->isCommitted()) {
+            panic("We committed a delayed load?\n");
+        } else if (delayedMemInsts.at(i)->isSquashed()) {
+            DPRINTF(DOM, "Squashed a load in delay queue\n");
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            i--;
+        } else if (!delayedMemInsts.at(i)->underShadow) {
+            DPRINTF(DebugDOM, "Acquired a non-speculative load\n");
+            DynInstPtr mem_inst = std::move(
+                delayedMemInsts.at(i));
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            mem_inst->savedReq->setStateToRequest();
+            mem_inst->getFault() = NoFault;
+            return mem_inst;
+        }
+    }
+    return nullptr;
 }
 
 template <class Impl>
