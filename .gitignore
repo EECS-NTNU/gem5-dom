@@ -34,4 +34,10 @@ configs/dram/lowp_sweep.cfg
 #Special for this project
 /dom/429.mcf/*
 core
+/old_simpoints/*
+/simpoints/*
+mcf.out
+mcf.sim
+dom/spectre-attacks.tar.gz
+dom/spectre-attacks/spectre-dom
 

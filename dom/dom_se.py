@@ -54,7 +54,7 @@ optionsDict = {
  'rel_max_tick': None,
  'maxtime': None,
  'param': [],
- 'cpu_type': 'DerivO3CPU',
+ 'cpu_type': 'NonCachingSimpleCPU',
  'bp_type': None,
  'indirect_bp_type': None,
  'l1i_hwp_type': None,
@@ -87,7 +87,7 @@ optionsDict = {
  'work_begin_exit_count': None,
  'init_param': 0,
  'initialize_only': False,
- 'simpoint_profile': None,
+ 'simpoint_profile': True,
  'simpoint_interval': 10000000,
  'take_simpoint_checkpoints': None,
  'restore_simpoint_checkpoint': None,
@@ -111,7 +111,6 @@ optionsDict = {
  'spec_input': 'ref',
  'arm_iset': 'arm',
  'stats_root': [],
- 'cmd': 'dry2o',
  'options': '',
  'env': '',
  'input': '',
@@ -140,8 +139,8 @@ process = Process(pid = 100)
 # ["./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/mcf_base.ia64-gcc42",
 #"./dom/429.mcf/run/run_base_test_ia64-gcc42.0000/inp.in"]
 
-process.executable = "./tests/test-progs/hello/bin/x86/linux/hello"
-process.cmd = "./tests/test-progs/hello/bin/x86/linux/hello"
+#process.executable = "./tests/test-progs/hello/bin/x86/linux/hello"
+#process.cmd = "./tests/test-progs/hello/bin/x86/linux/hello"
 
 process.cwd = os.getcwd()
 
