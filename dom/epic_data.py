@@ -36,7 +36,7 @@ warmupCPU="--cpu-type=kvmCPU"
 runCPU="--cpu-type=DerivO3CPU"
 caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB
 --l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 --l2_assoc=8
- --l3_assoc=16 --cacheline_size=64"
+--l3_assoc=16 --cacheline_size=64"
 
 fast_forward="--fast-forward 300000"
 runtime="--maxinsts=100000"
