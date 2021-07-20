@@ -51,12 +51,14 @@ for benchmark in benchmarks:
     b_fullname = benchmark.fullname
 
     os.chdir(f"{spec_root}/{b_fullname}")
-
+    print(f"Now running {b_fullname}")
     for run in benchmark.get_runs_ref():
+        print(f"Executing run {run_num + 1} of
+        {benchmarks.get_runs_ref()}")
         run_ref = f"{gem5} {se} {fast_forward} {runtime}
         {caches} {runCPU} -c {b_name} -o \"{run}\""
         print(os.system(run_ref))
 
         move_data = f"mv {stats} {results}/{b_name}_{run_num}.txt"
         print(os.system(move_data))
-        ++run_num
+        run_num = run_num + 1
