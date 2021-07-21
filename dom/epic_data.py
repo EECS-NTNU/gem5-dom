@@ -1,4 +1,5 @@
 from spec2006_commands import benchmarks
+from multiprocessing import Process
 import os
 
 stats = ["simTicks",
@@ -34,17 +35,17 @@ results=f"{gem5_root}/results"
 
 warmupCPU="--cpu-type=kvmCPU"
 runCPU="--cpu-type=DerivO3CPU"
-caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB
---l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 --l2_assoc=8
---l3_assoc=16 --cacheline_size=64"
+caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB "\
+"--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 "\
+"--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
-fast_forward="--fast-forward 300000"
-runtime="--maxinsts=100000"
+fast_forward="--fast-forward 3000000"
+runtime="--maxinsts=1000000"
 
-mkdir = f"mkdir results"
+mkdir = f"mkdir {gem5_root}/results"
 print(os.system(mkdir))
 
-for benchmark in benchmarks:
+def run_benchmark(benchmark):
     run_num = 0
 
     b_name = benchmark.name
@@ -53,12 +54,21 @@ for benchmark in benchmarks:
     os.chdir(f"{spec_root}/{b_fullname}")
     print(f"Now running {b_fullname}")
     for run in benchmark.get_runs_ref():
-        print(f"Executing run {run_num + 1} of
-        {benchmarks.get_runs_ref()}")
-        run_ref = f"{gem5} {se} {fast_forward} {runtime}
-        {caches} {runCPU} -c {b_name} -o \"{run}\""
-        print(os.system(run_ref))
+        run_file=f"-r --stdout-file={b_name}_{run_num}.out"
+        print(f"Executing run {run_num + 1} of "\
+        f"{benchmark.num_runs_ref()} for {b_name}")
+        run_ref = f"{gem5} {run_file} {se} {fast_forward} "\
+        f"{runtime} {caches} {runCPU} -c {b_name} -o \"{run}\""
+        print(f"Run {run_num+1} for {b_name} finished "\
+        f"with code {os.system(run_ref)}")
 
         move_data = f"mv {stats} {results}/{b_name}_{run_num}.txt"
-        print(os.system(move_data))
+        os.system(move_data)
         run_num = run_num + 1
+
+processes = []
+
+for benchmark in benchmarks:
+    p = Process(target=run_benchmark, args=(benchmark,))
+    p.start()
+
