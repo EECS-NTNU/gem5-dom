@@ -64,6 +64,7 @@ DefaultDOM<Impl>::squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid)
     }
     DPRINTF(DebugDOM, "Squashed %d SB entries from SeqNum %d\n",
         squashedEntries, seqNum);
+    //TODO: We should instead rollback the release queue
     restoreFromIndex(tid);
 }
 
@@ -255,11 +256,11 @@ template <class Impl>
 bool
 DefaultDOM<Impl>::tagCheck(int sbTag, ThreadID tid)
 {
+    if (sbList[tid].empty()) return false;
     if (sbHead[tid] < sbTail[tid]) {
         return sbHead[tid] <= sbTag && sbTag < sbTail[tid];
     }
-    return (sbHead[tid] <= sbTag || sbTag < sbTail[tid])
-     || sbHead == sbTail;
+    return (sbHead[tid] <= sbTag || sbTag < sbTail[tid]);
 }
 
 template <class Impl>
