@@ -39,8 +39,8 @@ caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB "\
 "--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
-fast_forward="--fast-forward 3000000"
-runtime="--maxinsts=1000000"
+fast_forward="--fast-forward 300000000"
+runtime="--maxinsts=100000000"
 
 mkdir = f"mkdir {gem5_root}/results"
 print(os.system(mkdir))
@@ -59,6 +59,7 @@ def run_benchmark(benchmark):
         f"{benchmark.num_runs_ref()} for {b_name}")
         run_ref = f"{gem5} {run_file} {se} {fast_forward} "\
         f"{runtime} {caches} {runCPU} -c {b_name} -o \"{run}\""
+        print(run_ref)
         print(f"Run {run_num+1} for {b_name} finished "\
         f"with code {os.system(run_ref)}")
 

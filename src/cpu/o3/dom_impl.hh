@@ -43,12 +43,6 @@ template <class Impl>
 void
 DefaultDOM<Impl>::squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid)
 {
-    if (sbList[tid].empty()) {
-        domStats.loadsSquashed += rqList[tid].size();
-        rqList[tid].clear();
-        DPRINTF(DebugDOM, "Squashing all outstanding rq loads\n");
-        return;
-    }
     int squashedEntries = 0;
     while (!sbList[tid].empty() &&
         std::get<0>(sbList[tid].back())->seqNum > seqNum) {
@@ -64,8 +58,18 @@ DefaultDOM<Impl>::squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid)
     }
     DPRINTF(DebugDOM, "Squashed %d SB entries from SeqNum %d\n",
         squashedEntries, seqNum);
-    //TODO: We should instead rollback the release queue
-    restoreFromIndex(tid);
+
+    int squashedLoads = 0;
+    while (!rqList[tid].empty() &&
+        std::get<1>(rqList[tid].back())->seqNum > seqNum) {
+        ++domStats.loadsSquashed;
+        squashedLoads++;
+        std::get<1>(rqList[tid].back())->underShadow = false;
+        rqList[tid].pop_back();
+    }
+
+    DPRINTF(DebugDOM, "Squashed %d RQ loads from SeqNum %d\n",
+        squashedLoads, seqNum);
 }
 
 template <class Impl>
@@ -249,6 +253,7 @@ DefaultDOM<Impl>::stepSb(ThreadID tid)
         DPRINTF(DOM, "[tid:%i] Stepped ShadowBuffer. New inst [sn:%d].\n",
             tid, sbList[tid].empty() ? 0 :
                 std::get<0>(sbList[tid].front())->seqNum);
+        stallCycles = 0;
     }
 }
 
@@ -273,6 +278,7 @@ DefaultDOM<Impl>::stepRq(ThreadID tid)
         rqList[tid].erase(rqList[tid].begin());
         ++domStats.loadsCleared;
         DPRINTF(DOM, "[tid:%i] Stepped ReleaseQueue.\n", tid);
+        stallCycles = 0;
     }
 }
 
@@ -318,6 +324,7 @@ void
 DefaultDOM<Impl>::tick()
 {
     clearDeadEntries();
+    stallCycles++;
     for (ThreadID i = 0; i < activeThreads->size(); i++) {
         DPRINTF(DebugDOM, "Trying to step SB\n");
         for (int j = 0; j < width; j++) {
@@ -353,6 +360,7 @@ DefaultDOM<Impl>::tick()
         // Sanity checks
         assert(!(sbList[i].size() == 0 && sbHead[i] != sbTail[i]));
         assert(!(sbHead[i] == sbTail[i] && sbList[i].size() > 0));
+        //assert(!(stallCycles > 10000));
     }
 
     DPRINTF(DebugDOM, "Ticked DOM.\n");

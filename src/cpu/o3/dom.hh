@@ -33,6 +33,7 @@ class DefaultDOM
         int sbHead[Impl::MaxThreads];
         int sbTail[Impl::MaxThreads];
         int width;
+        int stallCycles;
 
         ThreadID numThreads;
 
