@@ -39,8 +39,8 @@ caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB "\
 "--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
-fast_forward="--fast-forward 300000000"
-runtime="--maxinsts=100000000"
+fast_forward="--fast-forward 3000000000"
+runtime="--maxinsts=1000000000"
 
 mkdir = f"mkdir {gem5_root}/results"
 print(os.system(mkdir))
@@ -65,7 +65,19 @@ def run_benchmark(benchmark):
 
         move_data = f"mv {stats} {results}/{b_name}_{run_num}.txt"
         os.system(move_data)
-        run_num = run_num + 1
+        run_num = run_num + 1.
+
+    move_result(benchmark)
+
+def move_result(benchmark):
+    b_name = benchmark.name
+    b_fullname = benchmark.fullname
+
+    os.chdir(f"{spec_root}/{b_fullname}")
+
+    for i in range(benchmark.num_runs_ref()):
+        move = f"mv m5out/{b_name}_{i}.out {work_root}/results/"
+        os.system(move)
 
 processes = []
 
