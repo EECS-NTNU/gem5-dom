@@ -969,8 +969,12 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             ++stats.loadsDelayedOnMiss;
             load_inst->clearIssued();
             DPRINTF(DebugDOM, "Returning ShadowFault\n");
+            delete(ex_snoop);
+            delete(state);
             return std::make_shared<ShadowFault>();
         }
+        delete(ex_snoop);
+        delete(state);
     }
 
     // For now, load throughput is constrained by the number of
