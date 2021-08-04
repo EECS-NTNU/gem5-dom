@@ -27,8 +27,8 @@ def compile_data():
         "system.switch_cpus.reissuedDelayedLoads",
         "system.switch_cpus.lsq0.loadsDelayedOnMiss"]
 
-    with open(f"{sims}_compiled_stats.txt", 'w') as w,
-    open(f"{sims}.weights.lpt0.9") as weights:
+    with open(f"{sims}_compiled_stats.txt", 'w') as w, \
+        open(f"{sims}.weights.lpt0.9") as weights:
         weight = weights.readline().split()[0]
         w.write(f"Relative Weight: {weight}\n")
         with open(f"{sims}_stat{x}.txt") as f:
@@ -45,33 +45,40 @@ def compile_data():
             print(stats_data, file=w)
             w.write("\n\n")
 
-b_name="mcf"
-b_fullname="429.mcf"
-spec_root="/home/amundbk/Documents/Research/Speckle/x86-spec-ref"
-b_com= f"{spec_root}/{b_fullname}/{b_name}"
-b_opt= f"\"{spec_root}/{b_fullname}/inp.in\""
+b_name="Xalan"
+b_fullname="483.xalancbmk"
+spec_root="/home/amundbk/Documents/Research/boot-tests/gem5/dom/x86-spec-ref"
+b_com= f"{b_name}"
+b_opt= f"\"-v t5.xml xalanc.xsl\""
 com =  f"-c {b_com} -o {b_opt}"
 
-gem5="./build/X86/gem5.opt"
-se="./configs/example/se.py"
+gem5_root="/home/amundbk/Documents/Research/boot-tests/gem5"
+gem5=f"{gem5_root}/build/X86/gem5.opt"
+se=f"{gem5_root}/configs/example/se.py"
 out="m5out/"
 data=f"results/{b_name}/"
 results=f"{data}{b_name}"
 
 warmupCPU="--cpu-type=kvmCPU"
 runCPU="--cpu-type=DerivO3CPU"
-caches="--caches --l1d_size=64kB --l1i_size=16kB",
-"--l2_size=2MB --l3_size=16MB --l1d_assoc=2",
-"--l1i_assoc=2 --l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
+caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB"\
+    "--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 --l2_assoc=8"\
+    "--l3_assoc=16 --cacheline_size=64"
 
-fast_forward="--fast-forward 300000000"
-switch="--maxinsts=100000000"
+fast_forward="--fast-forward 30000000"
+switch="--maxinsts=10000000"
 output=f"--output=/{results}/stats.txt"
 
 mkdir = f"mkdir {data}"
 print(os.system(mkdir))
 
+move_to_b=f"{spec_root}/{b_fullname}"
+os.chdir(move_to_b)
+
+print(os.system("ls"))
+
 base_data=f"{gem5} {se} {fast_forward} {switch} {caches} {runCPU} {com}"
+print(base_data)
 print(os.system(base_data))
 
 stat_mov = f"mv {out}stats.txt {results}/{b_name}_1.txt"
