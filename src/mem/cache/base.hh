@@ -493,6 +493,23 @@ class BaseCache : public ClockedObject
     virtual void handleTimingReqHit(PacketPtr pkt, CacheBlk *blk,
                                     Tick request_time);
 
+
+    /* [MP-SPEM]
+     * Implementation specific handling for hiding speculative accesses
+     */
+    virtual void handleTimingReqMissSpeculative(PacketPtr pkt,
+                                     CacheBlk *blk,
+                                     Tick forward_time,
+                                     Tick request_time) = 0;
+
+    /* [MP-SPEM]
+     * Common specualtive handling for cache accesses
+     */
+    void handleTimingReqMissSpeculative(PacketPtr pkt, MSHR *mshr,
+                                     CacheBlk *blk,
+                                     Tick forward_time,
+                                     Tick request_time);
+
     /*
      * Handle a timing request that missed in the cache
      *
@@ -1170,6 +1187,21 @@ class BaseCache : public ClockedObject
         if (sched_send) {
             // schedule the send
             schedMemSideSendEvent(time);
+        }
+
+        return mshr;
+    }
+
+    MSHR *allocateMissBufferSpeculative(PacketPtr pkt, Tick time,
+                                        bool sched_send = false)
+    {
+        MSHR *mshr = mshrQueue.allocate(pkt->getBlockAddr(blkSize),
+                                        blkSize,
+                                        pkt, time,
+                                        order++,
+                                        allocOnFill(pkt->cmd));
+        if (mshrQueue.isFull()) {
+            setBlocked((BlockedCause)MSHRQueue_MSHRs);
         }
 
         return mshr;

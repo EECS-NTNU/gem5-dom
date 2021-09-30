@@ -113,6 +113,9 @@ class MSHR : public QueueEntry, public Printable
     /** Did we snoop a read while waiting for data? */
     bool postDowngrade;
 
+    /** [MP-SPEM] Is this mshr speculative (only speculative targets) */
+    bool speculative;
+
   public:
 
     /** Track if we sent this as a whole line write or not */
@@ -325,6 +328,11 @@ class MSHR : public QueueEntry, public Printable
 
     bool hasPostDowngrade() const {
         assert(inService); return postDowngrade;
+    }
+
+    /** [MP-SPEM] */
+    bool isSpeculative() const {
+        assert (inService); return speculative;
     }
 
     bool sendPacket(BaseCache &cache) override;

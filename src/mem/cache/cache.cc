@@ -318,6 +318,18 @@ Cache::handleTimingReqHit(PacketPtr pkt, CacheBlk *blk, Tick request_time)
 }
 
 void
+Cache::handleTimingReqMissSpeculative(PacketPtr pkt,
+                            CacheBlk *blk,
+                            Tick forward_time,
+                            Tick request_time)
+{
+    Addr blk_addr = pkt->getBlockAddr(blkSize);
+    MSHR *mshr = mshrQueue.findMatch(blk_addr, pkt->isSecure());
+    BaseCache::handleTimingReqMissSpeculative(pkt, mshr, blk, forward_time,
+        request_time);
+}
+
+void
 Cache::handleTimingReqMiss(PacketPtr pkt, CacheBlk *blk, Tick forward_time,
                            Tick request_time)
 {

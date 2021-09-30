@@ -304,7 +304,7 @@ class LSQ
         std::vector<bool> _byteEnable;
         uint32_t _numOutstandingPackets;
         AtomicOpFunctorPtr _amo_op;
-        bool underShadow;
+        bool speculative;
       protected:
         LSQUnit* lsqUnit() { return &_port; }
         LSQRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad) :
@@ -312,7 +312,7 @@ class LSQ
             _port(*port), _inst(inst), _data(nullptr),
             _res(nullptr), _addr(0), _size(0), _flags(0),
             _numOutstandingPackets(0), _amo_op(nullptr),
-            underShadow(inst->underShadow)
+            speculative(inst->underShadow)
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,
@@ -333,7 +333,7 @@ class LSQ
             _flags(flags_),
             _numOutstandingPackets(0),
             _amo_op(std::move(amo_op)),
-            underShadow(inst->underShadow)
+            speculative(inst->underShadow)
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,
@@ -351,7 +351,7 @@ class LSQ
         _flags(other->_flags),
         _numOutstandingPackets(other->_numOutstandingPackets),
         _amo_op(nullptr),
-        underShadow(other->underShadow)
+        speculative(other->isSpeculative())
         {
             flags.set(Flag::IsLoad, true);
             flags.set(Flag::WbStore,
@@ -564,6 +564,14 @@ class LSQ
         {
             return flags.isSet(Flag::IsSplit);
         }
+
+        // [MP-SPEM]
+        bool
+        isSpeculative() const
+        {
+            return speculative;
+        }
+
         /** @} */
         virtual bool recvTimingResp(PacketPtr pkt) = 0;
         virtual void sendPacketToCache() = 0;
@@ -751,7 +759,7 @@ class LSQ
         using LSQRequest::numTranslatedFragments;
         using LSQRequest::_numOutstandingPackets;
         using LSQRequest::_amo_op;
-        using LSQRequest::underShadow;
+        using LSQRequest::speculative;
       public:
         SingleDataRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad,
                           const Addr& addr, const uint32_t& size,

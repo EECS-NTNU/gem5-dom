@@ -173,8 +173,8 @@ SectorTags::accessBlock(Addr addr, bool is_secure, Cycles &lat)
 }
 
 CacheBlk*
-SectorTags::accessBlockShadow(Addr addr, bool is_secure,
-    Cycles &lat, bool underShadow)
+SectorTags::accessBlockSpeculative(Addr addr, bool is_secure,
+    Cycles &lat)
 {
     CacheBlk *blk = findBlock(addr, is_secure);
 
@@ -191,7 +191,7 @@ SectorTags::accessBlockShadow(Addr addr, bool is_secure,
     }
 
     // We should have scoped these out
-    assert(!(blk != nullptr && underShadow));
+    assert(!(blk != nullptr));
     if (blk != nullptr) {
         // Update number of references to accessed block
         blk->increaseRefCount();
@@ -199,12 +199,6 @@ SectorTags::accessBlockShadow(Addr addr, bool is_secure,
         // Get block's sector
         SectorSubBlk* sub_blk = static_cast<SectorSubBlk*>(blk);
         const SectorBlk* sector_blk = sub_blk->getSectorBlock();
-
-        // Update replacement data of accessed block, which is shared with
-        // the whole sector it belongs to. If under shadow, we do not affect
-        // replacement state.
-        if (!underShadow)
-            replacementPolicy->touch(sector_blk->replacementData);
     }
 
     // The tag lookup latency is the same for a hit or a miss

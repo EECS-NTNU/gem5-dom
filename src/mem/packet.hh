@@ -360,7 +360,6 @@ class Packet : public Printable
     /// The size of the request or transfer.
     unsigned size;
 
-
     /**
      * Track the bytes found that satisfy a functional read.
      */
@@ -529,12 +528,6 @@ class Packet : public Printable
      */
     SenderState *popSenderState();
 
-
-    /// Whether or not the packet is under a shadow
-
-    bool underShadow;
-
-    bool missedInCache = false;
 
     /**
      * Go through the sender state stack and return the first instance
@@ -825,6 +818,9 @@ class Packet : public Printable
         cmd = MemCmd::ReadReq;
     }
 
+    /** [MP-SPEM] Whether or not the packet is speculative */
+    bool speculative;
+
     /**
      * Constructor. Note that a Request object must be constructed
      * first, but the Requests's physical address and size fields need
@@ -838,8 +834,8 @@ class Packet : public Printable
            htmTransactionUid(0),
            headerDelay(0), snoopDelay(0),
            payloadDelay(0), senderState(NULL),
-           underShadow(req->isUnderShadow())
-    {
+           speculative(req->isSpeculative())
+        {
         flags.clear();
         if (req->hasPaddr()) {
             addr = req->getPaddr();
@@ -880,7 +876,7 @@ class Packet : public Printable
            htmTransactionUid(0),
            headerDelay(0),
            snoopDelay(0), payloadDelay(0), senderState(NULL),
-           underShadow(req->isUnderShadow())
+           speculative(req->isSpeculative())
     {
         flags.clear();
         if (req->hasPaddr()) {
@@ -911,7 +907,7 @@ class Packet : public Printable
            snoopDelay(0),
            payloadDelay(pkt->payloadDelay),
            senderState(pkt->senderState),
-           underShadow(pkt->underShadow)
+           speculative(req->isSpeculative())
     {
         if (!clear_flags)
             flags.set(pkt->flags & COPY_FLAGS);
@@ -1373,21 +1369,9 @@ class Packet : public Printable
     }
 
     bool
-    isUnderShadow() const
+    isSpeculative() const
     {
-        return underShadow;
-    }
-
-    bool
-    didMissInCache() const
-    {
-        return missedInCache;
-    }
-
-    void
-    setMissInCache(bool miss)
-    {
-        missedInCache = miss;
+        return speculative;
     }
 
     /**

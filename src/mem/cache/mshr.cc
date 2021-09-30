@@ -305,6 +305,8 @@ MSHR::allocate(Addr blk_addr, unsigned blk_size, PacketPtr target,
     _isUncacheable = target->req->isUncacheable();
     inService = false;
     downstreamPending = false;
+    // [MP-SPEM]
+    speculative = target->isSpeculative();
 
     targets.init(blkAddr, blkSize);
     deferredTargets.init(blkAddr, blkSize);
@@ -405,6 +407,9 @@ MSHR::allocateTarget(PacketPtr pkt, Tick whenReady, Counter _order,
         // (isn't in service).
         targets.add(pkt, whenReady, _order, Target::FromCPU, !inService,
                     alloc_on_fill);
+        if (isSpeculative() && !pkt->isSpeculative()) {
+
+        }
     }
 }
 

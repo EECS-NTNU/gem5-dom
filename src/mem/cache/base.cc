@@ -245,6 +245,22 @@ BaseCache::handleTimingReqHit(PacketPtr pkt, CacheBlk *blk, Tick request_time)
     }
 }
 
+// [MP-SPEM]
+void
+BaseCache::handleTimingReqMissSpeculative(PacketPtr pkt, MSHR *mshr,
+                                CacheBlk *blk,
+                                Tick forward_time,
+                                Tick request_time)
+{
+    if (mshr) return;
+    assert(pkt->isRead());
+    assert(pkt->req->requestorId() < system->maxRequestors());
+    assert(!(blk && blk->isValid()));
+    stats.cmdStats(pkt).mshrMisses[pkt->req->requestorId()];
+    allocateMissBufferSpeculative(pkt, forward_time);
+
+}
+
 void
 BaseCache::handleTimingReqMiss(PacketPtr pkt, MSHR *mshr, CacheBlk *blk,
                                Tick forward_time, Tick request_time)
@@ -292,6 +308,9 @@ BaseCache::handleTimingReqMiss(PacketPtr pkt, MSHR *mshr, CacheBlk *blk,
                 // delay of the xbar.
                 mshr->allocateTarget(pkt, forward_time, order++,
                                      allocOnFill(pkt->cmd));
+                if (mshr->isSpeculative() && !pkt->isSpeculative()) {
+                    schedMemSideSendEvent(mshr->readyTime);
+                }
                 if (mshr->getNumTargets() == numTarget) {
                     noTargetMSHR = mshr;
                     setBlocked(Blocked_NoTargets);
@@ -351,6 +370,18 @@ BaseCache::recvTimingReq(PacketPtr pkt)
     Cycles lat;
     CacheBlk *blk = nullptr;
     bool satisfied = false;
+
+    // [MP-SPEM] If packet is speculative, don't forward data, but ensure
+    // it is either in cache or in mshr
+    if (pkt->isSpeculative() && pkt->isRead()) {
+        PacketList writebacks;
+        Tick request_time = clockEdge(lat);
+        satisfied = access(pkt, blk, lat, writebacks);
+        if (!satisfied) handleTimingReqMissSpeculative(pkt, blk,
+                                            forward_time, request_time);
+        return;
+    }
+
     {
         PacketList writebacks;
         // Note that lat is passed by reference here. The function
@@ -635,18 +666,6 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
     bool is_secure = pkt->isSecure();
     CacheBlk *blk = tags->findBlock(pkt->getAddr(), is_secure);
     MSHR *mshr = mshrQueue.findMatch(blk_addr, is_secure);
-
-    // This indicates a DoM check
-    if (pkt->underShadow && pkt->isExpressSnoop()) {
-        if (blk || mshr) {
-            pkt->setMissInCache(false);
-        } else {
-            pkt->setMissInCache(true);
-        }
-        DPRINTF(CacheDOM, "Handled express snoop: Miss: %d \n",
-        pkt->didMissInCache());
-        return ;
-    }
 
     pkt->pushLabel(name());
 
@@ -1154,9 +1173,9 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
 
     // Access block in the tags
     Cycles tag_latency(0);
-    if (pkt->isRead()) {
-        blk = tags->accessBlockShadow(pkt->getAddr(), pkt->isSecure(),
-            tag_latency, pkt->isUnderShadow());
+    if (pkt->isRead() && pkt->isSpeculative()) {
+        blk = tags->accessBlockSpeculative(pkt->getAddr(), pkt->isSecure(),
+            tag_latency);
     } else {
         blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency);
     }

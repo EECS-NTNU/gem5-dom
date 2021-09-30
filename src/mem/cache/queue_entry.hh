@@ -64,15 +64,19 @@ class QueueEntry : public Packet::SenderState
     template <class Entry>
     friend class Queue;
 
-  protected:
+  public:
 
+    /** [MP-SPEM] makes this public */
     /** Tick when ready to issue */
     Tick readyTime;
+
+  protected:
 
     /** True if the entry is uncacheable */
     bool _isUncacheable;
 
   public:
+
     /**
      * A queue entry is holding packets that will be serviced as soon as
      * resources are available. Since multiple references to the same
@@ -116,9 +120,14 @@ class QueueEntry : public Packet::SenderState
     /** True if the entry targets the secure memory space. */
     bool isSecure;
 
+    /** [MP-SPEM] Is this specualtively assigned to load up an entry? */
+    bool isSpeculative;
+
     QueueEntry()
         : readyTime(0), _isUncacheable(false),
-          inService(false), order(0), blkAddr(0), blkSize(0), isSecure(false)
+          inService(false), order(0), blkAddr(0), blkSize(0), isSecure(false),
+          //[MP-SPEM]
+          isSpeculative(false)
     {}
 
     bool isUncacheable() const { return _isUncacheable; }

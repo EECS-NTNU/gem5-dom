@@ -153,8 +153,9 @@ class BaseSetAssoc : public BaseTags
         return blk;
     }
 
-    CacheBlk* accessBlockShadow(Addr addr, bool is_secure, Cycles &lat,
-        bool underShadow) override
+    CacheBlk* accessBlockSpeculative(Addr addr,
+                                    bool is_secure,
+                                    Cycles &lat) override
     {
         CacheBlk *blk = findBlock(addr, is_secure);
 
@@ -174,9 +175,6 @@ class BaseSetAssoc : public BaseTags
         if (blk != nullptr) {
             // Update number of references to accessed block
             blk->increaseRefCount();
-
-            // Update replacement data of accessed block
-            if (!underShadow) replacementPolicy->touch(blk->replacementData);
         }
 
         // The tag lookup latency is the same for a hit or a miss

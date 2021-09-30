@@ -1031,7 +1031,7 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
         }
     }
     //Always update this, it could have changed since last time
-    _packets.back()->underShadow = underShadow;
+    _packets.back()->speculative = speculative;
     assert(_packets.size() == 1);
 }
 

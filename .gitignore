@@ -40,4 +40,4 @@ mcf.out
 mcf.sim
 dom/spectre-attacks.tar.gz
 dom/spectre-attacks/spectre-dom
-
+.vscode/*

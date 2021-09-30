@@ -658,8 +658,6 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
 
-    //Always update underShadow incase shadow has been cleared
-    req->underShadow = load_inst->underShadow;
     load_req.setRequest(req);
     assert(load_inst);
 
@@ -953,30 +951,6 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         *load_inst->memData = (uint64_t) 0x1ull;
     }
 
-    if (req->underShadow) {
-        PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
-        ex_snoop->dataStatic(load_inst->memData);
-        ex_snoop->setExpressSnoop();
-        ex_snoop->underShadow = req->underShadow;
-        LSQSenderState *state = new LQSnoopState(req);
-        ex_snoop->senderState = state;
-        dcachePort->sendFunctional(ex_snoop);
-        ++stats.issuedSnoops;
-        DPRINTF(DOM, "Issued snoop to cache"
-            "Missed: %d\n", ex_snoop->didMissInCache());
-        if (ex_snoop->didMissInCache()) {
-            iewStage->delayMemInst(load_inst);
-            ++stats.loadsDelayedOnMiss;
-            load_inst->clearIssued();
-            DPRINTF(DebugDOM, "Returning ShadowFault\n");
-            delete(ex_snoop);
-            delete(state);
-            return std::make_shared<ShadowFault>();
-        }
-        delete(ex_snoop);
-        delete(state);
-    }
-
     // For now, load throughput is constrained by the number of
     // load FUs only, and loads do not consume a cache port (only
     // stores do).
@@ -993,6 +967,11 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         req->senderState(state);
     }
     req->buildPackets();
+
+    if (req->isSpeculative()) {
+        req->sendPacketToCache();
+        iewStage->delayMemInst(load_inst);
+    }
     req->sendPacketToCache();
     if (!req->isSent())
         iewStage->blockMemInst(load_inst);

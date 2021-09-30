@@ -133,10 +133,9 @@ FALRU::accessBlock(Addr addr, bool is_secure, Cycles &lat)
 }
 
 CacheBlk*
-FALRU::accessBlockShadow(Addr addr, bool is_secure, Cycles &lat,
-    bool underShadow)
+FALRU::accessBlockSpeculative(Addr addr, bool is_secure, Cycles &lat)
 {
-    return accessBlockShadow(addr, is_secure, lat, 0, underShadow);
+    return accessBlockSpeculative(addr, is_secure, lat, 0);
 }
 
 CacheBlk*
@@ -166,8 +165,8 @@ FALRU::accessBlock(Addr addr, bool is_secure, Cycles &lat,
 }
 
 CacheBlk*
-FALRU::accessBlockShadow(Addr addr, bool is_secure, Cycles &lat,
-            CachesMask *in_caches_mask, bool underShadow)
+FALRU::accessBlockSpeculative(Addr addr, bool is_secure, Cycles &lat,
+            CachesMask *in_caches_mask)
 {
     CachesMask mask = 0;
     FALRUBlk* blk = static_cast<FALRUBlk*>(findBlock(addr, is_secure));
@@ -182,9 +181,6 @@ FALRU::accessBlockShadow(Addr addr, bool is_secure, Cycles &lat,
     if (in_caches_mask) {
         *in_caches_mask = mask;
     }
-
-    if (!underShadow) cacheTracking.recordAccess(blk);
-
     // The tag lookup latency is the same for a hit or a miss
     lat = lookupLatency;
 

@@ -91,6 +91,10 @@ class Cache : public BaseCache
                              Tick forward_time,
                              Tick request_time) override;
 
+    void handleTimingReqMissSpeculative(PacketPtr pkt, CacheBlk *blk,
+                             Tick forward_time,
+                             Tick request_time) override;
+
     void recvTimingReq(PacketPtr pkt) override;
 
     void doWritebacks(PacketList& writebacks, Tick forward_time) override;
