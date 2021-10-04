@@ -572,6 +572,12 @@ class LSQ
             return speculative;
         }
 
+        void
+        setSpeculative(bool newState)
+        {
+            speculative = newState;
+        }
+
         /** @} */
         virtual bool recvTimingResp(PacketPtr pkt) = 0;
         virtual void sendPacketToCache() = 0;

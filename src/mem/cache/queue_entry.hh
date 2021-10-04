@@ -120,7 +120,7 @@ class QueueEntry : public Packet::SenderState
     /** True if the entry targets the secure memory space. */
     bool isSecure;
 
-    /** [MP-SPEM] Is this specualtively assigned to load up an entry? */
+    /** [MP-SPEM] Is this specuatively assigned to load up an entry? */
     bool isSpeculative;
 
     QueueEntry()

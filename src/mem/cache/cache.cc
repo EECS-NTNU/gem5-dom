@@ -317,6 +317,7 @@ Cache::handleTimingReqHit(PacketPtr pkt, CacheBlk *blk, Tick request_time)
     BaseCache::handleTimingReqHit(pkt, blk, request_time);
 }
 
+// [MP-SPEM]
 void
 Cache::handleTimingReqMissSpeculative(PacketPtr pkt,
                             CacheBlk *blk,
@@ -770,7 +771,10 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk)
             // either); otherwise we use the packet data.
             if (blk && blk->isValid() &&
                 (!mshr->isForward || !pkt->hasData())) {
-                satisfyRequest(tgt_pkt, blk, true, mshr->hasPostDowngrade());
+                //[MP-SPEM] if mshr is speculative, it should not writeback
+                //if (!mshr->isSpeculative())
+                    satisfyRequest(tgt_pkt, blk, true,
+                        mshr->hasPostDowngrade());
 
                 // How many bytes past the first request is this one
                 int transfer_offset =
@@ -843,7 +847,9 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk)
                 // carried over to cache above
                 tgt_pkt->copyResponderFlags(pkt);
             }
-            tgt_pkt->makeTimingResponse();
+            // [MP-SPEM] Speculative MSHRs should not make response
+            //if (!mshr->isSpeculative())
+                tgt_pkt->makeTimingResponse();
             // if this packet is an error copy that to the new packet
             if (is_error)
                 tgt_pkt->copyError(pkt);

@@ -128,6 +128,15 @@ NoncoherentCache::handleTimingReqMiss(PacketPtr pkt, CacheBlk *blk,
     BaseCache::handleTimingReqMiss(pkt, mshr, blk, forward_time, request_time);
 }
 
+//[MP-SPEM]
+void
+NoncoherentCache::handleTimingReqMissSpeculative(PacketPtr pkt, CacheBlk *blk,
+                Tick forward_time,
+                Tick request_time)
+{
+    handleTimingReqMiss(pkt, blk, forward_time, request_time);
+}
+
 void
 NoncoherentCache::recvTimingReq(PacketPtr pkt)
 {
@@ -275,13 +284,17 @@ NoncoherentCache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt,
             stats.cmdStats(tgt_pkt).missLatency[tgt_pkt->req->requestorId()] +=
                 completion_time - target.recvTime;
 
-            tgt_pkt->makeTimingResponse();
+            // [MP-SPEM] mshr should not make response when speculative ?
+            // if (!mshr->isSpeculative())
+                tgt_pkt->makeTimingResponse();
             if (pkt->isError())
                 tgt_pkt->copyError(pkt);
 
             // Reset the bus additional time as it is now accounted for
             tgt_pkt->headerDelay = tgt_pkt->payloadDelay = 0;
-            cpuSidePort.schedTimingResp(tgt_pkt, completion_time);
+            // [MP-SPEM] mshr should not make response when speculative ?
+            // if (!mshr->isSpeculative())
+                cpuSidePort.schedTimingResp(tgt_pkt, completion_time);
             break;
 
           case MSHR::Target::FromPrefetcher:

@@ -318,6 +318,11 @@ class MSHR : public QueueEntry, public Printable
         return pkt->isClean();
     }
 
+    /** [MP-SPEM] */
+    bool isSpeculative() const {
+        return speculative;
+    }
+
     bool isPendingModified() const {
         assert(inService); return pendingModified;
     }
@@ -328,11 +333,6 @@ class MSHR : public QueueEntry, public Printable
 
     bool hasPostDowngrade() const {
         assert(inService); return postDowngrade;
-    }
-
-    /** [MP-SPEM] */
-    bool isSpeculative() const {
-        assert (inService); return speculative;
     }
 
     bool sendPacket(BaseCache &cache) override;

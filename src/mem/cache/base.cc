@@ -371,6 +371,7 @@ BaseCache::recvTimingReq(PacketPtr pkt)
     CacheBlk *blk = nullptr;
     bool satisfied = false;
 
+    /*
     // [MP-SPEM] If packet is speculative, don't forward data, but ensure
     // it is either in cache or in mshr
     if (pkt->isSpeculative() && pkt->isRead()) {
@@ -380,7 +381,7 @@ BaseCache::recvTimingReq(PacketPtr pkt)
         if (!satisfied) handleTimingReqMissSpeculative(pkt, blk,
                                             forward_time, request_time);
         return;
-    }
+    } */
 
     {
         PacketList writebacks;

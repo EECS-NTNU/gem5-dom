@@ -503,7 +503,7 @@ class BaseCache : public ClockedObject
                                      Tick request_time) = 0;
 
     /* [MP-SPEM]
-     * Common specualtive handling for cache accesses
+     * Common speculative handling for cache accesses
      */
     void handleTimingReqMissSpeculative(PacketPtr pkt, MSHR *mshr,
                                      CacheBlk *blk,

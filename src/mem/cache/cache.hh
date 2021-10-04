@@ -90,7 +90,7 @@ class Cache : public BaseCache
     void handleTimingReqMiss(PacketPtr pkt, CacheBlk *blk,
                              Tick forward_time,
                              Tick request_time) override;
-
+//[MP-SPEM]
     void handleTimingReqMissSpeculative(PacketPtr pkt, CacheBlk *blk,
                              Tick forward_time,
                              Tick request_time) override;

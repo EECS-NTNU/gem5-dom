@@ -1215,9 +1215,11 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             i--;
             ++iqStats.squashedDelayedLoads;
         } else if (!delayedMemInsts.at(i)->underShadow) {
-            DPRINTF(DebugDOM, "Acquired a non-speculative load\n");
             DynInstPtr mem_inst = std::move(
                 delayedMemInsts.at(i));
+            DPRINTF(DebugDOM,
+                    "Acquired a non-speculative load [sn:%llu]\n",
+                    mem_inst->seqNum);
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
             mem_inst->savedReq->setStateToRequest();
             mem_inst->getFault() = NoFault;
