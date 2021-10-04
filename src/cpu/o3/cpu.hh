@@ -776,6 +776,9 @@ class FullO3CPU : public BaseO3CPU
         Stats::Scalar miscRegfileWrites;
     } cpuStats;
 
+    // [MP-SPEM] Whether to apply MP-SPEM
+    const bool MPSPEM;
+
   public:
     // hardware transactional memory
     void htmSendAbortSignal(ThreadID tid, uint64_t htm_uid,

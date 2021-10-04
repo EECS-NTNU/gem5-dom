@@ -1030,8 +1030,6 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
               _inst->getHtmTransactionUid());
         }
     }
-    //Always update this, it could have changed since last time
-    _packets.back()->speculative = speculative;
     assert(_packets.size() == 1);
 }
 

@@ -659,7 +659,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     const DynInstPtr& load_inst = load_req.instruction();
 
     load_req.setRequest(req);
-    //req->setSpeculative(load_inst->underShadow);
+    if (cpu->MPSPEM) req->setSpeculative(load_inst->underShadow);
     assert(load_inst);
 
     assert(!load_inst->isExecuted());
@@ -969,20 +969,17 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     }
     req->buildPackets();
 
-    req->sendPacketToCache();
-    if (!req->isSent())
-        iewStage->blockMemInst(load_inst);
-/**
-    // [MP-SPEM] Handle speculative loads separately
-    if (req->isSpeculative()) {
+// [MP-SPEM] Handle speculative loads separately
+    if (cpu->MPSPEM && req->isSpeculative()) {
+        req->setPacketsSpeculative();
         req->sendPacketToCache();
         iewStage->delayMemInst(load_inst);
     } else {
+        req->setPacketsNonSpeculative();
         req->sendPacketToCache();
         if (!req->isSent())
             iewStage->blockMemInst(load_inst);
     }
-*/
     return NoFault;
 }
 
