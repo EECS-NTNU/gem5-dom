@@ -407,9 +407,6 @@ MSHR::allocateTarget(PacketPtr pkt, Tick whenReady, Counter _order,
         // (isn't in service).
         targets.add(pkt, whenReady, _order, Target::FromCPU, !inService,
                     alloc_on_fill);
-        if (isSpeculative() && !pkt->isSpeculative()) {
-
-        }
     }
 }
 

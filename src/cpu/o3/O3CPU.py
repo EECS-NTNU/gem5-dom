@@ -179,7 +179,7 @@ class DerivO3CPU(BaseCPU):
                           "Enable TSO Memory model")
 
     # [MP-SPEM]
-    MPSPEM = Param.Bool(True, "Whether to use MP-SPEM to block Spectre")
+    MPSPEM = Param.Bool(False, "Whether to use MP-SPEM to block Spectre")
 
     def addCheckerCpu(self):
         if buildEnv['TARGET_ISA'] in ['arm']:

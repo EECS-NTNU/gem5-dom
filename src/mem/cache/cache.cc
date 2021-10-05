@@ -55,6 +55,7 @@
 #include "debug/Cache.hh"
 #include "debug/CacheTags.hh"
 #include "debug/CacheVerbose.hh"
+#include "debug/SpeculativeCache.hh"
 #include "enums/Clusivity.hh"
 #include "mem/cache/cache_blk.hh"
 #include "mem/cache/mshr.hh"
@@ -326,6 +327,8 @@ Cache::handleTimingReqMissSpeculative(PacketPtr pkt,
 {
     Addr blk_addr = pkt->getBlockAddr(blkSize);
     MSHR *mshr = mshrQueue.findMatch(blk_addr, pkt->isSecure());
+    DPRINTF(SpeculativeCache, "Speculative Timing Req Miss for pkt",
+            pkt->print());
     BaseCache::handleTimingReqMissSpeculative(pkt, mshr, blk, forward_time,
         request_time);
 }

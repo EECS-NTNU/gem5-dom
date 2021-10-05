@@ -53,6 +53,7 @@
 #include "debug/CachePort.hh"
 #include "debug/CacheRepl.hh"
 #include "debug/CacheVerbose.hh"
+#include "debug/SpeculativeCache.hh"
 #include "mem/cache/compressors/base.hh"
 #include "mem/cache/mshr.hh"
 #include "mem/cache/prefetch/base.hh"
@@ -1175,6 +1176,9 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
     // Access block in the tags
     Cycles tag_latency(0);
     if (pkt->isRead() && pkt->isSpeculative()) {
+        DPRINTF(SpeculativeCache,
+            "Speculative Cache Access for addr %s, with %s",
+            pkt->getAddr(), pkt->print());
         blk = tags->accessBlockSpeculative(pkt->getAddr(), pkt->isSecure(),
             tag_latency);
     } else {
