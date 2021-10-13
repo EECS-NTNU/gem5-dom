@@ -56,6 +56,7 @@
 #include "base/types.hh"
 #include "debug/Cache.hh"
 #include "debug/CachePort.hh"
+#include "debug/SpeculativeCache.hh"
 #include "enums/Clusivity.hh"
 #include "mem/cache/cache_blk.hh"
 #include "mem/cache/compressors/base.hh"
@@ -492,23 +493,6 @@ class BaseCache : public ClockedObject
      */
     virtual void handleTimingReqHit(PacketPtr pkt, CacheBlk *blk,
                                     Tick request_time);
-
-
-    /* [MP-SPEM]
-     * Implementation specific handling for hiding speculative accesses
-     */
-    virtual void handleTimingReqMissSpeculative(PacketPtr pkt,
-                                     CacheBlk *blk,
-                                     Tick forward_time,
-                                     Tick request_time) = 0;
-
-    /* [MP-SPEM]
-     * Common speculative handling for cache accesses
-     */
-    void handleTimingReqMissSpeculative(PacketPtr pkt, MSHR *mshr,
-                                     CacheBlk *blk,
-                                     Tick forward_time,
-                                     Tick request_time);
 
     /*
      * Handle a timing request that missed in the cache
@@ -1193,8 +1177,11 @@ class BaseCache : public ClockedObject
     }
 
     MSHR *allocateMissBufferSpeculative(PacketPtr pkt, Tick time,
-                                        bool sched_send = false)
+                                        bool sched_send = true)
     {
+        DPRINTF(SpeculativeCache, "Trying to allocate mshr for pkt %s"
+        " with request: %d and speculative: %d\n",
+        pkt->print(), pkt->isRequest(), pkt->isSpeculative());
         MSHR *mshr = mshrQueue.allocate(pkt->getBlockAddr(blkSize),
                                         blkSize,
                                         pkt, time,
@@ -1202,6 +1189,10 @@ class BaseCache : public ClockedObject
                                         allocOnFill(pkt->cmd));
         if (mshrQueue.isFull()) {
             setBlocked((BlockedCause)MSHRQueue_MSHRs);
+        }
+        //Need to actually issue the request to the mem side
+        if (sched_send) {
+            schedMemSideSendEvent(time);
         }
 
         return mshr;

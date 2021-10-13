@@ -128,15 +128,6 @@ NoncoherentCache::handleTimingReqMiss(PacketPtr pkt, CacheBlk *blk,
     BaseCache::handleTimingReqMiss(pkt, mshr, blk, forward_time, request_time);
 }
 
-//[MP-SPEM]
-void
-NoncoherentCache::handleTimingReqMissSpeculative(PacketPtr pkt, CacheBlk *blk,
-                Tick forward_time,
-                Tick request_time)
-{
-    handleTimingReqMiss(pkt, blk, forward_time, request_time);
-}
-
 void
 NoncoherentCache::recvTimingReq(PacketPtr pkt)
 {

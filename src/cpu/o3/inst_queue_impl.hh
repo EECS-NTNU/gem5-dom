@@ -1220,9 +1220,10 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             DPRINTF(DebugDOM,
                     "Acquired a non-speculative load [sn:%llu]\n",
                     mem_inst->seqNum);
-            delayedMemInsts.erase(delayedMemInsts.begin() + i);
-            mem_inst->savedReq->setStateToRequest();
+            auto req = mem_inst->savedReq;
+            req->dropPackets();
             mem_inst->getFault() = NoFault;
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
             ++iqStats.reissuedDelayedLoads;
             return mem_inst;
         }

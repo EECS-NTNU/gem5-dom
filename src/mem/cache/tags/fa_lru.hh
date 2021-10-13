@@ -180,7 +180,7 @@ class FALRU : public BaseTags
      * @return Pointer to the cache block.
      */
     CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat,
-                          CachesMask *in_cache_mask);
+                          bool is_speculative, CachesMask *in_cache_mask);
 
     CacheBlk* accessBlockSpeculative(Addr addr, bool is_secure, Cycles &lat,
                           CachesMask *in_cache_mask);
@@ -188,12 +188,8 @@ class FALRU : public BaseTags
     /**s
      * Just a wrapper of above function to conform with the base interface.
      */
-    CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat) override;
-
-
-    CacheBlk* accessBlockSpeculative(Addr addr,
-                                    bool is_secure,
-                                    Cycles &lat) override;
+    CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat,
+                          bool is_speculative) override;
 
     /**
      * Find the block in the cache, do not update the replacement data.

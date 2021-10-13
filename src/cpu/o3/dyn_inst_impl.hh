@@ -172,6 +172,7 @@ BaseO3DynInst<Impl>::completeAcc(PacketPtr pkt)
             this->reqToVerify->setExtraData(pkt->req->getExtraData());
         }
     }
+    assert(!pkt->isSpeculative());
 
     this->fault = this->staticInst->completeAcc(pkt, this, this->traceData);
 

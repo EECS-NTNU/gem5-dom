@@ -55,7 +55,6 @@
 #include "debug/Cache.hh"
 #include "debug/CacheTags.hh"
 #include "debug/CacheVerbose.hh"
-#include "debug/SpeculativeCache.hh"
 #include "enums/Clusivity.hh"
 #include "mem/cache/cache_blk.hh"
 #include "mem/cache/mshr.hh"
@@ -316,21 +315,6 @@ Cache::handleTimingReqHit(PacketPtr pkt, CacheBlk *blk, Tick request_time)
     assert(!pkt->req->isUncacheable());
 
     BaseCache::handleTimingReqHit(pkt, blk, request_time);
-}
-
-// [MP-SPEM]
-void
-Cache::handleTimingReqMissSpeculative(PacketPtr pkt,
-                            CacheBlk *blk,
-                            Tick forward_time,
-                            Tick request_time)
-{
-    Addr blk_addr = pkt->getBlockAddr(blkSize);
-    MSHR *mshr = mshrQueue.findMatch(blk_addr, pkt->isSecure());
-    DPRINTF(SpeculativeCache, "Speculative Timing Req Miss for pkt",
-            pkt->print());
-    BaseCache::handleTimingReqMissSpeculative(pkt, mshr, blk, forward_time,
-        request_time);
 }
 
 void
@@ -774,8 +758,6 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk)
             // either); otherwise we use the packet data.
             if (blk && blk->isValid() &&
                 (!mshr->isForward || !pkt->hasData())) {
-                //[MP-SPEM] if mshr is speculative, it should not writeback
-                //if (!mshr->isSpeculative())
                     satisfyRequest(tgt_pkt, blk, true,
                         mshr->hasPostDowngrade());
 
@@ -850,9 +832,7 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk)
                 // carried over to cache above
                 tgt_pkt->copyResponderFlags(pkt);
             }
-            // [MP-SPEM] Speculative MSHRs should not make response
-            //if (!mshr->isSpeculative())
-                tgt_pkt->makeTimingResponse();
+            tgt_pkt->makeTimingResponse();
             // if this packet is an error copy that to the new packet
             if (is_error)
                 tgt_pkt->copyError(pkt);

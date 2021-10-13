@@ -246,22 +246,6 @@ BaseCache::handleTimingReqHit(PacketPtr pkt, CacheBlk *blk, Tick request_time)
     }
 }
 
-// [MP-SPEM]
-void
-BaseCache::handleTimingReqMissSpeculative(PacketPtr pkt, MSHR *mshr,
-                                CacheBlk *blk,
-                                Tick forward_time,
-                                Tick request_time)
-{
-    if (mshr) return;
-    assert(pkt->isRead());
-    assert(pkt->req->requestorId() < system->maxRequestors());
-    assert(!(blk && blk->isValid()));
-    stats.cmdStats(pkt).mshrMisses[pkt->req->requestorId()];
-    allocateMissBufferSpeculative(pkt, forward_time);
-
-}
-
 void
 BaseCache::handleTimingReqMiss(PacketPtr pkt, MSHR *mshr, CacheBlk *blk,
                                Tick forward_time, Tick request_time)
@@ -309,9 +293,6 @@ BaseCache::handleTimingReqMiss(PacketPtr pkt, MSHR *mshr, CacheBlk *blk,
                 // delay of the xbar.
                 mshr->allocateTarget(pkt, forward_time, order++,
                                      allocOnFill(pkt->cmd));
-                if (mshr->isSpeculative() && !pkt->isSpeculative()) {
-                    schedMemSideSendEvent(mshr->readyTime);
-                }
                 if (mshr->getNumTargets() == numTarget) {
                     noTargetMSHR = mshr;
                     setBlocked(Blocked_NoTargets);
@@ -371,18 +352,6 @@ BaseCache::recvTimingReq(PacketPtr pkt)
     Cycles lat;
     CacheBlk *blk = nullptr;
     bool satisfied = false;
-
-
-    // [MP-SPEM] If packet is speculative, don't forward data, but ensure
-    // it is either in cache or in mshr
-    if (pkt->isSpeculative() && pkt->isRead()) {
-        PacketList writebacks;
-        Tick request_time = clockEdge(lat);
-        satisfied = access(pkt, blk, lat, writebacks);
-        if (!satisfied) handleTimingReqMissSpeculative(pkt, blk,
-                                            forward_time, request_time);
-        return;
-    }
 
     {
         PacketList writebacks;
@@ -505,6 +474,10 @@ BaseCache::recvTimingResp(PacketPtr pkt)
     assert(!mshr->wasWholeLineWrite || pkt->isInvalidate());
 
     CacheBlk *blk = tags->findBlock(pkt->getAddr(), pkt->isSecure());
+
+    DPRINTF(SpeculativeCache, "Resp received with pkt %s, with "
+        "mshr: %s, blk: %s, addr: %#llx\n",
+        pkt->print(), mshr->print(), blk, pkt->getAddr());
 
     if (is_fill && !is_error) {
         DPRINTF(Cache, "Block for addr %#llx being updated in Cache\n",
@@ -1024,6 +997,9 @@ BaseCache::updateCompressionData(CacheBlk *&blk, const uint64_t* data,
 void
 BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
 {
+    DPRINTF(SpeculativeCache, "Attempting to satisfy pkt %s "
+    "speculative: %d, request: %d \n", pkt->print(),
+    pkt->isSpeculative(), pkt->isRequest());
     assert(pkt->isRequest());
 
     assert(blk && blk->isValid());
@@ -1175,15 +1151,9 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
 
     // Access block in the tags
     Cycles tag_latency(0);
-    if (pkt->isRead() && pkt->isSpeculative()) {
-        DPRINTF(SpeculativeCache,
-            "Speculative Cache Access for addr %s, with %s",
-            pkt->getAddr(), pkt->print());
-        blk = tags->accessBlockSpeculative(pkt->getAddr(), pkt->isSecure(),
-            tag_latency);
-    } else {
-        blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency);
-    }
+    blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency,
+                            pkt->isSpeculative());
+
 
     DPRINTF(Cache, "%s for %s %s\n", __func__, pkt->print(),
             blk ? "hit " + blk->print() : "miss");
@@ -1816,8 +1786,9 @@ BaseCache::sendMSHRQueuePacket(MSHR* mshr)
 
     // use request from 1st target
     PacketPtr tgt_pkt = mshr->getTarget()->pkt;
+    assert(tgt_pkt);
 
-    DPRINTF(Cache, "%s: MSHR %s\n", __func__, tgt_pkt->print());
+    DPRINTF(Cache, " MSHR %s\n", tgt_pkt->print());
 
     // if the cache is in write coalescing mode or (additionally) in
     // no allocation mode, and we have a write packet with an MSHR

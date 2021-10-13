@@ -962,6 +962,11 @@ template<class Impl>
 bool
 LSQ<Impl>::SingleDataRequest::recvTimingResp(PacketPtr pkt)
 {
+    if (pkt->isSpeculative()) {
+        assert(_numOutstandingPackets == 0);
+        _port.completeDataAccess(pkt);
+        return true;
+    }
     assert(_numOutstandingPackets == 1);
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     flags.set(Flag::Complete);
@@ -975,6 +980,7 @@ template<class Impl>
 bool
 LSQ<Impl>::SplitDataRequest::recvTimingResp(PacketPtr pkt)
 {
+    assert(!pkt->isSpeculative());
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     uint32_t pktIdx = 0;
     while (pktIdx < _packets.size() && pkt != _packets[pktIdx])
@@ -1030,6 +1036,7 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
               _inst->getHtmTransactionUid());
         }
     }
+    assert(!(_packets.front()->hasData() && isLoad()));
     assert(_packets.size() == 1);
 }
 

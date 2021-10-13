@@ -45,6 +45,8 @@
 bool
 TimingRequestProtocol::sendReq(TimingResponseProtocol *peer, PacketPtr pkt)
 {
+    assert(pkt);
+    assert(peer);
     assert(pkt->isRequest());
     return peer->recvTimingReq(pkt);
 }

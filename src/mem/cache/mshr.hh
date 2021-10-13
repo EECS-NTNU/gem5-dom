@@ -54,6 +54,7 @@
 
 #include "base/printable.hh"
 #include "base/types.hh"
+#include "debug/SpeculativeCache.hh"
 #include "mem/cache/queue_entry.hh"
 #include "mem/packet.hh"
 #include "mem/request.hh"
@@ -112,9 +113,6 @@ class MSHR : public QueueEntry, public Printable
 
     /** Did we snoop a read while waiting for data? */
     bool postDowngrade;
-
-    /** [MP-SPEM] Is this mshr speculative (only speculative targets) */
-    bool speculative;
 
   public:
 
@@ -316,11 +314,6 @@ class MSHR : public QueueEntry, public Printable
     bool isCleaning() const {
         PacketPtr pkt = targets.front().pkt;
         return pkt->isClean();
-    }
-
-    /** [MP-SPEM] */
-    bool isSpeculative() const {
-        return speculative;
     }
 
     bool isPendingModified() const {

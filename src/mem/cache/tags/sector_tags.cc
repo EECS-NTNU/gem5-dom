@@ -136,7 +136,8 @@ SectorTags::invalidate(CacheBlk *blk)
 }
 
 CacheBlk*
-SectorTags::accessBlock(Addr addr, bool is_secure, Cycles &lat)
+SectorTags::accessBlock(Addr addr, bool is_secure, Cycles &lat,
+                        bool is_speculative)
 {
     CacheBlk *blk = findBlock(addr, is_secure);
 
@@ -163,42 +164,8 @@ SectorTags::accessBlock(Addr addr, bool is_secure, Cycles &lat)
 
         // Update replacement data of accessed block, which is shared with
         // the whole sector it belongs to
-        replacementPolicy->touch(sector_blk->replacementData);
-    }
-
-    // The tag lookup latency is the same for a hit or a miss
-    lat = lookupLatency;
-
-    return blk;
-}
-
-CacheBlk*
-SectorTags::accessBlockSpeculative(Addr addr, bool is_secure,
-    Cycles &lat)
-{
-    CacheBlk *blk = findBlock(addr, is_secure);
-
-    // Access all tags in parallel, hence one in each way.  The data side
-    // either accesses all blocks in parallel, or one block sequentially on
-    // a hit.  Sequential access with a miss doesn't access data.
-    stats.tagAccesses += allocAssoc;
-    if (sequentialAccess) {
-        if (blk != nullptr) {
-            stats.dataAccesses += 1;
-        }
-    } else {
-        stats.dataAccesses += allocAssoc*numBlocksPerSector;
-    }
-
-    // We should have scoped these out
-    assert(!(blk != nullptr));
-    if (blk != nullptr) {
-        // Update number of references to accessed block
-        blk->increaseRefCount();
-
-        // Get block's sector
-        SectorSubBlk* sub_blk = static_cast<SectorSubBlk*>(blk);
-        const SectorBlk* sector_blk = sub_blk->getSectorBlock();
+        if (!is_speculative)
+            replacementPolicy->touch(sector_blk->replacementData);
     }
 
     // The tag lookup latency is the same for a hit or a miss

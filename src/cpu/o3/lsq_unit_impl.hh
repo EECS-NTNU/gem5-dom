@@ -96,9 +96,11 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
     auto senderState = dynamic_cast<LSQSenderState*>(pkt->senderState);
     LSQRequest* req = senderState->request();
     assert(req != nullptr);
+    DPRINTF(DebugDOM, "Received timing resp for pkt %s, with spec %d\n",
+            pkt->print(), pkt->isSpeculative());
     bool ret = true;
     /* Check that the request is still alive before any further action. */
-    if (senderState->alive()) {
+    if (senderState->alive() && (!pkt->isSpeculative())) {
         ret = req->recvTimingResp(pkt);
     } else {
         senderState->outstanding--;
@@ -113,6 +115,7 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
 {
     LSQSenderState *state = dynamic_cast<LSQSenderState *>(pkt->senderState);
     DynInstPtr inst = state->inst;
+    assert(!(pkt->isSpeculative() || inst->underShadow));
 
     // hardware transactional memory
     // sanity check
@@ -1236,6 +1239,7 @@ template <class Impl>
 bool
 LSQUnit<Impl>::trySendPacket(bool isLoad, PacketPtr data_pkt)
 {
+    assert(data_pkt);
     bool ret = true;
     bool cache_got_blocked = false;
 

@@ -140,7 +140,8 @@ DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
         rqList[tid].push_back({sbTail[tid] - 1, inst});
         inst->underShadow = true;
         DPRINTF(DOM, "[tid:%i] Inserted Load [sn:%d] into ReleaseQueue,"
-        "size now: %d. \n", tid, inst->seqNum, rqList[tid].size());
+        "with tag %d, size now: %d. \n",
+        tid, inst->seqNum, sbTail[tid] - 1, rqList[tid].size());
         ++domStats.loadsInserted;
     }
     assert(rqList[tid].size() < maxNumRqEntries);
@@ -229,8 +230,8 @@ DefaultDOM<Impl>::restoreFromIndex(ThreadID tid)
     int squashed = 0;
     if (rqList[tid].empty()) return;
     while (!rqList[tid].empty() &&
-        !tagCheck(std::get<0>(rqList[tid].back()), tid)) {
-        std::get<1>(rqList[tid].back())->underShadow = false;
+        !tagCheck(((std::get<0>(rqList[tid].back())+1)%maxNumSbEntries),
+        tid)) {
         rqList[tid].erase(rqList[tid].end() -1);
         ++domStats.loadsSquashed;
         squashed++;

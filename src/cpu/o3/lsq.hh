@@ -592,6 +592,18 @@ class LSQ
             }
         }
 
+        void
+        dropPackets() {
+            for (auto r: _packets)
+                delete r;
+        }
+
+        void
+        dropData() {
+            delete _data;
+            _data = nullptr;
+        }
+
         /** @} */
         virtual bool recvTimingResp(PacketPtr pkt) = 0;
         virtual void sendPacketToCache() = 0;
@@ -705,8 +717,8 @@ class LSQ
         void
         packetReplied()
         {
-            assert(_numOutstandingPackets > 0);
-            _numOutstandingPackets--;
+            assert(_numOutstandingPackets > 0 || isSpeculative());
+            if (!isSpeculative()) _numOutstandingPackets--;
             if (_numOutstandingPackets == 0 && isReleased())
                 delete this;
         }

@@ -127,20 +127,15 @@ FALRU::invalidate(CacheBlk *blk)
 }
 
 CacheBlk*
-FALRU::accessBlock(Addr addr, bool is_secure, Cycles &lat)
+FALRU::accessBlock(Addr addr, bool is_secure, Cycles &lat,
+                   bool is_speculative)
 {
-    return accessBlock(addr, is_secure, lat, 0);
-}
-
-CacheBlk*
-FALRU::accessBlockSpeculative(Addr addr, bool is_secure, Cycles &lat)
-{
-    return accessBlockSpeculative(addr, is_secure, lat, 0);
+    return accessBlock(addr, is_secure, lat, is_speculative, 0);
 }
 
 CacheBlk*
 FALRU::accessBlock(Addr addr, bool is_secure, Cycles &lat,
-                   CachesMask *in_caches_mask)
+                   bool is_speculative, CachesMask *in_caches_mask)
 {
     CachesMask mask = 0;
     FALRUBlk* blk = static_cast<FALRUBlk*>(findBlock(addr, is_secure));
@@ -156,31 +151,8 @@ FALRU::accessBlock(Addr addr, bool is_secure, Cycles &lat,
         *in_caches_mask = mask;
     }
 
-    cacheTracking.recordAccess(blk);
+    if (!is_speculative) cacheTracking.recordAccess(blk);
 
-    // The tag lookup latency is the same for a hit or a miss
-    lat = lookupLatency;
-
-    return blk;
-}
-
-CacheBlk*
-FALRU::accessBlockSpeculative(Addr addr, bool is_secure, Cycles &lat,
-            CachesMask *in_caches_mask)
-{
-    CachesMask mask = 0;
-    FALRUBlk* blk = static_cast<FALRUBlk*>(findBlock(addr, is_secure));
-
-    // If a cache hit
-    if (blk && blk->isValid()) {
-        mask = blk->inCachesMask;
-
-        moveToHead(blk);
-    }
-
-    if (in_caches_mask) {
-        *in_caches_mask = mask;
-    }
     // The tag lookup latency is the same for a hit or a miss
     lat = lookupLatency;
 

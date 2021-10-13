@@ -290,19 +290,8 @@ class BaseTags : public ClockedObject
      * @param lat The latency of the tag lookup.
      * @return Pointer to the cache block if found.
      */
-    virtual CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat) = 0;
-
-
-    /**
-     * @param addr
-     * @param is_secure
-     * @param lat
-     * @return
-     *
-     */
-    virtual CacheBlk* accessBlockSpeculative(Addr addr,
-                                            bool is_secure,
-                                            Cycles &lat) = 0;
+    virtual CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat,
+                                  bool is_speculative) = 0;
 
     /**
      * Generate the tag from the given address.
