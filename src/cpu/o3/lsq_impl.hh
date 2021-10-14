@@ -1110,9 +1110,9 @@ template<class Impl>
 void
 LSQ<Impl>::SingleDataRequest::sendPacketToCache()
 {
-    assert(_numOutstandingPackets == 0);
+    //assert(_numOutstandingPackets == 0);
     if (lsqUnit()->trySendPacket(isLoad(), _packets.at(0)))
-        _numOutstandingPackets = 1;
+        _numOutstandingPackets++;
 }
 
 template<class Impl>

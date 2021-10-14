@@ -1273,14 +1273,6 @@ LSQUnit<Impl>::trySendPacket(bool isLoad, PacketPtr data_pkt)
         }
         state->request()->packetNotSent();
     }
-
-    // [MP-SPEM] if speculative, request will always fail
-    // meaning we always have to resend
-    if (cpu->MPSPEM && data_pkt->isSpeculative()) {
-        state->request()->packetNotSent();
-        return false;
-    }
-
     return ret;
 }
 
