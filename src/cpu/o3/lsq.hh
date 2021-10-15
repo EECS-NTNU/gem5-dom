@@ -358,7 +358,26 @@ class LSQ
                       _inst->isStoreConditional() || _inst->isAtomic());
             flags.set(Flag::IsAtomic, _inst->isAtomic());
         }
+        public:
+        LSQRequest(LSQRequest* other, bool copy_packets) :
+        _state(other->state), _senderState(nullptr),
+        numTranslatedFragments(other->numTranslatedFragments),
+        numInTranslationFragments(other->numInTranslationFragments),
+        _port(other->port), _inst(other->inst), _data(nullptr),
+        _res(other->res), _addr(other->_addr), _size(other->_size),
+        flags(other->_flags),
+        _numOutstandingPackets(copy_packets ?
+            other->_numOutstandingPackets : 0),
+        _amo_op(nullptr),
+        speculative(other->isSpeculative())
+        {
+            flags.set(Flag::IsLoad, true);
+            flags.set(Flag::wbStore,
+                      _inst->isStoreConditional() || _inst->isAtomic());
+            flags.set(Flag::IsAtomic, _inst->isAtomic());
+        }
 
+        protected:
         bool
         isLoad() const
         {

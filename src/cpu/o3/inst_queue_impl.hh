@@ -1136,6 +1136,10 @@ InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
     DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
     delayed_inst->clearIssued();
     delayed_inst->clearCanIssue();
+    delayed_inst->savedReq->discard();
+    delayed_inst->savedReq = nullptr;
+    delayed_inst->translationStarted(false);
+    delayed_inst->translationCompleted(false);
     delayedMemInsts.push_back(delayed_inst);
     ++iqStats.delayedLoads;
 }
@@ -1220,8 +1224,6 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             DPRINTF(DebugDOM,
                     "Acquired a non-speculative load [sn:%llu]\n",
                     mem_inst->seqNum);
-            auto req = mem_inst->savedReq;
-            req->dropPackets();
             mem_inst->getFault() = NoFault;
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
             ++iqStats.reissuedDelayedLoads;
