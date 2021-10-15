@@ -1136,10 +1136,10 @@ InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
     DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
     delayed_inst->clearIssued();
     delayed_inst->clearCanIssue();
+    LSQRequest* req = new SingleDataRequest(
+        (SingleDataRequest*)delayed_inst->savedReq, false);
     delayed_inst->savedReq->discard();
-    delayed_inst->savedReq = nullptr;
-    delayed_inst->translationStarted(false);
-    delayed_inst->translationCompleted(false);
+    delayed_inst->savedReq = req;
     delayedMemInsts.push_back(delayed_inst);
     ++iqStats.delayedLoads;
 }

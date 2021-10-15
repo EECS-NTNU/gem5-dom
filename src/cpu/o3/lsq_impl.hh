@@ -724,6 +724,10 @@ LSQ<Impl>::pushRequest(const DynInstPtr& inst, bool isLoad, uint8_t *data,
         req->initiateTranslation();
     }
 
+    DPRINTF(DebugDOM, "Reached LSQ Impl Dispatch.\n"
+    "translationComplete: %d, MemAccessRequired: %d, Executed: %d\n",
+    req->isTranslationComplete(), req->isMemAccessRequired(),
+    inst->isExecuted());
     /* This is the place were instructions get the effAddr. */
     if (req->isTranslationComplete()) {
         if (req->isMemAccessRequired()) {

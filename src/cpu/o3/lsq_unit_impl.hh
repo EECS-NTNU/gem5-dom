@@ -632,7 +632,7 @@ LSQUnit<Impl>::executeLoad(const DynInstPtr &inst)
     assert(!inst->isSquashed());
 
     load_fault = inst->initiateAcc();
-    DPRINTF(DebugDOM, "Finished load acces,"
+    DPRINTF(DebugDOM, "Finished load access,"
     "fault is : %s\n", load_fault != NoFault ? load_fault->name() :
     "none");
 

@@ -63,6 +63,7 @@
 #include "cpu/static_inst.hh"
 #include "cpu/translation.hh"
 #include "debug/HtmCpu.hh"
+#include "debug/SpeculativeCache.hh"
 #include "mem/packet.hh"
 #include "mem/request.hh"
 #include "sim/byteswap.hh"
@@ -1138,6 +1139,7 @@ BaseDynInst<Impl>::initiateMemRead(Addr addr, unsigned size,
                                    const std::vector<bool> &byte_enable)
 {
     assert(byte_enable.size() == size);
+    DPRINTF(SpeculativeCache, "Reached Mem Read\n");
     return cpu->pushRequest(
         dynamic_cast<typename DynInstPtr::PtrType>(this),
         /* ld */ true, nullptr, size, addr, flags, nullptr, nullptr,

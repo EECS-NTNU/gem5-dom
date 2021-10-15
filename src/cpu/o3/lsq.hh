@@ -278,8 +278,9 @@ class LSQ
         };
         State _state;
         LSQSenderState* _senderState;
+        public:
         void setState(const State& newState) { _state = newState; }
-
+        protected:
         uint32_t numTranslatedFragments;
         uint32_t numInTranslationFragments;
 
@@ -360,11 +361,11 @@ class LSQ
         }
         public:
         LSQRequest(LSQRequest* other, bool copy_packets) :
-        _state(other->state), _senderState(nullptr),
+        _state(other->_state), _senderState(nullptr),
         numTranslatedFragments(other->numTranslatedFragments),
         numInTranslationFragments(other->numInTranslationFragments),
-        _port(other->port), _inst(other->inst), _data(nullptr),
-        _res(other->res), _addr(other->_addr), _size(other->_size),
+        _port(other->_port), _inst(other->_inst), _data(nullptr),
+        _res(other->_res), _addr(other->_addr), _size(other->_size),
         flags(other->_flags),
         _numOutstandingPackets(copy_packets ?
             other->_numOutstandingPackets : 0),
@@ -372,9 +373,15 @@ class LSQ
         speculative(other->isSpeculative())
         {
             flags.set(Flag::IsLoad, true);
-            flags.set(Flag::wbStore,
+            flags.set(Flag::WbStore,
                       _inst->isStoreConditional() || _inst->isAtomic());
             flags.set(Flag::IsAtomic, _inst->isAtomic());
+            flags.set(Flag::TranslationStarted, true);
+            flags.set(Flag::TranslationFinished, true);
+            auto request = std::make_shared<Request>(
+                *(other->_requests.back()));
+            _requests.push_back(request);
+            setState(State::Request);
         }
 
         protected:
@@ -447,6 +454,7 @@ class LSQ
          * The request is only added if the mask is empty or if there is at
          * least an active element in it.
          */
+        public:
         void
         addRequest(Addr addr, unsigned size,
                    const std::vector<bool>& byte_enable)
@@ -460,6 +468,7 @@ class LSQ
                 _requests.push_back(request);
             }
         }
+        protected:
 
         /** Destructor.
          * The LSQRequest owns the request. If the packet has already been
@@ -822,6 +831,8 @@ class LSQ
                        std::move(amo_op)) {}
         SingleDataRequest(SingleDataRequest* other) :
             LSQRequest(other) {}
+        SingleDataRequest(SingleDataRequest* other, bool copyPackets) :
+            LSQRequest(other, copyPackets) {}
 
         inline virtual ~SingleDataRequest() {}
         virtual void initiateTranslation();

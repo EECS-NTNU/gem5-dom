@@ -90,6 +90,8 @@ class InstructionQueue
     typedef typename Impl::CPUPol::MemDepUnit MemDepUnit;
     typedef typename Impl::CPUPol::IssueStruct IssueStruct;
     typedef typename Impl::CPUPol::TimeStruct TimeStruct;
+    typedef typename Impl::CPUPol::LSQ::LSQRequest LSQRequest;
+    typedef typename Impl::CPUPol::LSQ::SingleDataRequest SingleDataRequest;
 
     // Typedef of iterator through the list of instructions.
     typedef typename std::list<DynInstPtr>::iterator ListIt;
