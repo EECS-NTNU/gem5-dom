@@ -51,6 +51,8 @@ def run_benchmark(benchmark):
     b_name = benchmark.name
     b_fullname = benchmark.fullname
 
+    print(f"Now processing {b_fullname}")
+
     os.chdir(f"{spec_root}/{b_fullname}")
     print(f"Now running {b_fullname}")
     for run in benchmark.get_runs_ref():
@@ -84,4 +86,3 @@ processes = []
 for benchmark in benchmarks:
     p = Process(target=run_benchmark, args=(benchmark,))
     p.start()
-
