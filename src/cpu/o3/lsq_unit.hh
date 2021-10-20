@@ -659,7 +659,6 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     const DynInstPtr& load_inst = load_req.instruction();
     DPRINTF(DebugDOM, "Entered read with request\n");
     load_req.setRequest(req);
-    if (cpu->MPSPEM) req->setSpeculative(load_inst->underShadow);
     assert(load_inst);
 
     assert(!load_inst->isExecuted());
