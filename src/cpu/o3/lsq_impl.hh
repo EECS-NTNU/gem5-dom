@@ -1022,6 +1022,7 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
                     :  Packet::createWrite(request()));
         _packets.back()->dataStatic(_inst->memData);
         _packets.back()->senderState = _senderState;
+        _packets.back()->speculative = speculative;
 
         // hardware transactional memory
         // If request originates in a transaction (not necessarily a HtmCmd),
