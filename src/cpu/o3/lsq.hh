@@ -391,6 +391,7 @@ class LSQ
         {
             if (this->_inst->savedReq != this)
             {
+                _numOutstandingPackets = 0;
                 DPRINTF(LSQ, "Deleted orphaned request for inst [sn:%d]\n",
                         _inst->seqNum);
                 delete this;
