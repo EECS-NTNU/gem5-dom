@@ -385,19 +385,6 @@ class LSQ
             setState(State::Request);
         }
 
-
-
-        void releaseIfOrphan()
-        {
-            if (this->_inst->savedReq != this)
-            {
-                _numOutstandingPackets = 0;
-                DPRINTF(LSQ, "Deleted orphaned request for inst [sn:%d]\n",
-                        _inst->seqNum);
-                delete this;
-            }
-        }
-
         protected:
         bool
         isLoad() const
@@ -759,8 +746,8 @@ class LSQ
         void
         packetReplied()
         {
-            assert(_numOutstandingPackets > 0 || isSpeculative());
-            if (!isSpeculative()) _numOutstandingPackets--;
+            assert(_numOutstandingPackets > 0);
+            _numOutstandingPackets--;
             if (_numOutstandingPackets == 0 && isReleased())
                 delete this;
         }
