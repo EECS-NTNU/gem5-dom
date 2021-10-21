@@ -1088,6 +1088,7 @@ LSQ<Impl>::SplitDataRequest::buildPackets()
                 pkt->dataDynamic(req_data);
             }
             pkt->senderState = _senderState;
+            pkt->speculative = _inst->underShadow;
             _packets.push_back(pkt);
 
             // hardware transactional memory

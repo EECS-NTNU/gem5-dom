@@ -926,6 +926,10 @@ class LSQ
         {
             flags.set(Flag::IsSplit);
         }
+
+        SplitDataRequest(SplitDataRequest* other, bool copyPackets) :
+            LSQRequest(other, copyPackets) {}
+
         virtual ~SplitDataRequest()
         {
             if (mainReq) {

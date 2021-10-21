@@ -1136,8 +1136,14 @@ InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
     DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
     delayed_inst->clearIssued();
     delayed_inst->clearCanIssue();
-    LSQRequest* req = new SingleDataRequest(
-        (SingleDataRequest*)delayed_inst->savedReq, false);
+    LSQRequest* req = nullptr;
+    if (delayed_inst->savedReq->isSplit()) {
+        req = new SplitDataRequest(
+            (SplitDataRequest*)delayed_inst->savedReq, false);
+    } else {
+        req = new SingleDataRequest(
+            (SingleDataRequest*)delayed_inst->savedReq, false);
+    }
     assert(req->_inst);
     assert(req->speculative);
     delayed_inst->savedReq->discard();

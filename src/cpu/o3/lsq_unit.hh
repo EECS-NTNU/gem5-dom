@@ -975,7 +975,6 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     assert(req->_packets.back()->isSpeculative() == req->_inst->underShadow);
 
     if (cpu->MPSPEM && req->isSpeculative()) {
-        req->setPacketsSpeculative();
         req->sendPacketToCache();
         iewStage->delayMemInst(load_inst);
     } else {
