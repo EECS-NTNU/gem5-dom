@@ -384,6 +384,16 @@ class LSQ
             setState(State::Request);
         }
 
+
+
+        void releaseIfOrphan()
+        {
+            if (!isAnyOutstandingRequest() && this->_inst->savedReq != this)
+            {
+                delete this;
+            }
+        }
+
         protected:
         bool
         isLoad() const
