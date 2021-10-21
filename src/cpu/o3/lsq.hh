@@ -390,6 +390,8 @@ class LSQ
         {
             if (!isAnyOutstandingRequest() && this->_inst->savedReq != this)
             {
+                DPRINTF(LSQ, "Deleted orphaned request for inst [sn:%d]\n",
+                        _inst->seqNum);
                 delete this;
             }
         }
@@ -487,7 +489,7 @@ class LSQ
         virtual ~LSQRequest()
         {
             assert(!isAnyOutstandingRequest());
-            _inst->savedReq = nullptr;
+            if (this == _inst->savedReq) _inst->savedReq = nullptr;
             if (_senderState)
                 delete _senderState;
 
