@@ -1138,6 +1138,8 @@ InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
     delayed_inst->clearCanIssue();
     LSQRequest* req = new SingleDataRequest(
         (SingleDataRequest*)delayed_inst->savedReq, false);
+    assert(req->_inst);
+    assert(req->speculative);
     delayed_inst->savedReq->discard();
     delayed_inst->savedReq = req;
     delayedMemInsts.push_back(delayed_inst);
