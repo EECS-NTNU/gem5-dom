@@ -1142,6 +1142,7 @@ InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
     assert(req->speculative);
     delayed_inst->savedReq->discard();
     delayed_inst->savedReq = req;
+    req->_port.loadQueue[delayed_inst->lqIdx].setRequest(req);
     delayedMemInsts.push_back(delayed_inst);
     ++iqStats.delayedLoads;
 }
