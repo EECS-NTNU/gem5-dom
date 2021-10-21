@@ -55,6 +55,7 @@
 #include "cpu/inst_seq.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "cpu/utils.hh"
+#include "debug/LSQ.hh"
 #include "enums/SMTQueuePolicy.hh"
 #include "mem/port.hh"
 #include "sim/sim_object.hh"
@@ -388,7 +389,7 @@ class LSQ
 
         void releaseIfOrphan()
         {
-            if (!isAnyOutstandingRequest() && this->_inst->savedReq != this)
+            if (this->_inst->savedReq != this)
             {
                 DPRINTF(LSQ, "Deleted orphaned request for inst [sn:%d]\n",
                         _inst->seqNum);

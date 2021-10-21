@@ -104,7 +104,7 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
         ret = req->recvTimingResp(pkt);
     } else {
         senderState->outstanding--;
-        req->releaseIfOrphan();
+        if (senderState->outstanding == 0) req->releaseIfOrphan();
     }
     return ret;
 
