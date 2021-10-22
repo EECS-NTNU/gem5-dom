@@ -929,7 +929,14 @@ class LSQ
         }
 
         SplitDataRequest(SplitDataRequest* other, bool copyPackets) :
-            LSQRequest(other, copyPackets) {}
+            LSQRequest(other, copyPackets),
+            numFragments(0),
+            numReceivedPackets(0),
+            mainReq(other->mainReq),
+            _requests(other->_requests)
+        {
+            flags.set(Flag::IsSplit)
+        }
 
         virtual ~SplitDataRequest()
         {
