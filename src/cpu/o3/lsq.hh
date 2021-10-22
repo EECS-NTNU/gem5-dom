@@ -932,10 +932,10 @@ class LSQ
             LSQRequest(other, copyPackets),
             numFragments(0),
             numReceivedPackets(0),
-            mainReq(other->mainReq),
-            _requests(other->_requests)
+            mainReq(other->mainReq)
         {
-            flags.set(Flag::IsSplit)
+            flags.set(Flag::IsSplit);
+            _requests = other->_requests;
         }
 
         virtual ~SplitDataRequest()
