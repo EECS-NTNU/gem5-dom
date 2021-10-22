@@ -937,6 +937,7 @@ class LSQ
         {
             flags.set(Flag::IsSplit);
             _requests = other->_requests;
+            _fault = other->_fault;
         }
 
         virtual ~SplitDataRequest()
