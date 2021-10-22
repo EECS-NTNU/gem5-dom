@@ -932,7 +932,8 @@ class LSQ
             LSQRequest(other, copyPackets),
             numFragments(0),
             numReceivedPackets(0),
-            mainReq(other->mainReq)
+            mainReq(other->mainReq),
+            _mainPacket(nullptr)
         {
             flags.set(Flag::IsSplit);
             _requests = other->_requests;
