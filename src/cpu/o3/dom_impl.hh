@@ -250,10 +250,14 @@ DefaultDOM<Impl>::stepSb(ThreadID tid)
     if (sbList[tid].empty()) return;
     if (!(std::get<2>(sbList[tid].front())) && sbHead[tid] != sbTail[tid]) {
         sbHead[tid] = (sbHead[tid] + 1) % maxNumSbEntries;
+        auto seqNum = std::get<0>(sbList[tid].front())->seqNum;
         sbList[tid].erase(sbList[tid].begin());
-        DPRINTF(DOM, "[tid:%i] Stepped ShadowBuffer. New inst [sn:%d].\n",
-            tid, sbList[tid].empty() ? 0 :
-                std::get<0>(sbList[tid].front())->seqNum);
+        DPRINTF(DOM, "[tid:%i] Stepped ShadowBuffer. Freed [sn:%d],"
+                " New inst [sn:%d].\n",
+                tid,
+                seqNum,
+                sbList[tid].empty() ? 0 :
+                    std::get<0>(sbList[tid].front())->seqNum);
         stallCycles = 0;
     }
 }
@@ -276,9 +280,12 @@ DefaultDOM<Impl>::stepRq(ThreadID tid)
     if (rqList[tid].empty()) return;
     if (!(tagCheck(std::get<0>(rqList[tid].front()), tid))) {
         std::get<1>(rqList[tid].front())->underShadow = false;
+        DPRINTF(DOM, "[tid:%i] Stepped ReleaseQueue, freeing"
+                "[sn:%d].\n",
+                tid,
+                (std::get<1>(rqList[tid].front())->seqNum));
         rqList[tid].erase(rqList[tid].begin());
         ++domStats.loadsCleared;
-        DPRINTF(DOM, "[tid:%i] Stepped ReleaseQueue.\n", tid);
         stallCycles = 0;
     }
 }

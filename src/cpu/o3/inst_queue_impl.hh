@@ -1223,7 +1223,8 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
         if (delayedMemInsts.at(i)->isCommitted()) {
             panic("We committed a delayed load?\n");
         } else if (delayedMemInsts.at(i)->isSquashed()) {
-            DPRINTF(DOM, "Squashed a load in delay queue\n");
+            DPRINTF(DOM, "Squashed a load in delay queue [sn:%d]\n",
+                    (*(delayedMemInsts.begin()+i))->seqNum);
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
             i--;
             ++iqStats.squashedDelayedLoads;
