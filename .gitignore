@@ -33,6 +33,8 @@ configs/dram/lowp_sweep.cfg
 
 #Special for this project
 /dom/429.mcf/*
+/dom/x86-spec-ref/*
+/results/*
 core
 /old_simpoints/*
 /simpoints/*
