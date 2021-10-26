@@ -232,7 +232,7 @@ DefaultDOM<Impl>::restoreFromIndex(ThreadID tid)
     while (!rqList[tid].empty() &&
         !tagCheck(((std::get<0>(rqList[tid].back())+1)%maxNumSbEntries),
         tid)) {
-        if ((std::get<0>(sbList[tid],back()))->seqNum >
+        if ((std::get<0>(sbList[tid].back()))->seqNum >
             (std::get<1>(rqList[tid].back()))->seqNum) break;
         rqList[tid].erase(rqList[tid].end() -1);
         ++domStats.loadsSquashed;
