@@ -218,7 +218,9 @@ IQStats::IQStats(O3CPU *cpu, const unsigned &total_width)
     ADD_STAT(squashedDelayedLoads, UNIT_COUNT,
              "Number of delayed loads that were squashed"),
     ADD_STAT(reissuedDelayedLoads, UNIT_COUNT,
-             "Number of delayed loads that were reissued")
+             "Number of delayed loads that were reissued"),
+    ADD_STAT(faultLoads, UNIT_COUNT,
+             "Number of fault loads squashed in delayed queue")
 {
     instsAdded
         .prereq(instsAdded);
@@ -1228,6 +1230,13 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
             i--;
             ++iqStats.squashedDelayedLoads;
+        } else if (delayedMemInsts.at(i)->savedReq->isPartialFault()) {
+            DPRINTF(DOM, "Squashed a partial fault,"
+                    " ROB will handle inst [sn:%llu]\n",
+                    delayedMemInsts.at(i)->seqNum);
+            delayedMemInsts.erase(delayedMemInsts.begin() + 1);
+            i--;
+            ++iqStats.faultLoads;
         } else if (!delayedMemInsts.at(i)->underShadow) {
             DynInstPtr mem_inst = std::move(
                 delayedMemInsts.at(i));

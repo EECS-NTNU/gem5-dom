@@ -544,6 +544,8 @@ class InstructionQueue
         Stats::Scalar delayedLoads;
         Stats::Scalar squashedDelayedLoads;
         Stats::Scalar reissuedDelayedLoads;
+
+        Stats::Scalar faultLoads;
     } iqStats;
 
    public:
