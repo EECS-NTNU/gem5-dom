@@ -56,7 +56,7 @@ def run_benchmark(benchmark):
 
     os.chdir(f"{spec_root}/{b_fullname}")
     print(f"Now running {b_fullname}")
-    for run in benchmark.get_runs_ref()[0:1]:
+    for run in benchmark.get_runs_ref():
         run_file=f"-r --stdout-file={b_name}_{run_num}.out"
         print(f"Executing run {run_num + 1} of "\
         f"{benchmark.num_runs_ref()} for {b_name}")
@@ -78,13 +78,12 @@ def move_result(benchmark):
 
     os.chdir(f"{spec_root}/{b_fullname}")
 
-    for i in range(1):#benchmark.num_runs_ref()[0:1]):
+    for i in range(benchmark.num_runs_ref()):
         move = f"mv m5out/{b_name}_{i}.out {work_root}/results/"
         os.system(move)
 
 processes = []
-run_benchmark(benchmarks[0])
-exit(1)
+
 for benchmark in benchmarks:
     p = Process(target=run_benchmark, args=(benchmark,))
     p.start()
