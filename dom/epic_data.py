@@ -35,7 +35,7 @@ results=f"{gem5_root}/results"
 
 warmupCPU="--cpu-type=kvmCPU"
 runCPU="--cpu-type=DerivO3CPU"
-memory="--mem-size=32GB "
+memory="--mem-size=32GB"
 caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB "\
 "--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
@@ -56,11 +56,11 @@ def run_benchmark(benchmark):
 
     os.chdir(f"{spec_root}/{b_fullname}")
     print(f"Now running {b_fullname}")
-    for run in benchmark.get_runs_ref():
+    for run in benchmark.get_runs_ref()[0:1]:
         run_file=f"-r --stdout-file={b_name}_{run_num}.out"
         print(f"Executing run {run_num + 1} of "\
         f"{benchmark.num_runs_ref()} for {b_name}")
-        run_ref = f"{gem5} {run_file} {se} {fast_forward} "\
+        run_ref = f"{gem5} {run_file} {se} {fast_forward} {memory}"\
         f"{runtime} {caches} {runCPU} -c {b_name} -o \"{run}\""
         print(run_ref)
         print(f"Run {run_num+1} for {b_name} finished "\
@@ -78,12 +78,13 @@ def move_result(benchmark):
 
     os.chdir(f"{spec_root}/{b_fullname}")
 
-    for i in range(benchmark.num_runs_ref()):
+    for i in range(1):#benchmark.num_runs_ref()[0:1]):
         move = f"mv m5out/{b_name}_{i}.out {work_root}/results/"
         os.system(move)
 
 processes = []
-
+run_benchmark(benchmarks[0])
+exit(1)
 for benchmark in benchmarks:
     p = Process(target=run_benchmark, args=(benchmark,))
     p.start()
