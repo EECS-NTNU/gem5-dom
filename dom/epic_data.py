@@ -26,15 +26,16 @@ stats = ["simTicks",
     "system.switch_cpus.lsq0.loadsDelayedOnMiss"]
 
 work_root = os.getcwd()
-gem5_root=f"{work_root}/gem5"
+gem5_root=f"{work_root}"
 gem5=f"{gem5_root}/build/X86/gem5.opt"
 se=f"{gem5_root}/configs/example/se.py"
-spec_root=f"{gem5_root}/dom/x86-spec-ref"
+spec_root=f"{gem5_root}/dom/x86-spec-all-ref"
 stats="m5out/stats.txt"
 results=f"{gem5_root}/results"
 
 warmupCPU="--cpu-type=kvmCPU"
 runCPU="--cpu-type=DerivO3CPU"
+memory="--mem-size=32GB "
 caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB "\
 "--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
