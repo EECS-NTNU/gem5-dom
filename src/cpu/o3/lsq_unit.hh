@@ -971,7 +971,6 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
 // [MP-SPEM] Handle speculative loads separately
     assert(req->isSpeculative() == req->_inst->underShadow);
-    assert(req->isSpeculative() == req->_packets.back()->isSpeculative());
 
     if (cpu->MPSPEM && req->isSpeculative()) {
         req->sendPacketToCache();
