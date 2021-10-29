@@ -96,11 +96,12 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
     auto senderState = dynamic_cast<LSQSenderState*>(pkt->senderState);
     LSQRequest* req = senderState->request();
     assert(req != nullptr);
+    if (pkt->isMpspemMode()) assert(!senderState->alive());
     DPRINTF(DebugDOM, "Received timing resp for pkt %s, with spec %d\n",
             pkt->print(), pkt->isSpeculative());
     bool ret = true;
     /* Check that the request is still alive before any further action. */
-    if (senderState->alive() && (!pkt->isSpeculative())) {
+    if (senderState->alive()) {
         ret = req->recvTimingResp(pkt);
     } else {
         senderState->outstanding--;
@@ -115,7 +116,8 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
 {
     LSQSenderState *state = dynamic_cast<LSQSenderState *>(pkt->senderState);
     DynInstPtr inst = state->inst;
-    assert(!((cpu->MPSPEM) && (pkt->isSpeculative() || inst->underShadow)));
+    assert(!((pkt->isMpspemMode())
+        && (pkt->isSpeculative() || inst->underShadow)));
 
     // hardware transactional memory
     // sanity check

@@ -981,13 +981,13 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
         ex_snoop->dataStatic(load_inst->memData);
         ex_snoop->setExpressSnoop();
-        ex_snoop->underShadow = req->underShadow;
+        ex_snoop->speculative = req->speculative;
         LSQSenderState *state = new LQSnoopState(req);
         ex_snoop->senderState = state;
         dcachePort->sendFunctional(ex_snoop);
         ++stats.issuedSnoops;
 
-        auto missed = ex_snoop->didMissInCache();
+        auto missed = ex_snoop->isCacheMiss();
         delete(ex_snoop);
         delete(state);
         DPRINTF(DOM, "Issued snoop to cache"

@@ -1153,7 +1153,6 @@ InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
         delayed_inst->savedReq = req;
         req->_port.loadQueue[delayed_inst->lqIdx].setRequest(req);
     } else if (cpu->DOM) {
-        __nop();
     } else {
         panic("Not in Spectre mitigation, but delayed loads");
     }
