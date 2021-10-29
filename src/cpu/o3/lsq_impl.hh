@@ -984,7 +984,7 @@ template<class Impl>
 bool
 LSQ<Impl>::SplitDataRequest::recvTimingResp(PacketPtr pkt)
 {
-    assert(!pkt->isSpeculative());
+    assert(!(pkt->isMpspemMode() && pkt->isSpeculative()));
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     uint32_t pktIdx = 0;
     while (pktIdx < _packets.size() && pkt != _packets[pktIdx])
