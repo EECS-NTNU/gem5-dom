@@ -1138,19 +1138,26 @@ InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
     DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
     delayed_inst->clearIssued();
     delayed_inst->clearCanIssue();
-    LSQRequest* req = nullptr;
-    if (delayed_inst->savedReq->isSplit()) {
+    if (cpu->MPSPEM) {
+        LSQRequest* req = nullptr;
+        if (delayed_inst->savedReq->isSplit()) {
         req = new SplitDataRequest(
             (SplitDataRequest*)delayed_inst->savedReq, false);
+        } else {
+            req = new SingleDataRequest(
+                (SingleDataRequest*)delayed_inst->savedReq, false);
+        }
+        assert(req->_inst);
+        assert(req->speculative);
+        delayed_inst->savedReq->discard();
+        delayed_inst->savedReq = req;
+        req->_port.loadQueue[delayed_inst->lqIdx].setRequest(req);
+    } else if (cpu->DOM) {
+        __nop();
     } else {
-        req = new SingleDataRequest(
-            (SingleDataRequest*)delayed_inst->savedReq, false);
+        panic("Not in Spectre mitigation, but delayed loads");
     }
-    assert(req->_inst);
-    assert(req->speculative);
-    delayed_inst->savedReq->discard();
-    delayed_inst->savedReq = req;
-    req->_port.loadQueue[delayed_inst->lqIdx].setRequest(req);
+
     delayedMemInsts.push_back(delayed_inst);
     ++iqStats.delayedLoads;
 }
@@ -1245,6 +1252,7 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
                     mem_inst->seqNum);
             mem_inst->getFault() = NoFault;
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            if (cpu->DOM) mem_inst->savedReq->setStateToRequest();
             ++iqStats.reissuedDelayedLoads;
             return mem_inst;
         }
