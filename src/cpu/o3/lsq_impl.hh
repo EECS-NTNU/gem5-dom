@@ -966,7 +966,7 @@ template<class Impl>
 bool
 LSQ<Impl>::SingleDataRequest::recvTimingResp(PacketPtr pkt)
 {
-    if (pkt->isSpeculative()) {
+    if (pkt->isMpspemMode() && pkt->isSpeculative()) {
         assert(_numOutstandingPackets == 0);
         _port.completeDataAccess(pkt);
         return true;
@@ -1023,6 +1023,11 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
         _packets.back()->dataStatic(_inst->memData);
         _packets.back()->senderState = _senderState;
         _packets.back()->speculative = speculative;
+        if (lsqUnit()->cpu->MPSPEM) {
+            _packets.back()->mpspemSpeculativeMode();
+        } else if (lsqUnit()->cpu->DOM) {
+            _packets.back()->domSpeculativeMode();
+        }
 
         // hardware transactional memory
         // If request originates in a transaction (not necessarily a HtmCmd),
@@ -1089,6 +1094,11 @@ LSQ<Impl>::SplitDataRequest::buildPackets()
             }
             pkt->senderState = _senderState;
             pkt->speculative = _inst->underShadow;
+            if (lsqUnit()->cpu->MPSPEM) {
+                pkt->mpspemSpeculativeMode();
+            } else if (lsqUnit()->cpu->DOM) {
+                pkt->domSpeculativeMode();
+            }
             _packets.push_back(pkt);
 
             // hardware transactional memory

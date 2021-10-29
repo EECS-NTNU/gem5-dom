@@ -405,10 +405,10 @@ class LSQUnit
 
     BaseMMU* getMMUPtr() { return cpu->mmu; }
 
-  private:
     /** Pointer to the CPU. */
     O3CPU *cpu;
 
+  private:
     /** Pointer to the IEW stage. */
     IEW *iewStage;
 
@@ -983,6 +983,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         ex_snoop->dataStatic(load_inst->memData);
         ex_snoop->setExpressSnoop();
         ex_snoop->speculative = req->speculative;
+        ex_snoop->domSpeculativeMode();
         LSQSenderState *state = new LQSnoopState(req);
         ex_snoop->senderState = state;
         dcachePort->sendFunctional(ex_snoop);
