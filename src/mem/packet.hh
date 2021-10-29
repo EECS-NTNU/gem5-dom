@@ -329,6 +329,14 @@ class Packet : public Printable
 
     Flags flags;
 
+    // Modes for speculative handling
+    enum SpeculativeMode
+    {
+        None,
+        DelayOnMiss,
+        MPSPEM
+    };
+
   public:
     typedef MemCmd::Command Command;
 
@@ -820,6 +828,40 @@ class Packet : public Printable
 
     /** [MP-SPEM] Whether or not the packet is speculative */
     bool speculative;
+
+    /** Whether to delay-on-miss, preload or do nothing */
+    Packet::SpeculativeMode
+        speculativeMode = SpeculativeMode::None;
+
+    void noSpeculativeMode() {
+        speculativeMode = SpeculativeMode::None;
+    }
+
+    void domSpeculativeMode() {
+        speculativeMode = SpeculativeMode::DelayOnMiss;
+    }
+
+    void mpspemSpeculativeMode() {
+        speculativeMode = SpeculativeMode::MPSPEM;
+    }
+
+    bool isDomMode() {
+        return speculativeMode == SpeculativeMode::DelayOnMiss;
+    }
+
+    bool isMpspemMode() {
+        return speculativeMode == SpeculativeMode::MPSPEM;
+    }
+
+    bool cacheMiss = false;
+
+    void setCacheMiss(bool missed) {
+        cacheMiss = missed;
+    }
+
+    bool isCacheMiss() {
+        return cacheMiss;
+    }
 
     /**
      * Constructor. Note that a Request object must be constructed

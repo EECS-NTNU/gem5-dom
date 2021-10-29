@@ -777,7 +777,9 @@ class FullO3CPU : public BaseO3CPU
     } cpuStats;
 
     // [MP-SPEM] Whether to apply MP-SPEM
-    const bool MPSPEM;
+    bool MPSPEM;
+
+    bool DOM;
 
   public:
     // hardware transactional memory

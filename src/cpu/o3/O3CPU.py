@@ -181,6 +181,8 @@ class DerivO3CPU(BaseCPU):
     # [MP-SPEM]
     MPSPEM = Param.Bool(False, "Whether to use MP-SPEM to block Spectre")
 
+    DOM = Param.Bool(False, "Whether to use DoM to block Spectre")
+
     def addCheckerCpu(self):
         if buildEnv['TARGET_ISA'] in ['arm']:
             from m5.objects.ArmTLB import ArmMMU

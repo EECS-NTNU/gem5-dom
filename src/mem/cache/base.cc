@@ -644,6 +644,13 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
 
     pkt->pushLabel(name());
 
+    if (pkt->isDomMode() && pkt->speculative) {
+        pkt->setCacheMiss(blk || mshr);
+        DPRINTF(CacheDOM, "Handled express snoop for pkt addr: %d"
+            "miss: %d\n", pkt->getAddr(), pkt->isCacheMiss());
+        return;
+    }
+
     CacheBlkPrintWrapper cbpw(blk);
 
     // Note that just because an L2/L3 has valid data doesn't mean an
@@ -1152,7 +1159,7 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
     // Access block in the tags
     Cycles tag_latency(0);
     blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency,
-                            pkt->isSpeculative());
+                            pkt->isDomMode() ? pkt->isSpeculative() : false);
 
 
     DPRINTF(Cache, "%s for %s %s\n", __func__, pkt->print(),

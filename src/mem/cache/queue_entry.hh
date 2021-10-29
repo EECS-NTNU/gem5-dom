@@ -120,14 +120,9 @@ class QueueEntry : public Packet::SenderState
     /** True if the entry targets the secure memory space. */
     bool isSecure;
 
-    /** [MP-SPEM] Is this specuatively assigned to load up an entry? */
-    bool isSpeculative;
-
     QueueEntry()
         : readyTime(0), _isUncacheable(false),
-          inService(false), order(0), blkAddr(0), blkSize(0), isSecure(false),
-          //[MP-SPEM]
-          isSpeculative(false)
+          inService(false), order(0), blkAddr(0), blkSize(0), isSecure(false)
     {}
 
     bool isUncacheable() const { return _isUncacheable; }

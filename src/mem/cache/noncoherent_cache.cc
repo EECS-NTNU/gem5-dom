@@ -275,17 +275,13 @@ NoncoherentCache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt,
             stats.cmdStats(tgt_pkt).missLatency[tgt_pkt->req->requestorId()] +=
                 completion_time - target.recvTime;
 
-            // [MP-SPEM] mshr should not make response when speculative ?
-            // if (!mshr->isSpeculative())
-                tgt_pkt->makeTimingResponse();
+            tgt_pkt->makeTimingResponse();
             if (pkt->isError())
                 tgt_pkt->copyError(pkt);
 
             // Reset the bus additional time as it is now accounted for
             tgt_pkt->headerDelay = tgt_pkt->payloadDelay = 0;
-            // [MP-SPEM] mshr should not make response when speculative ?
-            // if (!mshr->isSpeculative())
-                cpuSidePort.schedTimingResp(tgt_pkt, completion_time);
+            cpuSidePort.schedTimingResp(tgt_pkt, completion_time);
             break;
 
           case MSHR::Target::FromPrefetcher:

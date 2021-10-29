@@ -815,7 +815,8 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk)
                         assert(pkt->matchAddr(tgt_pkt));
                         assert(pkt->getSize() >= tgt_pkt->getSize());
 
-                        if (!tgt_pkt->isSpeculative())
+                        if (!(tgt_pkt->isSpeculative()
+                            && tgt_pkt->isMpspemMode()))
                             tgt_pkt->setData(pkt->getConstPtr<uint8_t>());
                     } else {
                         // MSHR targets can read data either from the

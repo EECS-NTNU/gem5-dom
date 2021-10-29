@@ -182,9 +182,6 @@ class FALRU : public BaseTags
     CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat,
                           bool is_speculative, CachesMask *in_cache_mask);
 
-    CacheBlk* accessBlockSpeculative(Addr addr, bool is_secure, Cycles &lat,
-                          CachesMask *in_cache_mask);
-
     /**s
      * Just a wrapper of above function to conform with the base interface.
      */

@@ -997,8 +997,6 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             iewStage->delayMemInst(load_inst);
             ++stats.loadsDelayedOnMiss;
             DPRINTF(DebugDOM, "Returning ShadowFault\n");
-            delete(ex_snoop);
-            delete(state);
             return std::make_shared<ShadowFault>();
         }
     } else {
