@@ -977,6 +977,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     if (cpu->MPSPEM && req->isSpeculative()) {
         req->sendPacketToCache();
         iewStage->delayMemInst(load_inst);
+        return NoFault;
     } else if (cpu->DOM && req->isSpeculative()) {
         PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
         ex_snoop->dataStatic(load_inst->memData);
@@ -998,6 +999,10 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             ++stats.loadsDelayedOnMiss;
             DPRINTF(DebugDOM, "Returning ShadowFault\n");
             return std::make_shared<ShadowFault>();
+        } else {
+            req->sendPacketToCache();
+            if (!req->isSent())
+                iewStage->blockMemInst(load_inst);
         }
     } else {
         req->setPacketsNonSpeculative();
