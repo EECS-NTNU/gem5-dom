@@ -618,6 +618,7 @@ class LSQ
         setPacketsNonSpeculative() {
             for (int i = 0; i<_packets.size(); i++) {
                 _packets.at(i)->speculative = false;
+                _packets.at(i)->noSpeculativeMode();
             }
         }
 
