@@ -966,11 +966,7 @@ template<class Impl>
 bool
 LSQ<Impl>::SingleDataRequest::recvTimingResp(PacketPtr pkt)
 {
-    if (pkt->isMpspemMode() && pkt->isSpeculative()) {
-        assert(_numOutstandingPackets == 0);
-        _port.completeDataAccess(pkt);
-        return true;
-    }
+    assert(!(pkt->isMpspemMode() && pkt->isSpeculative()));
     assert(_numOutstandingPackets == 1);
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     flags.set(Flag::Complete);
@@ -1126,7 +1122,7 @@ template<class Impl>
 void
 LSQ<Impl>::SingleDataRequest::sendPacketToCache()
 {
-    //assert(_numOutstandingPackets == 0);
+    assert(_numOutstandingPackets == 0);
     if (lsqUnit()->trySendPacket(isLoad(), _packets.at(0)))
         _numOutstandingPackets++;
 }

@@ -117,6 +117,8 @@ template <class Impl>
 void
 DefaultDOM<Impl>::insertBranch(const DynInstPtr &inst, ThreadID tid)
 {
+    if (!(_cpu->DOM || _cpu->MPSPEM)) return;
+
     DPRINTF(DebugDOM, "Trying to insert branch\n");
     assert(inst);
 
@@ -134,6 +136,8 @@ template <class Impl>
 void
 DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
 {
+    if (!(_cpu->DOM || _cpu->MPSPEM)) return;
+
     DPRINTF(DebugDOM, "Trying to insert load\n");
     assert(inst);
     if (sbHead[tid] != sbTail[tid]) {
@@ -175,6 +179,8 @@ template <class Impl>
 void
 DefaultDOM<Impl>::safeBranch(const DynInstPtr &inst, ThreadID tid)
 {
+    if (!(_cpu->DOM || _cpu->MPSPEM)) return;
+
     DPRINTF(DebugDOM, "Trying to safe branch\n");
     assert(inst);
     int spot = getBranchIndex(inst, tid);
@@ -193,6 +199,8 @@ template <class Impl>
 void
 DefaultDOM<Impl>::mispredictBranch(const DynInstPtr &inst, ThreadID tid)
 {
+    if (!(_cpu->DOM || _cpu->MPSPEM)) return;
+
     DPRINTF(DebugDOM, "Trying to handle mispredicted branch\n");
     assert(inst);
     int spot = -1;
@@ -333,6 +341,8 @@ template <class Impl>
 void
 DefaultDOM<Impl>::tick()
 {
+    if (!(_cpu->DOM || _cpu->MPSPEM)) return;
+
     clearDeadEntries();
     stallCycles++;
     for (ThreadID i = 0; i < activeThreads->size(); i++) {
