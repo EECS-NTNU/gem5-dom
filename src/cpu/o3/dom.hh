@@ -23,7 +23,7 @@ class DefaultDOM
         typedef typename Impl::DynInstPtr DynInstPtr;
         typedef typename Impl::O3CPU O3CPU;
 
-        O3CPU *cpu;
+        O3CPU *_cpu;
 
         std::list<ThreadID> *activeThreads;
 

@@ -7,12 +7,12 @@
 
 template <class Impl>
 DefaultDOM<Impl>::DefaultDOM(O3CPU *_cpu, const DerivO3CPUParams &params)
-    : cpu(_cpu),
+    : _cpu(_cpu),
     maxNumSbEntries(params.numSbEntries),
     maxNumRqEntries(params.numRqEntries),
     width(params.decodeWidth),
     numThreads(params.numThreads),
-    domStats(cpu)
+    domStats(_cpu)
 {
 }
 
@@ -76,7 +76,7 @@ template <class Impl>
 std::string
 DefaultDOM<Impl>::name() const
 {
-    return cpu->name()+ ".dom";
+    return _cpu->name()+ ".dom";
 }
 
 template<class Impl>
@@ -388,8 +388,8 @@ DefaultDOM<Impl>::tick()
 
 template <class Impl>
 DefaultDOM<Impl>::
-DOMStats::DOMStats(O3CPU *cpu)
-    : Stats::Group(cpu),
+DOMStats::DOMStats(O3CPU *_cpu)
+    : Stats::Group(_cpu),
     ADD_STAT(emptyCycles, UNIT_CYCLE,
         "Number of cycles where ShadowBuffer is empty"),
     ADD_STAT(activeCycles, UNIT_CYCLE,
