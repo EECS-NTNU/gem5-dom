@@ -1176,28 +1176,6 @@ class BaseCache : public ClockedObject
         return mshr;
     }
 
-    MSHR *allocateMissBufferSpeculative(PacketPtr pkt, Tick time,
-                                        bool sched_send = true)
-    {
-        DPRINTF(SpeculativeCache, "Trying to allocate mshr for pkt %s"
-        " with request: %d and speculative: %d\n",
-        pkt->print(), pkt->isRequest(), pkt->isSpeculative());
-        MSHR *mshr = mshrQueue.allocate(pkt->getBlockAddr(blkSize),
-                                        blkSize,
-                                        pkt, time,
-                                        order++,
-                                        allocOnFill(pkt->cmd));
-        if (mshrQueue.isFull()) {
-            setBlocked((BlockedCause)MSHRQueue_MSHRs);
-        }
-        //Need to actually issue the request to the mem side
-        if (sched_send) {
-            schedMemSideSendEvent(time);
-        }
-
-        return mshr;
-    }
-
     void allocateWriteBuffer(PacketPtr pkt, Tick time)
     {
         // should only see writes or clean evicts here

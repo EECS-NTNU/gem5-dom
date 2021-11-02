@@ -173,7 +173,10 @@ BaseO3DynInst<Impl>::completeAcc(PacketPtr pkt)
         }
     }
     assert((!this->cpu->MPSPEM) ||
-        (this->cpu->MPSPEM && !pkt->isSpeculative()));
+            (this->cpu->MPSPEM &&
+                (!pkt->isSpeculative() || pkt->isPredictable())
+            )
+        );
 
     this->fault = this->staticInst->completeAcc(pkt, this, this->traceData);
 

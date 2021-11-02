@@ -623,6 +623,20 @@ class LSQ
         }
 
         void
+        setPacketsPredictable() {
+            for (int i = 0; i<_packets.size(); i++) {
+                _packets.at(i)->setPredictable(true);
+            }
+        }
+
+        void
+        setPacketsNonPredictable() {
+            for (int i = 0; i<_packets.size(); i++) {
+                _packets.at(i)->setPredictable(false);
+            }
+        }
+
+        void
         dropPackets() {
             for (auto r: _packets)
                 delete r;

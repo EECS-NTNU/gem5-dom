@@ -833,6 +833,9 @@ class Packet : public Printable
     Packet::SpeculativeMode
         speculativeMode = SpeculativeMode::None;
 
+    /** Whether this packet is allowed to have its value predicted */
+    bool predictable = false;
+
     void noSpeculativeMode() {
         speculativeMode = SpeculativeMode::None;
     }
@@ -851,6 +854,14 @@ class Packet : public Printable
 
     bool isMpspemMode() {
         return speculativeMode == SpeculativeMode::MPSPEM;
+    }
+
+    void setPredictable(bool setPredictable) {
+        predictable = setPredictable;
+    }
+
+    bool isPredictable() {
+        return predictable;
     }
 
     bool cacheMiss = false;

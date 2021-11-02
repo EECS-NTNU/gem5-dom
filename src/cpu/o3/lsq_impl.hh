@@ -966,7 +966,8 @@ template<class Impl>
 bool
 LSQ<Impl>::SingleDataRequest::recvTimingResp(PacketPtr pkt)
 {
-    assert(!(pkt->isMpspemMode() && pkt->isSpeculative()));
+    if (pkt->isMpspemMode())
+        assert(pkt->isPredictable() || !pkt->isSpeculative());
     assert(_numOutstandingPackets == 1);
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     flags.set(Flag::Complete);
@@ -980,7 +981,8 @@ template<class Impl>
 bool
 LSQ<Impl>::SplitDataRequest::recvTimingResp(PacketPtr pkt)
 {
-    assert(!(pkt->isMpspemMode() && pkt->isSpeculative()));
+    if (pkt->isMpspemMode())
+        assert(pkt->isPredictable() || !pkt->isSpeculative());
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     uint32_t pktIdx = 0;
     while (pktIdx < _packets.size() && pkt != _packets[pktIdx])
@@ -1019,10 +1021,12 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
         _packets.back()->dataStatic(_inst->memData);
         _packets.back()->senderState = _senderState;
         _packets.back()->speculative = speculative;
-        if (lsqUnit()->cpu->MPSPEM) {
-            _packets.back()->mpspemSpeculativeMode();
-        } else if (lsqUnit()->cpu->DOM) {
-            _packets.back()->domSpeculativeMode();
+        if (isLoad()) {
+            if (lsqUnit()->cpu->MPSPEM) {
+                _packets.back()->mpspemSpeculativeMode();
+            } else if (lsqUnit()->cpu->DOM) {
+                _packets.back()->domSpeculativeMode();
+            }
         }
 
         // hardware transactional memory
@@ -1090,10 +1094,12 @@ LSQ<Impl>::SplitDataRequest::buildPackets()
             }
             pkt->senderState = _senderState;
             pkt->speculative = _inst->underShadow;
-            if (lsqUnit()->cpu->MPSPEM) {
-                pkt->mpspemSpeculativeMode();
-            } else if (lsqUnit()->cpu->DOM) {
-                pkt->domSpeculativeMode();
+            if (isLoad()) {
+                if (lsqUnit()->cpu->MPSPEM) {
+                    pkt->mpspemSpeculativeMode();
+                } else if (lsqUnit()->cpu->DOM) {
+                    pkt->domSpeculativeMode();
+                }
             }
             _packets.push_back(pkt);
 

@@ -781,6 +781,8 @@ class FullO3CPU : public BaseO3CPU
 
     bool DOM;
 
+    bool VP;
+
   public:
     // hardware transactional memory
     void htmSendAbortSignal(ThreadID tid, uint64_t htm_uid,

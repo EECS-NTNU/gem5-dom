@@ -96,7 +96,8 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
     auto senderState = dynamic_cast<LSQSenderState*>(pkt->senderState);
     LSQRequest* req = senderState->request();
     assert(req != nullptr);
-    if (pkt->isMpspemMode()) assert(!senderState->alive());
+    if (pkt->isMpspemMode())
+        assert((!senderState->alive()) || pkt->isPredictable());
     DPRINTF(DebugDOM, "Received timing resp for pkt %s, with spec %d\n",
             pkt->print(), pkt->isSpeculative());
     bool ret = true;
@@ -116,7 +117,7 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
 {
     LSQSenderState *state = dynamic_cast<LSQSenderState *>(pkt->senderState);
     DynInstPtr inst = state->inst;
-    assert(!((pkt->isMpspemMode())
+    assert(!((pkt->isMpspemMode() && !pkt->isPredictable())
         && (pkt->isSpeculative() || inst->underShadow)));
 
     // hardware transactional memory
@@ -292,9 +293,13 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
                "Number of times an access to memory failed due to the cache "
                "being blocked"),
       ADD_STAT(loadsDelayedOnMiss, UNIT_COUNT,
-               "Number of loads delayed because of DoM"),
+               "Number of loads delayed because of missing in L1 Cache (DoM)"),
       ADD_STAT(issuedSnoops, UNIT_COUNT,
-               "Number of snoops issued because of DoM")
+               "Number of snoops issued to check if load in L1 Cache"),
+      ADD_STAT(predictedLoads, UNIT_COUNT,
+               "Number of L1 loads issued where value will be predicted"),
+      ADD_STAT(preloadedLoads, UNIT_COUNT,
+               "Number of L1 misses which are issued for preloading")
 {
 }
 

@@ -610,11 +610,17 @@ class LSQUnit
         Stats::Scalar loadsDelayedOnMiss;
 
         Stats::Scalar issuedSnoops;
+
+        Stats::Scalar predictedLoads;
+
+        Stats::Scalar preloadedLoads;
     } stats;
 
   public:
     /** Executes the load at the given index. */
     Fault read(LSQRequest *req, int load_idx);
+
+    bool snoopCache(LSQRequest *req, const DynInstPtr& load_inst);
 
     /** Executes the store at the given index. */
     Fault write(LSQRequest *req, uint8_t *data, int store_idx);
@@ -972,45 +978,68 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 // [MP-SPEM] Handle speculative loads separately
     assert(req->isSpeculative() == req->_inst->underShadow);
 
-    if (cpu->MPSPEM && req->isSpeculative()) {
-        ++stats.loadsDelayedOnMiss;
-        req->sendPacketToCache();
-        iewStage->delayMemInst(load_inst);
-        return NoFault;
-    } else if (cpu->DOM && req->isSpeculative()) {
-        PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
-        ex_snoop->dataStatic(load_inst->memData);
-        ex_snoop->setExpressSnoop();
-        ex_snoop->speculative = req->speculative;
-        ex_snoop->domSpeculativeMode();
-        LSQSenderState *state = new LQSnoopState(req);
-        ex_snoop->senderState = state;
-        dcachePort->sendFunctional(ex_snoop);
-        ++stats.issuedSnoops;
-
-        auto missed = ex_snoop->isCacheMiss();
-        delete(ex_snoop);
-        delete(state);
-        DPRINTF(DOM, "Issued snoop to cache"
-            "Missed: %d\n", missed);
-
-        if (missed) {
-            iewStage->delayMemInst(load_inst);
-            ++stats.loadsDelayedOnMiss;
-            DPRINTF(DebugDOM, "Returning ShadowFault\n");
-            return std::make_shared<ShadowFault>();
-        } else {
-            req->sendPacketToCache();
-            if (!req->isSent())
-                iewStage->blockMemInst(load_inst);
-        }
-    } else {
+    if (!(cpu->DOM || cpu->MPSPEM) ||
+        !req->isSpeculative()) {
         req->setPacketsNonSpeculative();
+        req->setPacketsNonPredictable();
         req->sendPacketToCache();
         if (!req->isSent())
             iewStage->blockMemInst(load_inst);
+        return NoFault;
     }
+
+    bool missed = snoopCache(req, load_inst);
+
+    if (cpu->MPSPEM && cpu->VP && !missed) {
+        ++stats.predictedLoads;
+        req->setPacketsPredictable();
+        req->sendPacketToCache();
+        if (!req->isSent())
+            iewStage->blockMemInst(load_inst);
+        return NoFault;
+    }
+    if (cpu->MPSPEM) {
+        ++stats.preloadedLoads;
+        req->setPacketsNonPredictable();
+        req->sendPacketToCache();
+        iewStage->delayMemInst(load_inst);
+        return NoFault;
+    }
+    if (cpu->DOM && missed) {
+        ++stats.loadsDelayedOnMiss;
+        req->setPacketsNonPredictable();
+        iewStage->delayMemInst(load_inst);
+        DPRINTF(DebugDOM, "Returning ShadowFault\n");
+        return std::make_shared<ShadowFault>();
+    }
+    assert(cpu->DOM && !missed);
+    req->setPacketsNonPredictable();
+    req->sendPacketToCache();
+    if (!req->isSent())
+        iewStage->blockMemInst(load_inst);
     return NoFault;
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::snoopCache(LSQRequest *req, const DynInstPtr& load_inst)
+{
+    PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
+    ex_snoop->dataStatic(load_inst->memData);
+    ex_snoop->setExpressSnoop();
+    ex_snoop->speculative = req->speculative;
+    ex_snoop->domSpeculativeMode();
+    LSQSenderState *state = new LQSnoopState(req);
+    ex_snoop->senderState = state;
+    dcachePort->sendFunctional(ex_snoop);
+    ++stats.issuedSnoops;
+
+    auto missed = ex_snoop->isCacheMiss();
+    delete(ex_snoop);
+    delete(state);
+    DPRINTF(DOM, "Issued snoop to cache"
+        "Missed: %d\n", missed);
+    return missed;
 }
 
 template <class Impl>
