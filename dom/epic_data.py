@@ -1,6 +1,7 @@
 from spec2006_commands import benchmarks
 from multiprocessing import Process
 import os
+import time
 
 stats = ["simTicks",
     "simTicks",
@@ -27,7 +28,7 @@ stats = ["simTicks",
 
 work_root = os.getcwd()
 gem5_root=f"{work_root}"
-gem5=f"{gem5_root}/build/X86/gem5.debug"
+gem5=f"{gem5_root}/build/X86/gem5.opt"
 se=f"{gem5_root}/configs/example/se.py"
 spec_root=f"{gem5_root}/dom/x86-spec-all-ref"
 stats="m5out/stats.txt"
@@ -81,8 +82,25 @@ def move_result(benchmark):
         move = f"mv m5out/{b_name}_{i}.out {work_root}/results/"
         os.system(move)
 
-processes = []
+def get_running(processes):
+    count = 0
+    for x in processes:
+        if x.is_alive():
+            count = count + 1
+    return count
 
-for benchmark in benchmarks:
-    p = Process(target=run_benchmark, args=(benchmark,))
-    p.start()
+def run_managed(num):
+    remaining_processes = []
+    for benchmark in benchmarks:
+        remaining_processes.append(
+            Process(target=run_benchmark, args=(benchmark,)))
+    running_processes = []
+    while len(remaining_processes) > 0:
+        process = remaining_processes.pop(0)
+        while get_running(running_processes) >= num:
+            time.sleep(60)
+            print("Waiting to free processes")
+        process.start()
+        running_processes.append(process)
+
+run_managed(8)

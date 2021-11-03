@@ -128,15 +128,15 @@ sphinx3 = Benchmark("sphinx3", "482.sphinx3")
 sphinx3.add_ref("ctlfile . args.an4")
 
 int_benchmarks = [
-    perlbench,
     bzip2,
+    h264ref,
     gcc,
     mcf,
+    perlbench,
     gobmk,
     hmmer,
     sjeng,
     libquantum,
-    h264ref,
     omnetpp,
     astar,
     xalan
@@ -162,6 +162,15 @@ fp_benchmarks = [
     sphinx3
 ]
 
+broken_benchmarks = [
+gobmk,
+gamess,
+milc,
+tonto,
+leslie3d
+]
+
 benchmarks = []
 benchmarks.extend(int_benchmarks)
 benchmarks.extend(fp_benchmarks)
+benchmarks = [x for x in benchmarks if x not in broken_benchmarks]
