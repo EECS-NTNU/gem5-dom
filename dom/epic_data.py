@@ -27,17 +27,16 @@ stats = ["simTicks",
 
 work_root = os.getcwd()
 gem5_root=f"{work_root}"
-gem5=f"{gem5_root}/build/X86/gem5.opt"
+gem5=f"{gem5_root}/build/X86/gem5.debug"
 se=f"{gem5_root}/configs/example/se.py"
 spec_root=f"{gem5_root}/dom/x86-spec-all-ref"
 stats="m5out/stats.txt"
 results=f"{gem5_root}/results"
 
-warmupCPU="--cpu-type=kvmCPU"
 runCPU="--cpu-type=DerivO3CPU"
-memory="--mem-size=32GB"
-caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB "\
-"--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 "\
+memory="--mem-size=8GB"
+caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
+"--l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
 fast_forward="--fast-forward 1000000000"
@@ -60,7 +59,7 @@ def run_benchmark(benchmark):
         run_file=f"-r --stdout-file={b_name}_{run_num}.out"
         print(f"Executing run {run_num + 1} of "\
         f"{benchmark.num_runs_ref()} for {b_name}")
-        run_ref = f"{gem5} {run_file} {se} {fast_forward} {memory}"\
+        run_ref = f"{gem5} {run_file} {se} {fast_forward} {memory} "\
         f"{runtime} {caches} {runCPU} -c {b_name} -o \"{run}\""
         print(run_ref)
         print(f"Run {run_num+1} for {b_name} finished "\
