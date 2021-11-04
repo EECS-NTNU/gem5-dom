@@ -98,8 +98,11 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
     assert(req != nullptr);
     if (pkt->isMpspemMode())
         assert((!senderState->alive()) || pkt->isPredictable());
-    DPRINTF(DebugDOM, "Received timing resp for pkt %s, with spec %d\n",
-            pkt->print(), pkt->isSpeculative());
+    DPRINTF(DebugDOM, "Received timing resp for pkt %s, with spec %d"
+            ", predictable: %d, domMode: %d, mpspemMode: %d\n",
+            pkt->print(), pkt->isSpeculative(),
+            pkt->isPredictable(), pkt->isDomMode(),
+            pkt->isMpspemMode());
     bool ret = true;
     /* Check that the request is still alive before any further action. */
     if (senderState->alive()) {
@@ -299,7 +302,11 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(predictedLoads, UNIT_COUNT,
                "Number of L1 loads issued where value will be predicted"),
       ADD_STAT(preloadedLoads, UNIT_COUNT,
-               "Number of L1 misses which are issued for preloading")
+               "Number of L1 misses which are issued for preloading"),
+      ADD_STAT(normalIssuedLoads, UNIT_COUNT,
+               "Number of loads that are issued normally (no speculation"),
+      ADD_STAT(loadsIssuedOnHit, UNIT_COUNT,
+               "Number of L1 hits issued (DoM)")
 {
 }
 

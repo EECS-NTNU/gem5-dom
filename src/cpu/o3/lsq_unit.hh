@@ -614,6 +614,10 @@ class LSQUnit
         Stats::Scalar predictedLoads;
 
         Stats::Scalar preloadedLoads;
+
+        Stats::Scalar normalIssuedLoads;
+
+        Stats::Scalar loadsIssuedOnHit;
     } stats;
 
   public:
@@ -980,6 +984,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
     if (!(cpu->DOM || cpu->MPSPEM) ||
         !req->isSpeculative()) {
+        ++stats.normalIssuedLoads;
         req->setPacketsNonSpeculative();
         req->setPacketsNonPredictable();
         req->sendPacketToCache();
@@ -1013,6 +1018,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         return std::make_shared<ShadowFault>();
     }
     assert(cpu->DOM && !missed);
+    ++stats.loadsIssuedOnHit;
     req->setPacketsNonPredictable();
     req->sendPacketToCache();
     if (!req->isSent())
@@ -1038,7 +1044,7 @@ LSQUnit<Impl>::snoopCache(LSQRequest *req, const DynInstPtr& load_inst)
     delete(ex_snoop);
     delete(state);
     DPRINTF(DOM, "Issued snoop to cache"
-        "Missed: %d\n", missed);
+        "Missed: %d for [sn:%llu]\n", missed, load_inst->seqNum);
     return missed;
 }
 
