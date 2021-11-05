@@ -43,7 +43,9 @@
 #define __CPU_O3_LSQ_UNIT_HH__
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <queue>
@@ -613,6 +615,8 @@ class LSQUnit
 
         Stats::Scalar predictedLoads;
 
+        Stats::Scalar failedPredictions;
+
         Stats::Scalar preloadedLoads;
 
         Stats::Scalar normalIssuedLoads;
@@ -995,14 +999,32 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
     bool missed = snoopCache(req, load_inst);
 
-    if (cpu->MPSPEM && cpu->VP && !missed) {
-        ++stats.predictedLoads;
-        req->setPacketsPredictable();
-        req->sendPacketToCache();
-        if (!req->isSent())
-            iewStage->blockMemInst(load_inst);
-        return NoFault;
+    if (cpu->MPSPEM && cpu->VP) {
+        if (missed) {
+            req->setPacketsNonPredictable();
+            req->sendPacketToCache();
+            iewStage->delayMemInst(load_inst);
+            return NoFault;
+        }
+        int prediction = rand() % 100;
+        DPRINTF(DebugDOM, "Making prediction,"
+                " accuracy: %d, roll: %d\n",
+                cpu->accuracy, prediction);
+        if (cpu->accuracy > prediction) {
+            ++stats.predictedLoads;
+            req->setPacketsPredictable();
+            req->sendPacketToCache();
+            if (!req->isSent())
+                iewStage->blockMemInst(load_inst);
+            return NoFault;
+        } else {
+            ++stats.failedPredictions;
+            req->setPacketsNonPredictable();
+            iewStage->delayMemInst(load_inst);
+            return NoFault;
+        }
     }
+
     if (cpu->MPSPEM) {
         ++stats.preloadedLoads;
         req->setPacketsNonPredictable();

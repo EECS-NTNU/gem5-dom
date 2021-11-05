@@ -783,6 +783,8 @@ class FullO3CPU : public BaseO3CPU
 
     bool VP;
 
+    int accuracy;
+
   public:
     // hardware transactional memory
     void htmSendAbortSignal(ThreadID tid, uint64_t htm_uid,

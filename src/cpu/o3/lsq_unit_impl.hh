@@ -220,6 +220,7 @@ LSQUnit<Impl>::LSQUnit(uint32_t lqEntries, uint32_t sqEntries)
       isStoreBlocked(false), storeInFlight(false), hasPendingRequest(false),
       pendingRequest(nullptr), stats(nullptr)
 {
+    srand(10111997);
 }
 
 template<class Impl>
@@ -301,6 +302,8 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
                "Number of snoops issued to check if load in L1 Cache"),
       ADD_STAT(predictedLoads, UNIT_COUNT,
                "Number of L1 loads issued where value will be predicted"),
+      ADD_STAT(failedPredictions, UNIT_COUNT,
+               "Number of L1 loads where value could not be predicted"),
       ADD_STAT(preloadedLoads, UNIT_COUNT,
                "Number of L1 misses which are issued for preloading"),
       ADD_STAT(normalIssuedLoads, UNIT_COUNT,
@@ -646,7 +649,7 @@ LSQUnit<Impl>::executeLoad(const DynInstPtr &inst)
     assert(!inst->isSquashed());
 
     load_fault = inst->initiateAcc();
-    DPRINTF(DebugDOM, "Finished load access,"
+    DPRINTF(DebugDOM, "Finished load execution,"
     "fault is : %s\n", load_fault != NoFault ? load_fault->name() :
     "none");
 
