@@ -41,7 +41,7 @@ caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
 fast_forward="--fast-forward 1000000000"
-runtime="--maxinsts=3000000000"
+runtime="--maxinsts=1000000000"
 
 mkdir = f"mkdir {gem5_root}/results"
 print(os.system(mkdir))
