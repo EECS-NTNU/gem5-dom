@@ -766,7 +766,14 @@ LSQUnit<Impl>::executeStore(const DynInstPtr &store_inst)
 
 template <class Impl>
 void
-LSQUnit<Impl>::predictLoad(const DynInstPtr &inst)
+LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
+{
+    panic("Not implemented\n");
+}
+
+template <class Impl>
+void
+LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
 {
     panic("Not implemented\n");
 }
@@ -779,6 +786,8 @@ LSQUnit<Impl>::commitLoad()
 
     DPRINTF(LSQUnit, "Committing head load instruction, PC %s\n",
             loadQueue.front().instruction()->pcState());
+
+    updatePredictor(loadQueue.front()->inst)
 
     loadQueue.front().clear();
     loadQueue.pop_front();

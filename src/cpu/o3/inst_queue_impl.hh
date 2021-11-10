@@ -706,7 +706,8 @@ InstructionQueue<Impl>::getPredictable()
     assert(!instsPredictable.empty());
     DynInstPtr inst = std::move(instsPredictable.front());
     instsPredictable.pop_front();
-    assert(inst.isLoad());
+    assert(!inst->isSquashed());
+    assert(inst->isLoad());
     DPRINTF("Returning [sn:%llu] for prediction\n")
     return inst;
 }
@@ -1445,6 +1446,8 @@ InstructionQueue<Impl>::doSquash(ThreadID tid)
             assert(dependGraph.empty(dest_reg->flatIndex()));
             dependGraph.clearInst(dest_reg->flatIndex());
         }
+        if (*squash_it->isLoad())
+            removeFromPredictable(*squash_it);
         instList[tid].erase(squash_it--);
         ++iqStats.squashedInstsExamined;
     }
