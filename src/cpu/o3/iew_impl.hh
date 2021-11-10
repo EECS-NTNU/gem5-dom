@@ -1414,6 +1414,13 @@ DefaultIEW<Impl>::executeInsts()
             }
         }
     }
+    int insts_to_predict = cpu->totalWidth - insts_to_execute;
+    while (insts_to_predict &&
+           instQueue.hasPredictable()) {
+        DynInstPtr predictable = instQueue.getPredictable();
+        ldstQueue.predictLoad(predictable);
+        insts_to_predict--;
+    }
 
     // Update and record activity if we processed any instructions.
     if (inst_num) {

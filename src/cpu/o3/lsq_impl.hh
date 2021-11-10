@@ -252,6 +252,15 @@ LSQ<Impl>::executeStore(const DynInstPtr &inst)
 
 template<class Impl>
 void
+LSQ<Impl>::predictLoad(const DynInstPtr &inst)
+{
+    ThreadID tid = inst->threadNumber;
+
+    thread[tid].predictLoad(inst);
+}
+
+template<class Impl>
+void
 LSQ<Impl>::writebackStores()
 {
     std::list<ThreadID>::iterator threads = activeThreads->begin();

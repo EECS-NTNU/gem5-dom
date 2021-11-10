@@ -124,7 +124,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       MPSPEM(true),
       DOM(false),
       VP(true),
-      accuracy(100)
+      accuracy(50)
 {
     assert(!(MPSPEM && DOM));
     fatal_if(FullSystem && params.numThreads > 1,

@@ -766,6 +766,13 @@ LSQUnit<Impl>::executeStore(const DynInstPtr &store_inst)
 
 template <class Impl>
 void
+LSQUnit<Impl>::predictLoad(const DynInstPtr &inst)
+{
+    panic("Not implemented\n");
+}
+
+template <class Impl>
+void
 LSQUnit<Impl>::commitLoad()
 {
     assert(loadQueue.front().valid());

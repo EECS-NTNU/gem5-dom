@@ -280,6 +280,8 @@ class LSQUnit
     /** Executes a store instruction. */
     Fault executeStore(const DynInstPtr &inst);
 
+    void predictLoad(const DynInstPtr &inst);
+
     /** Commits the head load. */
     void commitLoad();
     /** Commits loads older than a specific sequence number. */

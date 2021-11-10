@@ -96,6 +96,8 @@ BaseDynInst<Impl>::initVars()
     memData = NULL;
     effAddr = 0;
     physEffAddr = 0;
+    predAddr = 0;
+    hasPredAddr = false;
     readyRegs = 0;
     memReqFlags = 0;
     // hardware transactional memory
@@ -265,6 +267,22 @@ BaseDynInst<Impl>::setSquashed()
     setPinnedRegsSquashDone();
 }
 
+template <class Impl>
+void
+BaseDynInst<Impl>::setPredictedAddress(Addr predicted)
+{
+    assert(!hasPredAddr);
+    hasPredAddr = true;
+    predAddr = predicted;
+}
+
+template <class Impl>
+Addr
+BaseDynInst<Impl>::getPrediction()
+{
+    assert(hasPredAddr);
+    return predAddr;
+}
 
 
 #endif//__CPU_BASE_DYN_INST_IMPL_HH__

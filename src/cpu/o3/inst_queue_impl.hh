@@ -621,6 +621,9 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
     count[new_inst->threadNumber]++;
 
     assert(freeEntries == (numEntries - countInsts()));
+
+    if (new_inst->isLoad())
+        instsPredictable.push_back(new_inst);
 }
 
 template <class Impl>
@@ -694,6 +697,25 @@ InstructionQueue<Impl>::getInstToExecute()
         iqIOStats.intInstQueueReads++;
     }
     return inst;
+}
+
+template <class Impl>
+typename Impl::DynInstPtr
+InstructionQueue<Impl>::getPredictable()
+{
+    assert(!instsPredictable.empty());
+    DynInstPtr inst = std::move(instsPredictable.front());
+    instsPredictable.pop_front();
+    assert(inst.isLoad());
+    DPRINTF("Returning [sn:%llu] for prediction\n")
+    return inst;
+}
+
+template <class Impl>
+bool
+InstructionQueue<Impl>::hasPredictable()
+{
+    return !instsPredictable.empty();
 }
 
 template <class Impl>
@@ -1685,6 +1707,24 @@ InstructionQueue<Impl>::dumpInsts()
         inst_list_it++;
         ++num;
     }
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::removeFromPredictable(const DynInstPtr &inst)
+{
+    auto pred_it = instsPredictable.begin();
+    while (pred_it != instsPredictable.end())
+    {
+        if (*pred_it == inst) {
+            instsPredictable.erase(pred_it);
+            DPRINTF(IQ, "Removed inst [sn:%llu] from predictables\n",
+                    inst->seqNum);
+            break;
+        }
+    }
+    if (pred_it == instsPredictable.end())
+        DPRINTF(IQ, "Could not find inst in predictables\n");
 }
 
 #endif//__CPU_O3_INST_QUEUE_IMPL_HH__

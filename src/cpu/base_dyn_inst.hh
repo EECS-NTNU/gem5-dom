@@ -365,6 +365,10 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** The effective physical address. */
     Addr physEffAddr;
 
+    Addr predAddr;
+
+    bool hasPredAddr;
+
     /** The memory request flags (from translation). */
     unsigned memReqFlags;
 
@@ -973,6 +977,11 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Returns whether or not this instruction is squashed in the LSQ. */
     bool isSquashedInLSQ() const { return status[SquashedInLSQ]; }
 
+    void setPredictedAddress(Addr predidction);
+
+    bool isPredicted() const {return hasPredAddr};
+
+    Addr getPrediction();
 
     //Reorder Buffer Functions
     //-----------------------

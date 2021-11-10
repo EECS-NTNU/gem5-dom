@@ -192,6 +192,10 @@ class InstructionQueue
      */
     DynInstPtr getInstToExecute();
 
+    DynInstPtr getPredictable();
+
+    bool hasPredictable();
+
     /** Gets a memory instruction that was referred due to a delayed DTB
      *  translation if it is now ready to execute.  NULL if none available.
      */
@@ -318,6 +322,8 @@ class InstructionQueue
 
     /** List of instructions that are ready to be executed. */
     std::list<DynInstPtr> instsToExecute;
+
+    std::list<DynInstPtr> instsPredictable;
 
     /** List of instructions waiting for their DTB translation to
      *  complete (hw page table walk in progress).
@@ -478,6 +484,8 @@ class InstructionQueue
      *  IQ.
      */
     void dumpInsts();
+
+    void removeFromPredictable(const DynInstPtr &inst);
 
     struct IQStats : public Stats::Group
     {
