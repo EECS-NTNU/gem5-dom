@@ -63,6 +63,8 @@
 #include "mem/packet.hh"
 #include "mem/port.hh"
 
+#include "cpu/o3/add_pred.cc"
+
 struct DerivO3CPUParams;
 #include "base/circular_queue.hh"
 
@@ -423,6 +425,8 @@ class LSQUnit
 
     /** Pointer to the dcache port.  Used only for sending. */
     RequestPort *dcachePort;
+
+    ADD_PRED *add_pred;
 
     /** Particularisation of the LSQSenderState to the LQ. */
     class LQSenderState : public LSQSenderState

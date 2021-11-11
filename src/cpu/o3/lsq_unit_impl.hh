@@ -221,6 +221,7 @@ LSQUnit<Impl>::LSQUnit(uint32_t lqEntries, uint32_t sqEntries)
       pendingRequest(nullptr), stats(nullptr)
 {
     srand(10111997);
+    add_pred = new ADD_PRED();
 }
 
 template<class Impl>
@@ -768,14 +769,54 @@ template <class Impl>
 void
 LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 {
-    panic("Not implemented\n");
+    Addr prediction = add_pred->predictLoad(inst->instAddr());
+
+/*     auto cacheLineSize = cpu->cacheLineSize();
+    bool needs_burst =
+        transferNeedsBurst(prediction, inst->size, cacheLineSize);
+
+    bool isLoad = true;
+    auto size = inst->effSize;
+
+    LSQRequest* req = nullptr;
+    if (needs_burst) {
+        req = new SplitDataRequest(&thread[tid], inst, isLoad, prediction,
+                    size, flags);
+    } else {
+        req = new SingleDataRequest(&thread[tid], inst, isLoad, prediction,
+                    size, flags);
+    }
+    PacketPtr preload = Packet::createRead(req);
+    preload->speculative = true;
+    preload->mpspemSpeculativeMode();
+
+    LQSenderState *state = new LQSenderState(
+            loadQueue.getIterator(req->load_idx));
+    state->isLoad = true;
+    state->inst = inst;
+    state->isSplit = req->isSplit();
+    req->senderState(state);
+
+    req->_packets.push_back(preload);*/
+
+    Request::Flags _flags = Request::PHYSICAL;
+    auto request = std::make_shared<Request>(
+                        prediction,
+                        inst->effSize,
+                        _flags,
+                        inst->requestorId());
+                request->setByteEnable(byte_enable);
+    PacketPtr preload = new Packet(request, MemCmd::ReadReq);
+
+    trySendPacket(true, preload);
+
 }
 
 template <class Impl>
 void
 LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
 {
-    panic("Not implemented\n");
+    add_pred->l1d_prefetcher_operate(inst->physEffAddr, inst->instAddr());
 }
 
 template <class Impl>
@@ -787,7 +828,7 @@ LSQUnit<Impl>::commitLoad()
     DPRINTF(LSQUnit, "Committing head load instruction, PC %s\n",
             loadQueue.front().instruction()->pcState());
 
-    updatePredictor(loadQueue.front()->inst)
+    updatePredictor(loadQueue.front()->inst);
 
     loadQueue.front().clear();
     loadQueue.pop_front();
