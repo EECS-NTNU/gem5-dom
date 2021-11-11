@@ -47,6 +47,7 @@ class ADD_PRED
         uint16_t str_valid;      // stream valid
         uint16_t str_strength;   // stream strength
         uint16_t run_ahead;
+        uint64_t last_addr;
 
         IP_TABLE_L1()
         {
@@ -61,6 +62,7 @@ class ADD_PRED
             str_valid = 0;
             str_strength = 0;
             run_ahead = 0;
+            last_addr = 0;
         };
     };
 
@@ -84,7 +86,7 @@ class ADD_PRED
     uint64_t num_misses[NUM_CPUS];
     float mpkc[NUM_CPUS] = {0};
     int spec_nl[NUM_CPUS] = {0};
-
+    public:
     /***************Updating the signature**********/
     uint16_t update_sig_l1(uint16_t old_sig, int delta)
     {
@@ -197,14 +199,14 @@ class ADD_PRED
 
         return conf;
     }
-    void l1d_prefetcher_operate(uint64_t addr, uint64_t ip)
+    void
+    updatePredictor(uint64_t addr, uint64_t ip)
     {
 
         uint64_t curr_page = addr >> LOG2_PAGE_SIZE;
         uint64_t cl_addr = addr >> LOG2_BLOCK_SIZE;
         uint64_t cl_offset = (addr >> LOG2_BLOCK_SIZE) & 0x3F;
         uint16_t signature = 0, last_signature = 0;
-        uint32_t metadata = 0;
         uint16_t ip_tag = (ip >> NUM_IP_INDEX_BITS)
             & ((1 << NUM_IP_TAG_BITS) - 1);
         int cpu = 0;
@@ -230,12 +232,6 @@ class ADD_PRED
             { // otherwise, reset valid bit and leave the previous IP as it is
                 trackers_l1[cpu][index].ip_valid = 0;
             }
-
-            // issue a next line prefetch upon encountering new IP
-            uint64_t pf_address = ((addr >> LOG2_BLOCK_SIZE) + 1)
-                << LOG2_BLOCK_SIZE; // BASE NL=1, changing it to 3
-            metadata = encode_metadata(1, NL_TYPE, spec_nl[cpu]);
-            // prefetch_line(ip, addr, pf_address, FILL_L1, metadata);
             return;
         }
         else
@@ -310,24 +306,21 @@ class ADD_PRED
     }
 
     uint64_t
-    predictLoad(uint64_t addr, uint64_t ip)
+    predictLoad(uint64_t ip)
     {
-
-        uint64_t curr_page = addr >> LOG2_PAGE_SIZE;
-        uint64_t cl_addr = addr >> LOG2_BLOCK_SIZE;
-        uint64_t cl_offset = (addr >> LOG2_BLOCK_SIZE) & 0x3F;
-        uint16_t signature = 0, last_signature = 0;
-        int prefetch_degree = 0;
+        uint16_t signature = 0;
         uint32_t metadata = 0;
         uint16_t ip_tag = (ip >> NUM_IP_INDEX_BITS)
             & ((1 << NUM_IP_TAG_BITS) - 1);
         int cpu = 0;
         // calculate the index bit
         int index = ip & ((1 << NUM_IP_INDEX_BITS) - 1);
+        auto addr = trackers_l1[cpu][index].last_addr;
         trackers_l1[cpu][index].run_ahead++;
+        uint64_t cl_addr = addr >> LOG2_BLOCK_SIZE;
         auto run_ahead = trackers_l1[cpu][index].run_ahead;
-        uint64_t prefetch_addr =
-            ((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
+        uint64_t prefetch_addr = 0;
+            //((addr >> LOG2_BLOCK_SIZE) + 1) << LOG2_BLOCK_SIZE;
 
         if (trackers_l1[cpu][index].ip_tag != ip_tag)
         {

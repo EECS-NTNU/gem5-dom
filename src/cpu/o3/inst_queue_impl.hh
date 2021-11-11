@@ -708,7 +708,8 @@ InstructionQueue<Impl>::getPredictable()
     instsPredictable.pop_front();
     assert(!inst->isSquashed());
     assert(inst->isLoad());
-    DPRINTF("Returning [sn:%llu] for prediction\n")
+    DPRINTF(IQ, "Returning [sn:%llu] for prediction\n",
+        inst->seqNum);
     return inst;
 }
 
@@ -1446,7 +1447,7 @@ InstructionQueue<Impl>::doSquash(ThreadID tid)
             assert(dependGraph.empty(dest_reg->flatIndex()));
             dependGraph.clearInst(dest_reg->flatIndex());
         }
-        if (*squash_it->isLoad())
+        if ((*squash_it)->isLoad())
             removeFromPredictable(*squash_it);
         instList[tid].erase(squash_it--);
         ++iqStats.squashedInstsExamined;
@@ -1717,6 +1718,10 @@ void
 InstructionQueue<Impl>::removeFromPredictable(const DynInstPtr &inst)
 {
     auto pred_it = instsPredictable.begin();
+    DPRINTF(IQ, "Squashing from predictables list, entries: %d,"
+            " leading inst [sn:%llu]",
+            instsPredictable.size(),
+            (*pred_it)->seqNum);
     while (pred_it != instsPredictable.end())
     {
         if (*pred_it == inst) {
@@ -1725,6 +1730,7 @@ InstructionQueue<Impl>::removeFromPredictable(const DynInstPtr &inst)
                     inst->seqNum);
             break;
         }
+        pred_it++;
     }
     if (pred_it == instsPredictable.end())
         DPRINTF(IQ, "Could not find inst in predictables\n");

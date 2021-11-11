@@ -252,7 +252,7 @@ LSQ<Impl>::executeStore(const DynInstPtr &inst)
 
 template<class Impl>
 void
-LSQ<Impl>::predictLoad(const DynInstPtr &inst)
+LSQ<Impl>::predictLoad(DynInstPtr &inst)
 {
     ThreadID tid = inst->threadNumber;
 
@@ -326,6 +326,10 @@ LSQ<Impl>::recvTimingResp(PacketPtr pkt)
                 pkt->getAddr());
 
     auto senderState = dynamic_cast<LSQSenderState*>(pkt->senderState);
+    if ((!senderState) && pkt->isMpspemMode() && pkt->speculative) {
+        delete(pkt);
+        return true;
+    }
     panic_if(!senderState, "Got packet back with unknown sender state\n");
 
     thread[cpu->contextToThread(senderState->contextId())].recvTimingResp(pkt);

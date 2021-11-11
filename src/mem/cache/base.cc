@@ -1040,7 +1040,6 @@ BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
             int offset = tags->extractBlkOffset(pkt->getAddr());
             uint8_t *blk_data = blk->data + offset;
             pkt->setData(blk_data);
-
             // execute AMO operation
             (*(pkt->getAtomicOp()))(blk_data);
 
@@ -1079,7 +1078,15 @@ BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
 
         // all read responses have a data payload
         assert(pkt->hasRespData());
-        pkt->setDataFromBlock(blk->data, blkSize);
+        if (pkt->isMpspemMode() &&
+            pkt->speculative &&
+            (!pkt->isPredictable())) {
+                DPRINTF(SpeculativeCache,
+                "Blocking potentially maligned load that will"
+                " always be discarded\n");
+        } else {
+            pkt->setDataFromBlock(blk->data, blkSize);
+        }
     } else if (pkt->isUpgrade()) {
         // sanity check
         assert(!pkt->hasSharers());

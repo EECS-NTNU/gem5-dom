@@ -434,8 +434,10 @@ class InstructionQueue
     /** The number of entries in the instruction queue. */
     unsigned numEntries;
 
+    public:
     /** The total number of instructions that can be issued in one cycle. */
     unsigned totalWidth;
+    private:
 
     /** The number of physical registers in the CPU. */
     unsigned numPhysRegs;

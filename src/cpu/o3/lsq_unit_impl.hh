@@ -771,6 +771,11 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 {
     Addr prediction = add_pred->predictLoad(inst->instAddr());
 
+    DPRINTF(DOM, "Making prediction on inst [sn:%llu]"
+            "with addr %llu\n",
+            inst->seqNum,
+            prediction);
+
 /*     auto cacheLineSize = cpu->cacheLineSize();
     bool needs_burst =
         transferNeedsBurst(prediction, inst->size, cacheLineSize);
@@ -798,17 +803,27 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     req->senderState(state);
 
     req->_packets.push_back(preload);*/
+    if (prediction == 0) {
+        DPRINTF(DOM, "Tried to predict on load"
+        " with no history, returning\n");
+        return;
+    }
 
     Request::Flags _flags = Request::PHYSICAL;
     auto request = std::make_shared<Request>(
                         prediction,
-                        inst->effSize,
+                        8,//inst->effSize,
                         _flags,
                         inst->requestorId());
-                request->setByteEnable(byte_enable);
     PacketPtr preload = new Packet(request, MemCmd::ReadReq);
+    preload->dataStatic(inst->memData);
+    preload->mpspemSpeculativeMode();
+    preload->speculative = true;
 
-    trySendPacket(true, preload);
+    auto fired = fireAndForget(preload, inst);
+    if (fired) {
+        inst->setPredictedAddress(prediction);
+    }
 
 }
 
@@ -816,7 +831,12 @@ template <class Impl>
 void
 LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
 {
-    add_pred->l1d_prefetcher_operate(inst->physEffAddr, inst->instAddr());
+    add_pred->updatePredictor(inst->physEffAddr, inst->instAddr());
+    DPRINTF(DOM, "Updating predictor with [sn:%llu], pred_addr %llu"
+            " actual address: %llu\n",
+            inst->seqNum,
+            inst->predAddr,
+            inst->physEffAddr);
 }
 
 template <class Impl>
@@ -828,7 +848,7 @@ LSQUnit<Impl>::commitLoad()
     DPRINTF(LSQUnit, "Committing head load instruction, PC %s\n",
             loadQueue.front().instruction()->pcState());
 
-    updatePredictor(loadQueue.front()->inst);
+    updatePredictor(loadQueue.front().instruction());
 
     loadQueue.front().clear();
     loadQueue.pop_front();
@@ -1306,6 +1326,25 @@ LSQUnit<Impl>::completeStore(typename StoreQueue::iterator store_idx)
     // when they commit
     if (cpu->checker &&  !store_inst->isStoreConditional()) {
         cpu->checker->verify(store_inst);
+    }
+}
+
+template <class Impl>
+bool
+LSQUnit<Impl>::fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst)
+{
+    assert(data_pkt->isRead());
+    auto missed = snoopCache(data_pkt->getAddr(), load_inst);
+    DPRINTF(DOM, "Firing and forgetting, with miss %d\n", missed);
+    if (missed) {
+        if (!lsq->cacheBlocked() && lsq->cachePortAvailable(true)) {
+            auto ret = dcachePort->sendTimingReq(data_pkt);
+            if (ret) lsq->cachePortBusy(true);
+            return ret;
+        }
+        return false;
+    } else {
+        return true;
     }
 }
 

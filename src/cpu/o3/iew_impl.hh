@@ -1414,10 +1414,12 @@ DefaultIEW<Impl>::executeInsts()
             }
         }
     }
-    int insts_to_predict = cpu->totalWidth - insts_to_execute;
+    int insts_to_predict = instQueue.totalWidth - insts_to_execute;
     while (insts_to_predict &&
            instQueue.hasPredictable()) {
         DynInstPtr predictable = instQueue.getPredictable();
+        DPRINTF(IEW, "Issuing prediction for [sn:%llu]\n",
+        predictable->seqNum);
         ldstQueue.predictLoad(predictable);
         insts_to_predict--;
     }

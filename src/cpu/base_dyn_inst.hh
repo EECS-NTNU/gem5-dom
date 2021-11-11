@@ -979,7 +979,7 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     void setPredictedAddress(Addr predidction);
 
-    bool isPredicted() const {return hasPredAddr};
+    bool isPredicted() const {return hasPredAddr;}
 
     Addr getPrediction();
 

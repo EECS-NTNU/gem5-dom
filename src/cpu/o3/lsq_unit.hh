@@ -397,6 +397,8 @@ class LSQUnit
     /** Handles completing the send of a store to memory. */
     void storePostSend();
 
+    bool fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst);
+
   public:
     /** Attempts to send a packet to the cache.
      * Check if there are ports available. Return true if
@@ -637,6 +639,8 @@ class LSQUnit
     Fault read(LSQRequest *req, int load_idx);
 
     bool snoopCache(LSQRequest *req, const DynInstPtr& load_inst);
+
+    bool snoopCache(Addr target, const DynInstPtr& load_inst);
 
     /** Executes the store at the given index. */
     Fault write(LSQRequest *req, uint8_t *data, int store_idx);
@@ -1075,6 +1079,28 @@ LSQUnit<Impl>::snoopCache(LSQRequest *req, const DynInstPtr& load_inst)
     delete(state);
     DPRINTF(DOM, "Issued snoop to cache"
         "Missed: %d for [sn:%llu]\n", missed, load_inst->seqNum);
+    return missed;
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::snoopCache(Addr target, const DynInstPtr& load_inst)
+{
+    Request::Flags _flags = Request::PHYSICAL;
+    auto request = std::make_shared<Request>(
+                        target,
+                        8,//inst->effSize,
+                        _flags,
+                        load_inst->requestorId());
+    PacketPtr snoop = new Packet(request, MemCmd::ReadReq);
+    snoop->dataStatic(load_inst->memData);
+    snoop->mpspemSpeculativeMode();
+    snoop->speculative = true;
+    snoop->domSpeculativeMode();
+    dcachePort->sendFunctional(snoop);
+
+    auto missed = snoop->isCacheMiss();
+    delete(snoop);
     return missed;
 }
 

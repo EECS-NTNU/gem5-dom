@@ -1014,7 +1014,7 @@ class LSQ
     /** Executes a store. */
     Fault executeStore(const DynInstPtr &inst);
 
-    void predictLoad(const DynInstPtr &inst);
+    void predictLoad(DynInstPtr &inst);
 
     /**
      * Commits loads up until the given sequence number for a specific thread.
