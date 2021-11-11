@@ -301,16 +301,36 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
                "Number of loads delayed because of missing in L1 Cache (DoM)"),
       ADD_STAT(issuedSnoops, UNIT_COUNT,
                "Number of snoops issued to check if load in L1 Cache"),
-      ADD_STAT(predictedLoads, UNIT_COUNT,
+      ADD_STAT(valuePredictedLoads, UNIT_COUNT,
                "Number of L1 loads issued where value will be predicted"),
-      ADD_STAT(failedPredictions, UNIT_COUNT,
+      ADD_STAT(failedValuePredictions, UNIT_COUNT,
                "Number of L1 loads where value could not be predicted"),
       ADD_STAT(preloadedLoads, UNIT_COUNT,
                "Number of L1 misses which are issued for preloading"),
       ADD_STAT(normalIssuedLoads, UNIT_COUNT,
                "Number of loads that are issued normally (no speculation"),
       ADD_STAT(loadsIssuedOnHit, UNIT_COUNT,
-               "Number of L1 hits issued (DoM)")
+               "Number of L1 hits issued (DoM)"),
+      ADD_STAT(earlyIssues, UNIT_COUNT,
+               "Loads issued earlier due to address prediction"),
+      ADD_STAT(extraIssues, UNIT_COUNT,
+               "Extra loads issued due to faulty address predictions"),
+      ADD_STAT(blockedPredictedPreloads, UNIT_COUNT,
+               "Predicted address loads not able to issue"),
+      ADD_STAT(predictedPreloads, UNIT_COUNT,
+               "Predicted address loads that preload"),
+      ADD_STAT(predictedHits, UNIT_COUNT,
+               "Predicted address loads that hit in L1 cache"),
+      ADD_STAT(addrPredictions, UNIT_COUNT,
+               "Total number of address predictions made"),
+      ADD_STAT(emptyAddrPredictions, UNIT_COUNT,
+               "Address predictions that are empty (unknown pattern)"),
+      ADD_STAT(nonAddrPredictedLoads, UNIT_COUNT,
+               "Loads that were not address predicted at all"),
+      ADD_STAT(correctlyAddressPredictedLoads, UNIT_COUNT,
+               "Loads that were correctly address predicted (commit)"),
+      ADD_STAT(wronglyAddressPredictedLoads, UNIT_COUNT,
+               "Loads that were incorrectly address predicted (commit)")
 {
 }
 
@@ -775,6 +795,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
             "with addr %llu\n",
             inst->seqNum,
             prediction);
+    ++stats.addrPredictions;
 
 /*     auto cacheLineSize = cpu->cacheLineSize();
     bool needs_burst =
@@ -806,6 +827,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     if (prediction == 0) {
         DPRINTF(DOM, "Tried to predict on load"
         " with no history, returning\n");
+        ++stats.emptyAddrPredictions;
         return;
     }
 
@@ -832,6 +854,13 @@ void
 LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
 {
     add_pred->updatePredictor(inst->physEffAddr, inst->instAddr());
+    if (inst->predAddr == 0) {
+        ++stats.nonAddrPredictedLoads;
+    } else if (inst->predAddr == inst->physEffAddr) {
+        ++stats.correctlyAddressPredictedLoads;
+    } else {
+        ++stats.wronglyAddressPredictedLoads;
+    }
     DPRINTF(DOM, "Updating predictor with [sn:%llu], pred_addr %llu"
             " actual address: %llu\n",
             inst->seqNum,
@@ -1334,16 +1363,19 @@ bool
 LSQUnit<Impl>::fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst)
 {
     assert(data_pkt->isRead());
+    if (lsq->cacheBlocked() || (!lsq->cachePortAvailable(true))) {
+        ++stats.blockedPredictedPreloads;
+        return false;
+    }
+    lsq->cachePortBusy(true);
     auto missed = snoopCache(data_pkt->getAddr(), load_inst);
     DPRINTF(DOM, "Firing and forgetting, with miss %d\n", missed);
     if (missed) {
-        if (!lsq->cacheBlocked() && lsq->cachePortAvailable(true)) {
-            auto ret = dcachePort->sendTimingReq(data_pkt);
-            if (ret) lsq->cachePortBusy(true);
-            return ret;
-        }
-        return false;
+        ++stats.predictedPreloads;
+        auto ret = dcachePort->sendTimingReq(data_pkt);
+        return ret;
     } else {
+        ++stats.predictedHits;
         return true;
     }
 }

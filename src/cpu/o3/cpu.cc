@@ -123,10 +123,14 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       //MP-SPEM
       MPSPEM(true),
       DOM(false),
-      VP(true),
-      accuracy(50)
+      VP(false),
+      accuracy(100),
+      AP(true)
 {
     assert(!(MPSPEM && DOM));
+    assert(!(AP && VP));
+    assert(!(AP && accuracy !=100));
+    assert((!(VP || AP)) || MPSPEM);
     fatal_if(FullSystem && params.numThreads > 1,
             "SMT is not supported in O3 in full system mode currently.");
 

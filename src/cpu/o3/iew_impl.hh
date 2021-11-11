@@ -1416,7 +1416,8 @@ DefaultIEW<Impl>::executeInsts()
     }
     int insts_to_predict = instQueue.totalWidth - insts_to_execute;
     while (insts_to_predict &&
-           instQueue.hasPredictable()) {
+           instQueue.hasPredictable() &&
+           ldstQueue.cachePortAvailable(true)) {
         DynInstPtr predictable = instQueue.getPredictable();
         DPRINTF(IEW, "Issuing prediction for [sn:%llu]\n",
         predictable->seqNum);

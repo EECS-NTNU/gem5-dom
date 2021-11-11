@@ -227,6 +227,7 @@ class ADD_PRED
                 trackers_l1[cpu][index].str_strength = 0;
                 trackers_l1[cpu][index].str_dir = 0;
                 trackers_l1[cpu][index].ip_valid = 1;
+                trackers_l1[cpu][index].run_ahead = 0;
             }
             else
             { // otherwise, reset valid bit and leave the previous IP as it is
@@ -236,7 +237,10 @@ class ADD_PRED
         }
         else
         { // if same IP encountered, set valid bit
+        //This also means we made a prediction on it, most likely
             trackers_l1[cpu][index].ip_valid = 1;
+            trackers_l1[cpu][index].last_addr = addr;
+            trackers_l1[cpu][index].run_ahead--;
         }
 
         // calculate the stride between
@@ -309,14 +313,12 @@ class ADD_PRED
     predictLoad(uint64_t ip)
     {
         uint16_t signature = 0;
-        uint32_t metadata = 0;
         uint16_t ip_tag = (ip >> NUM_IP_INDEX_BITS)
             & ((1 << NUM_IP_TAG_BITS) - 1);
         int cpu = 0;
         // calculate the index bit
         int index = ip & ((1 << NUM_IP_INDEX_BITS) - 1);
         auto addr = trackers_l1[cpu][index].last_addr;
-        trackers_l1[cpu][index].run_ahead++;
         uint64_t cl_addr = addr >> LOG2_BLOCK_SIZE;
         auto run_ahead = trackers_l1[cpu][index].run_ahead;
         uint64_t prefetch_addr = 0;
@@ -328,21 +330,17 @@ class ADD_PRED
         else if (trackers_l1[cpu][index].str_valid == 1)
         { // stream IP
             // for stream, prefetch with twice the usual degree
-            for (int i = 0; i < run_ahead; i++)
+            for (int i = 0; i < run_ahead+1; i++)
             {
                 uint64_t pf_address = 0;
 
                 if (trackers_l1[cpu][index].str_dir == 1)
                 { // +ve stream
                     pf_address = (cl_addr + i + 1) << LOG2_BLOCK_SIZE;
-                    // stride is 1
-                    metadata = encode_metadata(1, S_TYPE, spec_nl[cpu]);
                 }
                 else
                 { // -ve stream
                     pf_address = (cl_addr - i - 1) << LOG2_BLOCK_SIZE;
-                    // stride is -1
-                    metadata = encode_metadata(-1, S_TYPE, spec_nl[cpu]);
                 }
 
                 // Check if prefetch address is in same 4 KB page
@@ -370,12 +368,6 @@ class ADD_PRED
                 {
                     break;
                 }
-
-                metadata = encode_metadata(
-                    trackers_l1[cpu][index].last_stride,
-                    CS_TYPE,
-                    spec_nl[cpu]);
-                prefetch_addr = pf_address;
                 // prefetch_line(ip, addr, pf_address, FILL_L1, metadata);
                 SIG_DP(cout << trackers_l1[cpu][index].last_stride << ", ");
             }
@@ -403,7 +395,6 @@ class ADD_PRED
 
                 // we are not prefetching at L2 for CPLX type,
                 // so encode delta as 0
-                metadata = encode_metadata(0, CPLX_TYPE, spec_nl[cpu]);
                 if (DPT_l1[cpu][signature].conf > 0)
                 { // prefetch only when conf>0 for CPLX
                     prefetch_addr = pf_address;
@@ -414,6 +405,8 @@ class ADD_PRED
                     DPT_l1[cpu][signature].delta);
             }
         }
+        if (addr != 0)
+            trackers_l1[cpu][index].run_ahead++;
         return prefetch_addr;
     }
 

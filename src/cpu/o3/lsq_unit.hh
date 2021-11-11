@@ -623,15 +623,35 @@ class LSQUnit
 
         Stats::Scalar issuedSnoops;
 
-        Stats::Scalar predictedLoads;
+        Stats::Scalar valuePredictedLoads;
 
-        Stats::Scalar failedPredictions;
+        Stats::Scalar failedValuePredictions;
 
         Stats::Scalar preloadedLoads;
 
         Stats::Scalar normalIssuedLoads;
 
         Stats::Scalar loadsIssuedOnHit;
+
+        Stats::Scalar earlyIssues;
+
+        Stats::Scalar extraIssues;
+
+        Stats::Scalar blockedPredictedPreloads;
+
+        Stats::Scalar predictedPreloads;
+
+        Stats::Scalar predictedHits;
+
+        Stats::Scalar addrPredictions;
+
+        Stats::Scalar emptyAddrPredictions;
+
+        Stats::Scalar nonAddrPredictedLoads;
+
+        Stats::Scalar correctlyAddressPredictedLoads;
+
+        Stats::Scalar wronglyAddressPredictedLoads;
     } stats;
 
   public:
@@ -995,7 +1015,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     }
     req->buildPackets();
 
-// [MP-SPEM] Handle speculative loads separately
+    // [MP-SPEM] Handle speculative loads separately
     assert(req->isSpeculative() == req->_inst->underShadow);
 
     if (!(cpu->DOM || cpu->MPSPEM) ||
@@ -1007,6 +1027,16 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         if (!req->isSent())
             iewStage->blockMemInst(load_inst);
         return NoFault;
+    }
+
+    if (cpu->AP && load_inst->isPredicted()) {
+        if (load_inst->physEffAddr == load_inst->predAddr) {
+            ++stats.earlyIssues;
+            iewStage->delayMemInst(load_inst);
+            return NoFault;
+        } else {
+            ++stats.extraIssues;
+        }
     }
 
     bool missed = snoopCache(req, load_inst);
@@ -1023,14 +1053,14 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
                 " accuracy: %d, roll: %d\n",
                 cpu->accuracy, prediction);
         if (cpu->accuracy > prediction) {
-            ++stats.predictedLoads;
+            ++stats.valuePredictedLoads;
             req->setPacketsPredictable();
             req->sendPacketToCache();
             if (!req->isSent())
                 iewStage->blockMemInst(load_inst);
             return NoFault;
         } else {
-            ++stats.failedPredictions;
+            ++stats.failedValuePredictions;
             req->setPacketsNonPredictable();
             iewStage->delayMemInst(load_inst);
             return NoFault;

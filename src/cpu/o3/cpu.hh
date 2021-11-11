@@ -783,6 +783,8 @@ class FullO3CPU : public BaseO3CPU
 
     bool VP;
 
+    bool AP;
+
     int accuracy;
 
   public:
