@@ -796,7 +796,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         runAhead[inst->instAddr()]);
 
     DPRINTF(AddrPrediction, "Making prediction on inst [sn:%llu]"
-            " for PC [%llu] with addr %llu and runahead: %d\n",
+            " for PC [%llx] with addr %llx and runahead: %d\n",
             inst->seqNum,
             inst->instAddr(),
             prediction,
@@ -845,7 +845,7 @@ LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
         ++stats.wronglyAddressPredictedLoads;
     }
     DPRINTF(AddrPrediction, "Updating predictor with [sn:%llu],"
-            "PC [%llu], pred_addr %llu, cache line: %llu\n",
+            "PC [%llx], pred_addr %llx, cache line: %llx\n",
             inst->seqNum,
             inst->instAddr(),
             inst->predAddr,

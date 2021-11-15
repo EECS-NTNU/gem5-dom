@@ -217,7 +217,7 @@ class ADD_PRED
             if (!(seqNum == next_fetches[ip]->seqNum)) {
                 DPRINTF(AddrPredDebug,"Cleared old predictions, "
                 "prev seqNum: [sn:%llu], new seqNum: [sn:%llu] "
-                "for ip [%llu]\n",
+                "for ip [%llx]\n",
                 next_fetches[ip]->seqNum,
                 seqNum,
                 ip);
@@ -240,8 +240,8 @@ class ADD_PRED
         if (next_fetches.find(ip) != next_fetches.end() &&
             next_fetches[ip]->prefetches.size() >= runahead) {
             prediction = next_fetches[ip]->prefetches.at(runahead-1);
-            DPRINTF(AddrPredDebug,"Made predction %llu for "
-            " PC [%llu]\n", prediction, ip);
+            DPRINTF(AddrPredDebug,"Made predction %llx for "
+            " PC [%llx]\n", prediction, ip);
         }
         return prediction;
     }
@@ -316,7 +316,15 @@ class ADD_PRED
 
         // don't do anything if same address is seen twice in a row
         if (stride == 0)
+        {
+            DPRINTF(AddrPredDebug, "Encountered a zero stride\n");
+            for (int i = 0; i < prefetch_degree; i++) {
+                prefetch_line(ip,
+                             (addr >> LOG2_BLOCK_SIZE) << LOG2_BLOCK_SIZE,
+                              seqNum);
+            }
             return;
+        }
 
         // page boundary learning
         if (curr_page != trackers_l1[cpu][index].last_page)
