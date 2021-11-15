@@ -124,8 +124,8 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       MPSPEM(true),
       DOM(false),
       VP(false),
-      accuracy(100),
-      AP(true)
+      AP(true),
+      accuracy(100)
 {
     assert(!(MPSPEM && DOM));
     assert(!(AP && VP));

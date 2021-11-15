@@ -487,8 +487,9 @@ class InstructionQueue
      */
     void dumpInsts();
 
+  public:
     void removeFromPredictable(const DynInstPtr &inst);
-
+  private:
     struct IQStats : public Stats::Group
     {
         IQStats(O3CPU *cpu, const unsigned &total_width);

@@ -98,6 +98,7 @@ BaseDynInst<Impl>::initVars()
     physEffAddr = 0;
     predAddr = 0;
     hasPredAddr = false;
+    hasRanAhead = false;
     readyRegs = 0;
     memReqFlags = 0;
     // hardware transactional memory

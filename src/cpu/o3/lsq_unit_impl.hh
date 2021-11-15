@@ -789,44 +789,24 @@ template <class Impl>
 void
 LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 {
-    Addr prediction = add_pred->predictLoad(inst->instAddr());
+    assert(!inst->isRanAhead());
+    updateRunAhead(inst->instAddr(), 1);
+    inst->setRanAhead(true);
+    Addr prediction = add_pred->predictLoad(inst->instAddr(),
+        runAhead[inst->instAddr()]);
 
-    DPRINTF(DOM, "Making prediction on inst [sn:%llu]"
-            "with addr %llu\n",
+    DPRINTF(AddrPrediction, "Making prediction on inst [sn:%llu]"
+            " for PC [%llu] with addr %llu and runahead: %d\n",
             inst->seqNum,
-            prediction);
+            inst->instAddr(),
+            prediction,
+            runAhead[inst->instAddr()]);
     ++stats.addrPredictions;
 
-/*     auto cacheLineSize = cpu->cacheLineSize();
-    bool needs_burst =
-        transferNeedsBurst(prediction, inst->size, cacheLineSize);
-
-    bool isLoad = true;
-    auto size = inst->effSize;
-
-    LSQRequest* req = nullptr;
-    if (needs_burst) {
-        req = new SplitDataRequest(&thread[tid], inst, isLoad, prediction,
-                    size, flags);
-    } else {
-        req = new SingleDataRequest(&thread[tid], inst, isLoad, prediction,
-                    size, flags);
-    }
-    PacketPtr preload = Packet::createRead(req);
-    preload->speculative = true;
-    preload->mpspemSpeculativeMode();
-
-    LQSenderState *state = new LQSenderState(
-            loadQueue.getIterator(req->load_idx));
-    state->isLoad = true;
-    state->inst = inst;
-    state->isSplit = req->isSplit();
-    req->senderState(state);
-
-    req->_packets.push_back(preload);*/
     if (prediction == 0) {
-        DPRINTF(DOM, "Tried to predict on load"
+        DPRINTF(AddrPrediction, "Tried to predict on load"
         " with no history, returning\n");
+
         ++stats.emptyAddrPredictions;
         return;
     }
@@ -853,19 +833,23 @@ template <class Impl>
 void
 LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
 {
-    add_pred->updatePredictor(inst->physEffAddr, inst->instAddr());
+    add_pred->updatePredictor(inst->physEffAddr,
+                              inst->instAddr(),
+                              inst->seqNum);
+    auto cache_line = (inst->physEffAddr >> 6) << 6;
     if (inst->predAddr == 0) {
         ++stats.nonAddrPredictedLoads;
-    } else if (inst->predAddr == inst->physEffAddr) {
+    } else if (inst->predAddr == cache_line) {
         ++stats.correctlyAddressPredictedLoads;
     } else {
         ++stats.wronglyAddressPredictedLoads;
     }
-    DPRINTF(DOM, "Updating predictor with [sn:%llu], pred_addr %llu"
-            " actual address: %llu\n",
+    DPRINTF(AddrPrediction, "Updating predictor with [sn:%llu],"
+            "PC [%llu], pred_addr %llu, cache line: %llu\n",
             inst->seqNum,
+            inst->instAddr(),
             inst->predAddr,
-            inst->physEffAddr);
+            cache_line);
 }
 
 template <class Impl>
@@ -877,7 +861,10 @@ LSQUnit<Impl>::commitLoad()
     DPRINTF(LSQUnit, "Committing head load instruction, PC %s\n",
             loadQueue.front().instruction()->pcState());
 
-    updatePredictor(loadQueue.front().instruction());
+    auto inst = loadQueue.front().instruction();
+
+    updatePredictor(inst);
+    updateRunAhead(inst->instAddr(), -1);
 
     loadQueue.front().clear();
     loadQueue.pop_front();
@@ -1116,6 +1103,9 @@ LSQUnit<Impl>::squash(const InstSeqNum &squashed_num)
             DPRINTF(HtmCpu, ">> htmStarts (%d) : htmStops-- (%d)\n",
               htmStarts, htmStops);
         }
+        if (loadQueue.back().instruction()->isRanAhead())
+            updateRunAhead(loadQueue.back().instruction()->instAddr(), -1);
+
         // Clear the smart pointer to make sure it is decremented.
         loadQueue.back().instruction()->setSquashed();
         loadQueue.back().clear();
@@ -1357,6 +1347,19 @@ LSQUnit<Impl>::completeStore(typename StoreQueue::iterator store_idx)
         cpu->checker->verify(store_inst);
     }
 }
+
+template <class Impl>
+void
+LSQUnit<Impl>::updateRunAhead(Addr addr, int update)
+{
+    if (runAhead.find(addr) != runAhead.end()) {
+        runAhead[addr] = runAhead[addr] + update;
+    } else {
+        assert(update > 0);
+        runAhead[addr] = 1;
+    }
+}
+
 
 template <class Impl>
 bool

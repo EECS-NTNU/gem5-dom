@@ -369,6 +369,8 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     bool hasPredAddr;
 
+    bool hasRanAhead;
+
     /** The memory request flags (from translation). */
     unsigned memReqFlags;
 
@@ -980,6 +982,10 @@ class BaseDynInst : public ExecContext, public RefCounted
     void setPredictedAddress(Addr predidction);
 
     bool isPredicted() const {return hasPredAddr;}
+
+    bool isRanAhead() const {return hasRanAhead;}
+
+    void setRanAhead(bool state) {hasRanAhead = state;}
 
     Addr getPrediction();
 

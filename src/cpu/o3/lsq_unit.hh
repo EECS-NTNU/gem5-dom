@@ -56,10 +56,12 @@
 #include "config/the_isa.hh"
 #include "cpu/inst_seq.hh"
 #include "cpu/timebuf.hh"
+#include "debug/AddrPrediction.hh"
 #include "debug/DOM.hh"
 #include "debug/DebugDOM.hh"
 #include "debug/HtmCpu.hh"
 #include "debug/LSQUnit.hh"
+#include "debug/ValuePrediction.hh"
 #include "mem/packet.hh"
 #include "mem/port.hh"
 
@@ -397,6 +399,10 @@ class LSQUnit
     /** Handles completing the send of a store to memory. */
     void storePostSend();
 
+    std::map<Addr, int> runAhead;
+
+    void updateRunAhead(Addr addr, int update);
+
     bool fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst);
 
   public:
@@ -703,9 +709,15 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 {
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
-    DPRINTF(DebugDOM, "Entered read with request\n");
     load_req.setRequest(req);
     req->speculative = load_inst->underShadow;
+
+    if (!load_inst->isRanAhead()) {
+        updateRunAhead(load_inst->instAddr(), 1);
+        load_inst->setRanAhead(true);
+        iewStage->instQueue.removeFromPredictable(load_inst);
+    }
+
     assert(load_inst);
 
     assert(!load_inst->isExecuted());
@@ -1049,7 +1061,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             return NoFault;
         }
         int prediction = rand() % 100;
-        DPRINTF(DebugDOM, "Making prediction,"
+        DPRINTF(ValuePrediction, "Making prediction,"
                 " accuracy: %d, roll: %d\n",
                 cpu->accuracy, prediction);
         if (cpu->accuracy > prediction) {
@@ -1128,6 +1140,7 @@ LSQUnit<Impl>::snoopCache(Addr target, const DynInstPtr& load_inst)
     snoop->speculative = true;
     snoop->domSpeculativeMode();
     dcachePort->sendFunctional(snoop);
+    ++stats.issuedSnoops;
 
     auto missed = snoop->isCacheMiss();
     delete(snoop);
