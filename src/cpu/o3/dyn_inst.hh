@@ -84,7 +84,9 @@ class BaseO3DynInst : public BaseDynInst<Impl>
     /** Completes the access.  Only valid for memory operations. */
     Fault completeAcc(PacketPtr pkt);
 
-    bool underShadow = false;
+    bool cShadow = false;
+
+    bool dShadow = false;
 
   private:
     /** Initializes variables. */

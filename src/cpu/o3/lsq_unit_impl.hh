@@ -121,7 +121,7 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
     LSQSenderState *state = dynamic_cast<LSQSenderState *>(pkt->senderState);
     DynInstPtr inst = state->inst;
     assert(!((pkt->isMpspemMode() && !pkt->isPredictable())
-        && (pkt->isSpeculative() || inst->underShadow)));
+        && (pkt->isSpeculative() || inst->cShadow)));
 
     // hardware transactional memory
     // sanity check

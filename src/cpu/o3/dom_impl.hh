@@ -64,7 +64,7 @@ DefaultDOM<Impl>::squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid)
         std::get<1>(rqList[tid].back())->seqNum > seqNum) {
         ++domStats.loadsSquashed;
         squashedLoads++;
-        std::get<1>(rqList[tid].back())->underShadow = false;
+        std::get<1>(rqList[tid].back())->cShadow = false;
         rqList[tid].pop_back();
     }
 
@@ -105,7 +105,7 @@ DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
     } else if (inst->isLoad()) {
         int spot = getLoadIndex(inst, tid);
         if (spot == -1) return;
-        std::get<1>(rqList[tid].at(spot))->underShadow = false;
+        std::get<1>(rqList[tid].at(spot))->cShadow = false;
         rqList[tid].erase(rqList[tid].begin() + spot);
         ++domStats.loadsSquashed;
         DPRINTF(DebugDOM, "Squashed single load [sn:%d]. No need to restore\n",
@@ -142,7 +142,7 @@ DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
     assert(inst);
     if (sbHead[tid] != sbTail[tid]) {
         rqList[tid].push_back({sbTail[tid] - 1, inst});
-        inst->underShadow = true;
+        inst->cShadow = true;
         DPRINTF(DOM, "[tid:%i] Inserted Load [sn:%d] into ReleaseQueue,"
         "with tag %d, size now: %d. \n",
         tid, inst->seqNum, sbTail[tid] - 1, rqList[tid].size());
@@ -289,7 +289,7 @@ DefaultDOM<Impl>::stepRq(ThreadID tid)
 {
     if (rqList[tid].empty()) return;
     if (!(tagCheck(std::get<0>(rqList[tid].front()), tid))) {
-        std::get<1>(rqList[tid].front())->underShadow = false;
+        std::get<1>(rqList[tid].front())->cShadow = false;
         DPRINTF(DOM, "[tid:%i] Stepped ReleaseQueue, freeing"
                 "[sn:%d].\n",
                 tid,
@@ -318,7 +318,7 @@ DefaultDOM<Impl>::clearDeadEntries()
         for (int j = 0; j < rqList[i].size(); j++) {
             DynInstPtr inst = std::get<1>(rqList[i].at(j));
             if (inst->isSquashed() || inst->isCommitted()) {
-                inst->underShadow = false;
+                inst->cShadow = false;
                 rqList[i].erase(rqList[i].begin() + j);
                 j--;
                 ++domStats.abnormalLoads;

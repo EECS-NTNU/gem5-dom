@@ -1106,7 +1106,7 @@ LSQ<Impl>::SplitDataRequest::buildPackets()
                 pkt->dataDynamic(req_data);
             }
             pkt->senderState = _senderState;
-            pkt->speculative = _inst->underShadow;
+            pkt->speculative = _inst->cShadow;
             if (isLoad()) {
                 if (lsqUnit()->cpu->MPSPEM) {
                     pkt->mpspemSpeculativeMode();
