@@ -1368,6 +1368,7 @@ LSQUnit<Impl>::fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst)
     assert(data_pkt->isRead());
     if (lsq->cacheBlocked() || (!lsq->cachePortAvailable(true))) {
         ++stats.blockedPredictedPreloads;
+        delete(data_pkt);
         return false;
     }
     lsq->cachePortBusy(true);
@@ -1379,6 +1380,7 @@ LSQUnit<Impl>::fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst)
         return ret;
     } else {
         ++stats.predictedHits;
+        delete(data_pkt);
         return true;
     }
 }
