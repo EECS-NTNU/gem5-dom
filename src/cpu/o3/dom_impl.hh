@@ -380,7 +380,7 @@ DefaultDOM<Impl>::tick()
         // Sanity checks
         assert(!(sbList[i].size() == 0 && sbHead[i] != sbTail[i]));
         assert(!(sbHead[i] == sbTail[i] && sbList[i].size() > 0));
-        //assert(!(stallCycles > 10000));
+        assert(!(stallCycles > 10000));
     }
 
     DPRINTF(DebugDOM, "Ticked DOM.\n");

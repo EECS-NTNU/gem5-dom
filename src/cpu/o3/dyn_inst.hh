@@ -88,6 +88,8 @@ class BaseO3DynInst : public BaseDynInst<Impl>
 
     bool dShadow = false;
 
+    bool underShadow() {return cShadow || dShadow;}
+
   private:
     /** Initializes variables. */
     void initVars();

@@ -153,6 +153,7 @@ class LSQUnit
         uint32_t& size() { return _size; }
         const uint32_t& size() const { return _size; }
         const DynInstPtr& instruction() const { return inst; }
+        DynInstPtr& instPtr() {return inst;}
         /** @} */
     };
 
@@ -283,6 +284,10 @@ class LSQUnit
     Fault executeLoad(int lq_idx) { panic("Not implemented"); return NoFault; }
     /** Executes a store instruction. */
     Fault executeStore(const DynInstPtr &inst);
+
+    void updateDShadow(DynInstPtr &load_inst);
+
+    void walkDShadows(const DynInstPtr &store_inst);
 
     void predictLoad(DynInstPtr &inst);
 
@@ -709,8 +714,10 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 {
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
+    updateDShadow(load_req.instPtr());
+
     load_req.setRequest(req);
-    req->speculative = load_inst->underShadow;
+    req->speculative = load_inst->underShadow();
 
     if (!load_inst->isRanAhead()) {
         updateRunAhead(load_inst->instAddr(), 1);
@@ -1028,7 +1035,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     req->buildPackets();
 
     // [MP-SPEM] Handle speculative loads separately
-    assert(req->isSpeculative() == req->_inst->underShadow);
+    assert(req->isSpeculative() == req->_inst->underShadow());
 
     if (!(cpu->DOM || cpu->MPSPEM) ||
         !req->isSpeculative()) {

@@ -1267,7 +1267,7 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             delayedMemInsts.erase(delayedMemInsts.begin() + 1);
             i--;
             ++iqStats.faultLoads;
-        } else if (!delayedMemInsts.at(i)->cShadow) {
+        } else if (!delayedMemInsts.at(i)->underShadow()) {
             DynInstPtr mem_inst = std::move(
                 delayedMemInsts.at(i));
             DPRINTF(DebugDOM,

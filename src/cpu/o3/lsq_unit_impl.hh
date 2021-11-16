@@ -785,6 +785,39 @@ LSQUnit<Impl>::executeStore(const DynInstPtr &store_inst)
 
 }
 
+template<class Impl>
+void
+LSQUnit<Impl>::updateDShadow(DynInstPtr &load_inst)
+{
+    auto store_it = load_inst->sqIt;
+    DPRINTF(DebugDOM, "Updating D shadow for [sn:%llu]\n",
+            load_inst->seqNum);
+    assert (store_it >= storeWBIt);
+    while (store_it != storeWBIt) {
+        store_it--;
+        assert(store_it->valid());
+        assert(store_it->instruction()->seqNum < load_inst->seqNum);
+        if (!store_it->instruction()->effAddrValid()) {
+            load_inst->dShadow = true;
+            return;
+        }
+    }
+    load_inst->dShadow = false;
+}
+
+template<class Impl>
+void
+LSQUnit<Impl>::walkDShadows(const DynInstPtr &store_inst)
+{
+    auto load_it = store_inst->lqIt;
+    DPRINTF(DebugDOM, "Walking younger loads for [sn:%llu]\n",
+            store_inst->seqNum);
+    while (load_it != loadQueue.end()) {
+        updateDShadow(load_it->instPtr());
+        load_it++;
+    }
+}
+
 template <class Impl>
 void
 LSQUnit<Impl>::predictLoad(DynInstPtr &inst)

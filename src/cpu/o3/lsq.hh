@@ -314,7 +314,7 @@ class LSQ
             _port(*port), _inst(inst), _data(nullptr),
             _res(nullptr), _addr(0), _size(0), _flags(0),
             _numOutstandingPackets(0), _amo_op(nullptr),
-            speculative(inst->cShadow)
+            speculative(inst->underShadow())
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,
@@ -335,7 +335,7 @@ class LSQ
             _flags(flags_),
             _numOutstandingPackets(0),
             _amo_op(std::move(amo_op)),
-            speculative(inst->cShadow)
+            speculative(inst->underShadow())
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,

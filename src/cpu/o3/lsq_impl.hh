@@ -747,6 +747,8 @@ LSQ<Impl>::pushRequest(const DynInstPtr& inst, bool isLoad, uint8_t *data,
             inst->effAddr = req->getVaddr();
             inst->effSize = size;
             inst->effAddrValid(true);
+            if (!isLoad) thread.at(inst->threadNumber)
+                                    .walkDShadows(inst);
 
             if (cpu->checker) {
                 inst->reqToVerify = std::make_shared<Request>(*req->request());
@@ -1106,7 +1108,7 @@ LSQ<Impl>::SplitDataRequest::buildPackets()
                 pkt->dataDynamic(req_data);
             }
             pkt->senderState = _senderState;
-            pkt->speculative = _inst->cShadow;
+            pkt->speculative = _inst->underShadow();
             if (isLoad()) {
                 if (lsqUnit()->cpu->MPSPEM) {
                     pkt->mpspemSpeculativeMode();
