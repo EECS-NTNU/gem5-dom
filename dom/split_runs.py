@@ -2,6 +2,7 @@ from spec2006_commands import benchmarks
 from multiprocessing import Process
 import os
 import time
+import random
 
 stats = ["simTicks",
     "simTicks",
@@ -56,6 +57,7 @@ def execute_run(run, benchmark, num):
     b_name = benchmark.name
     print(f"Executing run {num + 1} of "\
         f"{benchmark.num_runs_ref()} for {b_name}")
+    time.sleep(random.randint(5, 35))
     print(f"Run {num+1} for {b_name} finished "\
         f"with code {os.system(run)}")
 
@@ -106,12 +108,8 @@ def get_running(processes):
     return count
 
 def mover():
-    print("Looking for results to move")
-    print(active_benchmarks)
-    print(running_processes)
     for x in range(len(active_benchmarks)):
         if (active_benchmarks[x]):
-            print(f"Moving {benchmarks[x].fullname}")
             if get_running(running_processes[x]) == 0:
                 move_result(benchmarks[x])
                 active_benchmarks[x] = False
@@ -141,4 +139,4 @@ def run_managed(num):
     mover()
 
 
-run_managed(8)
+run_managed(20)
