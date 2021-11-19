@@ -1234,14 +1234,18 @@ InstructionQueue<Impl>::completeSafeLoads()
             DPRINTF(DOM, "Removed committed load in delay queue [sn:%llu]\n",
                     inst->seqNum);
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
-            if (inst->hasResp() && inst->savedReq->isSplit())
+            if (inst->hasResp() &&
+                inst->savedReq != nullptr &&
+                inst->savedReq->isSplit())
                     inst->delResp();
             i--;
         } else if (inst->isSquashed()) {
             DPRINTF(DOM, "Squashed a load in delay queue [sn:%llu]\n",
                     (*(delayedMemInsts.begin()+i))->seqNum);
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
-            if (inst->hasResp() && inst->savedReq->isSplit())
+            if (inst->hasResp() &&
+                inst->savedReq != nullptr &&
+                inst->savedReq->isSplit())
                     inst->delResp();
             i--;
         } else if (inst->savedReq->isPartialFault()) {
@@ -1249,7 +1253,9 @@ InstructionQueue<Impl>::completeSafeLoads()
                     " ROB will handle inst [sn:%llu]\n",
                     delayedMemInsts.at(i)->seqNum);
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
-            if (inst->hasResp() && inst->savedReq->isSplit())
+            if (inst->hasResp() &&
+                inst->savedReq != nullptr &&
+                inst->savedReq->isSplit())
                     inst->delResp();
             i--;
             ++iqStats.faultLoads;
@@ -1261,7 +1267,8 @@ InstructionQueue<Impl>::completeSafeLoads()
                         inst->seqNum);
                 iewStage->ldstQueue.completeInst(inst);
                 delayedMemInsts.erase(delayedMemInsts.begin() + i);
-                if (inst->savedReq->isSplit()) inst->delResp();
+                if (inst->savedReq != nullptr &&
+                    inst->savedReq->isSplit()) inst->delResp();
                 i--;
             }
         }
