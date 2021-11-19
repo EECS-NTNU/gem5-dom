@@ -777,7 +777,7 @@ class FullO3CPU : public BaseO3CPU
     } cpuStats;
 
     // [MP-SPEM] Whether to apply MP-SPEM
-    bool MPSPEM;
+    bool MP;
 
     bool DOM;
 

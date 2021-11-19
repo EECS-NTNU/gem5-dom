@@ -622,7 +622,8 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
 
     assert(freeEntries == (numEntries - countInsts()));
 
-    if (cpu->AP && new_inst->isLoad())
+    if (cpu->AP &&
+        new_inst->isLoad())
         instsPredictable.push_back(new_inst);
 }
 
@@ -1431,7 +1432,8 @@ InstructionQueue<Impl>::doSquash(ThreadID tid)
             assert(dependGraph.empty(dest_reg->flatIndex()));
             dependGraph.clearInst(dest_reg->flatIndex());
         }
-        if (cpu->AP && (*squash_it)->isLoad())
+        if (cpu->AP &&
+           (*squash_it)->isLoad())
             removeFromPredictable(*squash_it);
         instList[tid].erase(squash_it--);
         ++iqStats.squashedInstsExamined;

@@ -1042,7 +1042,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
     if (cpu->VP || cpu->DOM) panic("needs to be reimplemented");
 
-    if (cpu->AP && load_inst->isPredicted()) {
+    if (cpu->AP &&
+        load_inst->isPredicted()) {
         if (((load_inst->physEffAddr >> 6) << 6) == load_inst->predAddr) {
             ++stats.earlyIssues;
         } else {
@@ -1058,7 +1059,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     req->sendPacketToCache();
     if (!req->isSent()) {
         iewStage->blockMemInst(load_inst);
-    } else if (req->isSpeculative()){
+    } else if (cpu->MP &&
+               req->isSpeculative()){
         DPRINTF(DebugDOM, "Adding [sn:%llu] to have delayed broadcast\n",
                 load_inst->seqNum);
         iewStage->delayMemInst(load_inst);

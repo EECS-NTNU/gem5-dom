@@ -1034,7 +1034,7 @@ LSQ<Impl>::SingleDataRequest::buildPackets()
         _packets.back()->senderState = _senderState;
         _packets.back()->speculative = speculative;
         if (isLoad()) {
-            if (lsqUnit()->cpu->MPSPEM) {
+            if (lsqUnit()->cpu->MP) {
                 _packets.back()->mpspemSpeculativeMode();
             } else if (lsqUnit()->cpu->DOM) {
                 _packets.back()->domSpeculativeMode();
@@ -1107,7 +1107,7 @@ LSQ<Impl>::SplitDataRequest::buildPackets()
             pkt->senderState = _senderState;
             pkt->speculative = _inst->underShadow();
             if (isLoad()) {
-                if (lsqUnit()->cpu->MPSPEM) {
+                if (lsqUnit()->cpu->MP) {
                     pkt->mpspemSpeculativeMode();
                 } else if (lsqUnit()->cpu->DOM) {
                     pkt->domSpeculativeMode();

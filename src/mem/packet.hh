@@ -334,7 +334,7 @@ class Packet : public Printable
     {
         None,
         DelayOnMiss,
-        MPSPEM
+        MP
     };
 
   public:
@@ -845,7 +845,7 @@ class Packet : public Printable
     }
 
     void mpspemSpeculativeMode() {
-        speculativeMode = SpeculativeMode::MPSPEM;
+        speculativeMode = SpeculativeMode::MP;
     }
 
     bool isDomMode() {
@@ -853,7 +853,7 @@ class Packet : public Printable
     }
 
     bool isMpspemMode() {
-        return speculativeMode == SpeculativeMode::MPSPEM;
+        return speculativeMode == SpeculativeMode::MP;
     }
 
     void setPredictable(bool setPredictable) {
