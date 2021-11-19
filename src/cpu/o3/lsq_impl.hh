@@ -1007,6 +1007,7 @@ LSQ<Impl>::SplitDataRequest::recvTimingResp(PacketPtr pkt)
         PacketPtr resp = isLoad()
             ? Packet::createRead(mainReq)
             : Packet::createWrite(mainReq);
+        if (pkt->isPredictable()) resp->setPredictable(true);
         if (isLoad())
             resp->dataStatic(_inst->memData);
         else

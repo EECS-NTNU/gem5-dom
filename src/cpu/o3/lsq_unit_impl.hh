@@ -189,7 +189,8 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
     assert(!cpu->switchedOut());
     if (!inst->isSquashed()) {
         if (cpu->MP &&
-            state->needWB && (inst->underShadow() && inst->isLoad())) {
+            state->needWB && (inst->underShadow() && inst->isLoad()) &&
+            (!pkt->isPredictable())) {
             DPRINTF(DOM, "Saved complete response for [sn:%llu]\n",
                     inst->seqNum);
             inst->storeResp(pkt);

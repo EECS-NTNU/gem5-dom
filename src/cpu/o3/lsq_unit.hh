@@ -1055,12 +1055,23 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     assert(req->isSpeculative() == req->_inst->underShadow());
 
     req->setPacketsNonSpeculative();
-    req->setPacketsNonPredictable();
+
+    if (cpu->VP) {
+        int prediction = rand() % 100;
+        DPRINTF(ValuePrediction, "Making prediction,"
+                " accuracy: %d, roll: %d\n",
+                cpu->accuracy, prediction);
+        if (cpu->accuracy > prediction) {
+            req->setPacketsPreditable():
+        }
+    }
+
     req->sendPacketToCache();
     if (!req->isSent()) {
         iewStage->blockMemInst(load_inst);
     } else if (cpu->MP &&
-               req->isSpeculative()){
+               req->isSpeculative() &&
+               (!req->_packets.front()->isPredictable()){
         DPRINTF(DebugDOM, "Adding [sn:%llu] to have delayed broadcast\n",
                 load_inst->seqNum);
         iewStage->delayMemInst(load_inst);
