@@ -809,9 +809,6 @@ InstructionQueue<Impl>::scheduleReadyInsts()
     DynInstPtr mem_inst;
     DPRINTF(DebugDOM, "num delayed mems: %d\n",
         delayedMemInsts.size());
-    while ((mem_inst = std::move(getDelayedMemInstToExecute()))) {
-        addReadyMemInst(mem_inst);
-    }
 
     while ((mem_inst = std::move(getDeferredMemInstToExecute()))) {
         addReadyMemInst(mem_inst);
@@ -1160,27 +1157,6 @@ void
 InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
 {
     DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
-    delayed_inst->clearIssued();
-    delayed_inst->clearCanIssue();
-    if (cpu->MPSPEM) {
-        LSQRequest* req = nullptr;
-        if (delayed_inst->savedReq->isSplit()) {
-        req = new SplitDataRequest(
-            (SplitDataRequest*)delayed_inst->savedReq, false);
-        } else {
-            req = new SingleDataRequest(
-                (SingleDataRequest*)delayed_inst->savedReq, false);
-        }
-        assert(req->_inst);
-        assert(req->speculative);
-        delayed_inst->savedReq->discard();
-        delayed_inst->savedReq = req;
-        req->_port.loadQueue[delayed_inst->lqIdx].setRequest(req);
-    } else if (cpu->DOM) {
-    } else {
-        panic("Not in Spectre mitigation, but delayed loads");
-    }
-
     delayedMemInsts.push_back(delayed_inst);
     ++iqStats.delayedLoads;
 }
@@ -1247,40 +1223,48 @@ InstructionQueue<Impl>::getBlockedMemInstToExecute()
 }
 
 template <class Impl>
-typename Impl::DynInstPtr
-InstructionQueue<Impl>::getDelayedMemInstToExecute()
+void
+InstructionQueue<Impl>::completeSafeLoads()
 {
-
     for (int i = 0; i < delayedMemInsts.size(); i++) {
-        if (delayedMemInsts.at(i)->isCommitted()) {
-            panic("We committed a delayed load?\n");
-        } else if (delayedMemInsts.at(i)->isSquashed()) {
-            DPRINTF(DOM, "Squashed a load in delay queue [sn:%d]\n",
+        DynInstPtr inst = delayedMemInsts.at(i);
+        if (inst->isCommitted()) {
+            assert(!inst->underShadow());
+            DPRINTF(DOM, "Removed committed load in delay queue [sn:%llu]\n",
+                    inst->seqNum);
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            if (inst->hasResp() && inst->savedReq->isSplit())
+                    inst->delResp();
+            i--;
+        } else if (inst->isSquashed()) {
+            DPRINTF(DOM, "Squashed a load in delay queue [sn:%llu]\n",
                     (*(delayedMemInsts.begin()+i))->seqNum);
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            if (inst->hasResp() && inst->savedReq->isSplit())
+                    inst->delResp();
             i--;
-            ++iqStats.squashedDelayedLoads;
-        } else if (delayedMemInsts.at(i)->savedReq->isPartialFault()) {
+        } else if (inst->savedReq->isPartialFault()) {
             DPRINTF(DOM, "Squashed a partial fault,"
                     " ROB will handle inst [sn:%llu]\n",
                     delayedMemInsts.at(i)->seqNum);
-            delayedMemInsts.erase(delayedMemInsts.begin() + 1);
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            if (inst->hasResp() && inst->savedReq->isSplit())
+                    inst->delResp();
             i--;
             ++iqStats.faultLoads;
-        } else if (!delayedMemInsts.at(i)->underShadow()) {
-            DynInstPtr mem_inst = std::move(
-                delayedMemInsts.at(i));
-            DPRINTF(DebugDOM,
-                    "Acquired a non-speculative load [sn:%llu]\n",
-                    mem_inst->seqNum);
-            mem_inst->getFault() = NoFault;
-            delayedMemInsts.erase(delayedMemInsts.begin() + i);
-            if (cpu->DOM) mem_inst->savedReq->setStateToRequest();
-            ++iqStats.reissuedDelayedLoads;
-            return mem_inst;
+        } else if (!inst->underShadow()) {
+            DPRINTF(DebugDOM, "Checking [sn:%llu] for delayed completion\n",
+                    inst->seqNum);
+            if (inst->hasResp()) {
+                DPRINTF(DOM, "Completing [sn:%llu] delayed\n",
+                        inst->seqNum);
+                iewStage->ldstQueue.completeInst(inst);
+                delayedMemInsts.erase(delayedMemInsts.begin() + i);
+                if (inst->savedReq->isSplit()) inst->delResp();
+                i--;
+            }
         }
     }
-    return nullptr;
 }
 
 template <class Impl>

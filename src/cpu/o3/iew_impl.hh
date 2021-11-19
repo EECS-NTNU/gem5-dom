@@ -1525,6 +1525,8 @@ DefaultIEW<Impl>::tick()
     }
 
     if (exeStatus != Squashing) {
+        instQueue.completeSafeLoads();
+
         executeInsts();
 
         writebackInsts();

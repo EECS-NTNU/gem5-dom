@@ -981,8 +981,6 @@ template<class Impl>
 bool
 LSQ<Impl>::SingleDataRequest::recvTimingResp(PacketPtr pkt)
 {
-    if (pkt->isMpspemMode())
-        assert(pkt->isPredictable() || !pkt->isSpeculative());
     assert(_numOutstandingPackets == 1);
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     flags.set(Flag::Complete);
@@ -996,8 +994,6 @@ template<class Impl>
 bool
 LSQ<Impl>::SplitDataRequest::recvTimingResp(PacketPtr pkt)
 {
-    if (pkt->isMpspemMode())
-        assert(pkt->isPredictable() || !pkt->isSpeculative());
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     uint32_t pktIdx = 0;
     while (pktIdx < _packets.size() && pkt != _packets[pktIdx])
@@ -1017,7 +1013,8 @@ LSQ<Impl>::SplitDataRequest::recvTimingResp(PacketPtr pkt)
             resp->dataStatic(_data);
         resp->senderState = _senderState;
         _port.completeDataAccess(resp);
-        delete resp;
+        if (!(state->inst->hasResp() &&
+            state->inst->getResp() == resp)) delete resp;
     }
     return true;
 }

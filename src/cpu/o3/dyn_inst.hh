@@ -90,6 +90,22 @@ class BaseO3DynInst : public BaseDynInst<Impl>
 
     bool underShadow() {return cShadow || dShadow;}
 
+    PacketPtr completePackage = nullptr;
+
+    void storeResp(PacketPtr pkt) {completePackage = pkt;}
+
+    bool hasResp() {return completePackage != nullptr;}
+
+    void delResp() {
+        assert(completePackage);
+        delete(completePackage);
+    }
+
+    PacketPtr getResp() {
+        assert(completePackage);
+        return completePackage;
+    }
+
   private:
     /** Initializes variables. */
     void initVars();

@@ -96,8 +96,6 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
     auto senderState = dynamic_cast<LSQSenderState*>(pkt->senderState);
     LSQRequest* req = senderState->request();
     assert(req != nullptr);
-    if (pkt->isMpspemMode())
-        assert((!senderState->alive()) || pkt->isPredictable());
     DPRINTF(DebugDOM, "Received timing resp for pkt %s, with spec %d"
             ", predictable: %d, domMode: %d, mpspemMode: %d\n",
             pkt->print(), pkt->isSpeculative(),
@@ -120,8 +118,14 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
 {
     LSQSenderState *state = dynamic_cast<LSQSenderState *>(pkt->senderState);
     DynInstPtr inst = state->inst;
-    assert(!((pkt->isMpspemMode() && !pkt->isPredictable())
-        && (pkt->isSpeculative() || inst->cShadow)));
+
+    DPRINTF(DebugDOM, "Data access completion for [sn:%llu], with "
+            "cShadow: %d, dShadow: %d, pktSpec: %d, specmode: %d\n",
+            inst->seqNum,
+            inst->cShadow,
+            inst->dShadow,
+            pkt->speculative,
+            pkt->speculativeMode);
 
     // hardware transactional memory
     // sanity check
@@ -184,7 +188,11 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
 
     assert(!cpu->switchedOut());
     if (!inst->isSquashed()) {
-        if (state->needWB) {
+        if (state->needWB && (inst->underShadow() && inst->isLoad())) {
+            DPRINTF(DOM, "Saved complete response for [sn:%llu]\n",
+                    inst->seqNum);
+            inst->storeResp(pkt);
+        } else if (state->needWB) {
             // Only loads, store conditionals and atomics perform the writeback
             // after receving the response from the memory
             assert(inst->isLoad() || inst->isStoreConditional() ||
@@ -790,8 +798,6 @@ void
 LSQUnit<Impl>::updateDShadow(DynInstPtr &load_inst)
 {
     auto store_it = load_inst->sqIt;
-    DPRINTF(DebugDOM, "Updating D shadow for [sn:%llu]\n",
-            load_inst->seqNum);
     assert (store_it >= storeWBIt);
     while (store_it != storeWBIt) {
         store_it--;
@@ -802,6 +808,8 @@ LSQUnit<Impl>::updateDShadow(DynInstPtr &load_inst)
             return;
         }
     }
+    DPRINTF(DOM, "Cleared dShadow for [sn:%llu]\n",
+            load_inst->seqNum);
     load_inst->dShadow = false;
 }
 
@@ -814,6 +822,9 @@ LSQUnit<Impl>::walkDShadows(const DynInstPtr &store_inst)
             store_inst->seqNum);
     while (load_it != loadQueue.end()) {
         updateDShadow(load_it->instPtr());
+        DPRINTF(DebugDOM, "D Shadow for [sn:%llu] now %d\n",
+                load_it->instPtr()->seqNum,
+                load_it->instPtr()->dShadow);
         load_it++;
     }
 }
@@ -853,6 +864,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     PacketPtr preload = new Packet(request, MemCmd::ReadReq);
     preload->dataStatic(inst->memData);
     preload->mpspemSpeculativeMode();
+    preload->isPredictedAddress = true;
     preload->speculative = true;
 
     auto fired = fireAndForget(preload, inst);

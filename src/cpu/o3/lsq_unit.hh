@@ -392,8 +392,10 @@ class LSQUnit
     /** Reset the LSQ state */
     void resetState();
 
+  public:
     /** Writes back the instruction, sending it to IEW. */
     void writeback(const DynInstPtr &inst, PacketPtr pkt);
+  private:
 
     /** Try to finish a previously blocked write back attempt */
     void writebackBlockedStore();
@@ -715,6 +717,10 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
     updateDShadow(load_req.instPtr());
+    DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]"
+            " with shadow value: %d\n",
+            load_inst->seqNum,
+            load_inst->dShadow);
 
     load_req.setRequest(req);
     req->speculative = load_inst->underShadow();
@@ -1034,78 +1040,29 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     }
     req->buildPackets();
 
-    // [MP-SPEM] Handle speculative loads separately
-    assert(req->isSpeculative() == req->_inst->underShadow());
-
-    if (!(cpu->DOM || cpu->MPSPEM) ||
-        !req->isSpeculative()) {
-        ++stats.normalIssuedLoads;
-        req->setPacketsNonSpeculative();
-        req->setPacketsNonPredictable();
-        req->sendPacketToCache();
-        if (!req->isSent())
-            iewStage->blockMemInst(load_inst);
-        return NoFault;
-    }
+    if (cpu->VP || cpu->DOM) panic("needs to be reimplemented");
 
     if (cpu->AP && load_inst->isPredicted()) {
         if (((load_inst->physEffAddr >> 6) << 6) == load_inst->predAddr) {
             ++stats.earlyIssues;
-            iewStage->delayMemInst(load_inst);
-            return NoFault;
         } else {
             ++stats.extraIssues;
         }
     }
 
-    bool missed = snoopCache(req, load_inst);
+    // [MP-SPEM] Handle speculative loads separately
+    assert(req->isSpeculative() == req->_inst->underShadow());
 
-    if (cpu->MPSPEM && cpu->VP) {
-        if (missed) {
-            req->setPacketsNonPredictable();
-            req->sendPacketToCache();
-            iewStage->delayMemInst(load_inst);
-            return NoFault;
-        }
-        int prediction = rand() % 100;
-        DPRINTF(ValuePrediction, "Making prediction,"
-                " accuracy: %d, roll: %d\n",
-                cpu->accuracy, prediction);
-        if (cpu->accuracy > prediction) {
-            ++stats.valuePredictedLoads;
-            req->setPacketsPredictable();
-            req->sendPacketToCache();
-            if (!req->isSent())
-                iewStage->blockMemInst(load_inst);
-            return NoFault;
-        } else {
-            ++stats.failedValuePredictions;
-            req->setPacketsNonPredictable();
-            iewStage->delayMemInst(load_inst);
-            return NoFault;
-        }
-    }
-
-    if (cpu->MPSPEM) {
-        ++stats.preloadedLoads;
-        req->setPacketsNonPredictable();
-        req->sendPacketToCache();
-        iewStage->delayMemInst(load_inst);
-        return NoFault;
-    }
-    if (cpu->DOM && missed) {
-        ++stats.loadsDelayedOnMiss;
-        req->setPacketsNonPredictable();
-        iewStage->delayMemInst(load_inst);
-        DPRINTF(DebugDOM, "Returning ShadowFault\n");
-        return std::make_shared<ShadowFault>();
-    }
-    assert(cpu->DOM && !missed);
-    ++stats.loadsIssuedOnHit;
+    req->setPacketsNonSpeculative();
     req->setPacketsNonPredictable();
     req->sendPacketToCache();
-    if (!req->isSent())
+    if (!req->isSent()) {
         iewStage->blockMemInst(load_inst);
+    } else if (req->isSpeculative()){
+        DPRINTF(DebugDOM, "Adding [sn:%llu] to have delayed broadcast\n",
+                load_inst->seqNum);
+        iewStage->delayMemInst(load_inst);
+    }
     return NoFault;
 }
 
@@ -1145,7 +1102,6 @@ LSQUnit<Impl>::snoopCache(Addr target, const DynInstPtr& load_inst)
     snoop->dataStatic(load_inst->memData);
     snoop->mpspemSpeculativeMode();
     snoop->speculative = true;
-    snoop->domSpeculativeMode();
     dcachePort->sendFunctional(snoop);
     ++stats.issuedSnoops;
 

@@ -172,11 +172,6 @@ BaseO3DynInst<Impl>::completeAcc(PacketPtr pkt)
             this->reqToVerify->setExtraData(pkt->req->getExtraData());
         }
     }
-    assert((!this->cpu->MPSPEM) ||
-            (this->cpu->MPSPEM &&
-                (!pkt->isSpeculative() || pkt->isPredictable())
-            )
-        );
 
     this->fault = this->staticInst->completeAcc(pkt, this, this->traceData);
 

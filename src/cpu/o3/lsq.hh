@@ -1217,6 +1217,8 @@ class LSQ
      */
     Fault write(LSQRequest* req, uint8_t *data, int store_idx);
 
+    void completeInst(DynInstPtr inst);
+
     /**
      * Retry the previous send that failed.
      */
@@ -1334,6 +1336,13 @@ LSQ<Impl>::write(LSQRequest* req, uint8_t *data, int store_idx)
     ThreadID tid = cpu->contextToThread(req->request()->contextId());
 
     return thread.at(tid).write(req, data, store_idx);
+}
+
+template <class Impl>
+void
+LSQ<Impl>::completeInst(DynInstPtr inst)
+{
+    thread.at(inst->threadNumber).writeback(inst, inst->getResp());
 }
 
 #endif // __CPU_O3_LSQ_HH__

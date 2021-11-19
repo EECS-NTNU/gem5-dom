@@ -644,9 +644,8 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
 
     pkt->pushLabel(name());
 
-    if ((pkt->isDomMode() && pkt->speculative)
-        || (pkt->isMpspemMode() && pkt->speculative &&
-        pkt->isPredictable())) {
+    if (pkt->isSpeculative() &&
+        (pkt->isDomMode() || pkt->isMpspemMode())) {
         pkt->setCacheMiss(!(blk || mshr));
         DPRINTF(CacheDOM, "Handled express snoop for pkt addr: %d"
             "miss: %d, domMode:%d, mpspemMode: %d\n",
@@ -1078,15 +1077,7 @@ BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
 
         // all read responses have a data payload
         assert(pkt->hasRespData());
-        if (pkt->isMpspemMode() &&
-            pkt->speculative &&
-            (!pkt->isPredictable())) {
-                DPRINTF(SpeculativeCache,
-                "Blocking potentially maligned load that will"
-                " always be discarded\n");
-        } else {
-            pkt->setDataFromBlock(blk->data, blkSize);
-        }
+        pkt->setDataFromBlock(blk->data, blkSize);
     } else if (pkt->isUpgrade()) {
         // sanity check
         assert(!pkt->hasSharers());

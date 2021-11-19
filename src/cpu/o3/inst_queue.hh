@@ -206,7 +206,7 @@ class InstructionQueue
      */
     DynInstPtr getBlockedMemInstToExecute();
 
-    DynInstPtr getDelayedMemInstToExecute();
+    void completeSafeLoads();
 
     /**
      * Records the instruction as the producer of a register without

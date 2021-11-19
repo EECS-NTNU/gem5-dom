@@ -864,6 +864,8 @@ class Packet : public Printable
         return predictable;
     }
 
+    bool isPredictedAddress = false;
+
     bool cacheMiss = false;
 
     void setCacheMiss(bool missed) {
@@ -1301,7 +1303,7 @@ class Packet : public Printable
         // same pointer from source to destination and back
         assert(p != getPtr<uint8_t>() || flags.isSet(STATIC_DATA));
 
-        if (p != getPtr<uint8_t>()) {
+        if (p != getPtr<uint8_t>() && (!isPredictedAddress)) {
             // for packet with allocated dynamic data, we copy data from
             // one to the other, e.g. a forwarded response to a response
             std::memcpy(getPtr<uint8_t>(), p, getSize());
