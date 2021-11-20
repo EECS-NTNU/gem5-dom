@@ -1040,7 +1040,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     }
     req->buildPackets();
 
-    if (cpu->VP) panic("needs to be reimplemented");
+    if (cpu->DOM) panic("needs to be reimplemented");
 
     if (cpu->AP &&
         load_inst->isPredicted()) {
