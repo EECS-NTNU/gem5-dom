@@ -92,6 +92,7 @@ class InstructionQueue
     typedef typename Impl::CPUPol::TimeStruct TimeStruct;
     typedef typename Impl::CPUPol::LSQ::LSQRequest LSQRequest;
     typedef typename Impl::CPUPol::LSQ::SingleDataRequest SingleDataRequest;
+    typedef typename Impl::CPUPol::LSQ::PredictDataRequest PredictDataRequest;
     typedef typename Impl::CPUPol::LSQ::SplitDataRequest SplitDataRequest;
 
     // Typedef of iterator through the list of instructions.
@@ -488,6 +489,7 @@ class InstructionQueue
     void dumpInsts();
 
   public:
+    void addToPredictable(const DynInstPtr &inst);
     void removeFromPredictable(const DynInstPtr &inst);
   private:
     struct IQStats : public Stats::Group

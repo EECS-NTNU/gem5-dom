@@ -74,6 +74,8 @@ LSQ<Impl>::LSQ(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params)
 {
     assert(numThreads > 0 && numThreads <= Impl::MaxThreads);
 
+    add_pred = new ADD_PRED();
+
     //**********************************************
     //************ Handle SMT Parameters ***********
     //**********************************************
@@ -101,7 +103,7 @@ LSQ<Impl>::LSQ(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params)
     thread.reserve(numThreads);
     for (ThreadID tid = 0; tid < numThreads; tid++) {
         thread.emplace_back(maxLQEntries, maxSQEntries);
-        thread[tid].init(cpu, iew_ptr, params, this, tid);
+        thread[tid].init(cpu, iew_ptr, params, this, tid, add_pred);
         thread[tid].setDcachePort(&dcachePort);
     }
 }
@@ -255,7 +257,6 @@ void
 LSQ<Impl>::predictLoad(DynInstPtr &inst)
 {
     ThreadID tid = inst->threadNumber;
-
     thread[tid].predictLoad(inst);
 }
 
@@ -780,6 +781,14 @@ LSQ<Impl>::pushRequest(const DynInstPtr& inst, bool isLoad, uint8_t *data,
 
 template<class Impl>
 void
+LSQ<Impl>::PredictDataRequest::finish(const Fault &fault,
+        const RequestPtr &req,ThreadContext* tc, BaseTLB::Mode mode)
+{
+
+}
+
+template<class Impl>
+void
 LSQ<Impl>::SingleDataRequest::finish(const Fault &fault, const RequestPtr &req,
         ThreadContext* tc, BaseTLB::Mode mode)
 {
@@ -880,6 +889,16 @@ LSQ<Impl>::SingleDataRequest::initiateTranslation()
     } else {
         _inst->setMemAccPredicate(false);
     }
+}
+
+template<class Impl>
+void
+LSQ<Impl>::PredictDataRequest::initiateTranslation()
+{
+    this->addRequest(_addr, _size, _byteEnable);
+    _port.getMMUPtr()->translateTiming(this->request(0),
+                    this->_inst->thread->getTC(), this,
+                    BaseTLB::Read);
 }
 
 template<class Impl>
@@ -1022,6 +1041,23 @@ LSQ<Impl>::SplitDataRequest::recvTimingResp(PacketPtr pkt)
 
 template<class Impl>
 void
+LSQ<Impl>::PredictDataRequest::buildPackets()
+{
+    assert(_senderState);
+
+    assert(_packets.size() == 0);
+    assert(isLoad());
+
+    _packets.push_back(Packet::createRead(request()));
+    _packets.back()->dataStatic(_inst->memData);
+    _packets.back()->senderState = _senderState;
+    _packets.back()->speculative = speculative;
+
+    assert(!(_packets.front()->hasData()));
+}
+
+template<class Impl>
+void
 LSQ<Impl>::SingleDataRequest::buildPackets()
 {
     assert(_senderState);
@@ -1148,6 +1184,15 @@ LSQ<Impl>::SingleDataRequest::sendPacketToCache()
 
 template<class Impl>
 void
+LSQ<Impl>::PredictDataRequest::sendPacketToCache()
+{
+    assert(_numOutstandingPackets == 0);
+    if (lsqUnit()->trySendPacket(true, _packets.at(0)))
+        _numOutstandingPackets++;
+}
+
+template<class Impl>
+void
 LSQ<Impl>::SplitDataRequest::sendPacketToCache()
 {
     /* Try to send the packets. */
@@ -1156,6 +1201,14 @@ LSQ<Impl>::SplitDataRequest::sendPacketToCache()
                 _packets.at(numReceivedPackets + _numOutstandingPackets))) {
         _numOutstandingPackets++;
     }
+}
+
+template<class Impl>
+Cycles
+LSQ<Impl>::PredictDataRequest::handleLocalAccess(
+        ThreadContext *thread, PacketPtr pkt)
+{
+    panic("Predict Data Request should not process local forwarding");
 }
 
 template<class Impl>
@@ -1185,6 +1238,13 @@ LSQ<Impl>::SplitDataRequest::handleLocalAccess(
         delete pkt;
     }
     return delay;
+}
+
+template<class Impl>
+bool
+LSQ<Impl>::PredictDataRequest::isCacheBlockHit(Addr blockAddr, Addr blockMask)
+{
+    panic("Predict Data Request should never check hits");
 }
 
 template<class Impl>

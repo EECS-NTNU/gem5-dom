@@ -622,9 +622,6 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
 
     assert(freeEntries == (numEntries - countInsts()));
 
-    if (cpu->AP &&
-        new_inst->isLoad())
-        instsPredictable.push_back(new_inst);
 }
 
 template <class Impl>
@@ -1704,6 +1701,13 @@ InstructionQueue<Impl>::dumpInsts()
         inst_list_it++;
         ++num;
     }
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::addToPredictable(const DynInstPtr &inst)
+{
+    instsPredictable.push_back(inst);
 }
 
 template <class Impl>

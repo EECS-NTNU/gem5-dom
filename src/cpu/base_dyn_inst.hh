@@ -380,6 +380,8 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Pointer to the data for the memory access. */
     uint8_t *memData;
 
+    uint8_t *predictData;
+
     /** Load queue index. */
     ssize_t lqIdx;
     LQIterator lqIt;

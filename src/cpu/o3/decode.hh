@@ -64,6 +64,9 @@ class DefaultDecode
     typedef typename Impl::DynInstPtr DynInstPtr;
     typedef typename Impl::CPUPol CPUPol;
 
+    typedef typename CPUPol::IQ IQ;
+
+
     // Typedefs from the CPU policy.
     typedef typename CPUPol::FetchStruct FetchStruct;
     typedef typename CPUPol::DecodeStruct DecodeStruct;
@@ -292,6 +295,13 @@ class DefaultDecode
      */
     bool squashAfterDelaySlot[Impl::MaxThreads];
 
+  public:
+    //Necessary to add predictable Instructions
+    IQ* instQueue;
+
+    void setInstQueue(IQ* inst_queue) {instQueue = inst_queue;}
+
+  private:
     struct DecodeStats : public Stats::Group {
         DecodeStats(O3CPU *cpu);
 

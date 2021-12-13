@@ -231,13 +231,13 @@ LSQUnit<Impl>::LSQUnit(uint32_t lqEntries, uint32_t sqEntries)
       pendingRequest(nullptr), stats(nullptr)
 {
     srand(10111997);
-    add_pred = new ADD_PRED();
 }
 
 template<class Impl>
 void
 LSQUnit<Impl>::init(O3CPU *cpu_ptr, IEW *iew_ptr,
-        const DerivO3CPUParams &params, LSQ *lsq_ptr, unsigned id)
+        const DerivO3CPUParams &params, LSQ *lsq_ptr, unsigned id,
+        ADD_PRED *pred)
 {
     lsqID = id;
 
@@ -253,6 +253,8 @@ LSQUnit<Impl>::init(O3CPU *cpu_ptr, IEW *iew_ptr,
     depCheckShift = params.LSQDepCheckShift;
     checkLoads = params.LSQCheckLoads;
     needsTSO = params.needsTSO;
+
+    add_pred = pred;
 
     resetState();
 }
@@ -838,11 +840,12 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     assert(!inst->isRanAhead());
     updateRunAhead(inst->instAddr(), 1);
     inst->setRanAhead(true);
+    // Get a predicted virtual address
     Addr prediction = add_pred->predictLoad(inst->instAddr(),
         runAhead[inst->instAddr()]);
 
     DPRINTF(AddrPrediction, "Making prediction on inst [sn:%llu]"
-            " for PC [%llx] with addr %llx and runahead: %d\n",
+            " for PC [%llx] with vaddr %llx and runahead: %d\n",
             inst->seqNum,
             inst->instAddr(),
             prediction,
@@ -857,23 +860,17 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         return;
     }
 
-    Request::Flags _flags = Request::PHYSICAL;
-    auto request = std::make_shared<Request>(
-                        prediction,
-                        8,//inst->effSize,
-                        _flags,
-                        inst->requestorId());
-    PacketPtr preload = new Packet(request, MemCmd::ReadReq);
-    preload->dataStatic(inst->memData);
-    preload->mpspemSpeculativeMode();
-    preload->isPredictedAddress = true;
-    preload->speculative = true;
+    // Try to translate address. Drop it if deferred
+    Request::Flags _flags = 0x0000;
+    LSQRequest *req = new PredictDataRequest(this, inst, prediction, 8,
+                                            _flags);
 
-    auto fired = fireAndForget(preload, inst);
-    if (fired) {
-        inst->setPredictedAddress(prediction);
-    }
+    req->initiateTranslation();
+    req->buildPackets();
+    req->sendPacketToCache();
 
+    if (req->isSent())
+        inst->setPredictedAddress(req->getPhysAddr());
 }
 
 template <class Impl>

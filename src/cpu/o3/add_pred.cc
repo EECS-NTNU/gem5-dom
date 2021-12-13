@@ -8,6 +8,9 @@ Authors:
 Samuel Pakalapati - samuelpakalapati@gmail.com
 Biswabandan Panda - biswap@cse.iitk.ac.in
 ***************************************************************************/
+#ifndef __CPU_O3_ADD_PRED_CC__
+#define __CPU_O3_ADD_PRED_CC__
+
 #include <map>
 #include <vector>
 
@@ -475,3 +478,5 @@ class ADD_PRED
         return;
     }
 };
+
+#endif

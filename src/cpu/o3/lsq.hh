@@ -54,7 +54,10 @@
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
 #include "cpu/o3/lsq_unit.hh"
+
+#include "cpu/o3/add_pred.cc"
 #include "cpu/utils.hh"
+#include "debug/AddrPrediction.hh"
 #include "debug/LSQ.hh"
 #include "enums/SMTQueuePolicy.hh"
 #include "mem/port.hh"
@@ -322,6 +325,15 @@ class LSQ
             flags.set(Flag::IsAtomic, _inst->isAtomic());
             install();
         }
+        LSQRequest(LSQUnit* port, const DynInstPtr& inst) :
+            _state(State::NotIssued), _senderState(nullptr),
+            _port(*port), _inst(inst), _data(nullptr),
+            _res(nullptr), _addr(0), _size(0), _flags(0),
+            _numOutstandingPackets(0), _amo_op(nullptr),
+            speculative(true)
+            {
+                flags.set(Flag::IsLoad, true);
+            }
         LSQRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad,
                    const Addr& addr, const uint32_t& size,
                    const Request::Flags& flags_,
@@ -595,6 +607,12 @@ class LSQ
         }
 
         // [MP-SPEM]
+        Addr
+        getPhysAddr() const
+        {
+            return _requests.at(0)->getPaddr();
+        }
+
         bool
         isSpeculative() const
         {
@@ -802,6 +820,59 @@ class LSQ
         }
 
         virtual std::string name() const { return "LSQRequest"; }
+    };
+  public:
+    class PredictDataRequest : public LSQRequest
+    {
+        protected:
+        /* Given that we are inside templates, children need explicit
+         * declaration of the names in the parent class. */
+        using Flag = typename LSQRequest::Flag;
+        using State = typename LSQRequest::State;
+        using LSQRequest::_addr;
+        using LSQRequest::_fault;
+        using LSQRequest::_flags;
+        using LSQRequest::_size;
+        using LSQRequest::_byteEnable;
+        using LSQRequest::_requests;
+        using LSQRequest::_inst;
+        using LSQRequest::_packets;
+        using LSQRequest::_port;
+        using LSQRequest::_res;
+        using LSQRequest::_taskId;
+        using LSQRequest::_senderState;
+        using LSQRequest::_state;
+        using LSQRequest::flags;
+        using LSQRequest::isLoad;
+        using LSQRequest::isTranslationComplete;
+        using LSQRequest::lsqUnit;
+        using LSQRequest::request;
+        using LSQRequest::sendFragmentToTranslation;
+        using LSQRequest::setState;
+        using LSQRequest::numInTranslationFragments;
+        using LSQRequest::numTranslatedFragments;
+        using LSQRequest::_numOutstandingPackets;
+        using LSQRequest::_amo_op;
+        using LSQRequest::speculative;
+      public:
+        PredictDataRequest(LSQUnit* port, const DynInstPtr& inst,
+                           const Addr& addr, const uint32_t& size,
+                           const Request::Flags& flags_,
+                           PacketDataPtr data = nullptr,
+                           uint64_t* res = nullptr,
+                           AtomicOpFunctorPtr amo_op = nullptr) :
+                           LSQRequest(port, inst) {}
+        inline virtual ~PredictDataRequest() {}
+        virtual void initiateTranslation();
+        virtual void finish(const Fault &fault, const RequestPtr &req,
+                            ThreadContext* tc, BaseTLB::Mode mode);
+        virtual bool recvTimingResp(PacketPtr pkt);
+        virtual void sendPacketToCache();
+        virtual void buildPackets();
+        virtual Cycles handleLocalAccess(ThreadContext *thread, PacketPtr pkt);
+        virtual bool isCacheBlockHit(Addr blockAddr, Addr cacheBlockMask);
+        virtual std::string name() const { return "PredictDataRequest"; }
+
     };
 
     class SingleDataRequest : public LSQRequest
@@ -1318,6 +1389,8 @@ class LSQ
 
     /** Number of Threads. */
     ThreadID numThreads;
+
+    ADD_PRED *add_pred;
 };
 
 template <class Impl>

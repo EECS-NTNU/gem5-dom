@@ -67,6 +67,7 @@ BaseDynInst<Impl>::BaseDynInst(const StaticInstPtr &_staticInst,
     regs(staticInst->numSrcRegs(), staticInst->numDestRegs()),
     macroop(_macroop),
     memData(nullptr),
+    predictData(nullptr),
     savedReq(nullptr),
     reqToVerify(nullptr)
 {
@@ -94,6 +95,7 @@ void
 BaseDynInst<Impl>::initVars()
 {
     memData = NULL;
+    predictData = NULL;
     effAddr = 0;
     physEffAddr = 0;
     predAddr = 0;
@@ -148,6 +150,10 @@ BaseDynInst<Impl>::~BaseDynInst()
 {
     if (memData) {
         delete [] memData;
+    }
+
+    if (predictData) {
+        delete [] predictData;
     }
 
     if (traceData) {

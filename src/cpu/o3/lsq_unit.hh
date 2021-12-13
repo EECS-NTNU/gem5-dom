@@ -66,6 +66,7 @@
 #include "mem/port.hh"
 
 #include "cpu/o3/add_pred.cc"
+#include "cpu/o3/lsq.hh"
 
 struct DerivO3CPUParams;
 #include "base/circular_queue.hh"
@@ -93,6 +94,7 @@ class LSQUnit
     typedef typename Impl::CPUPol::IEW IEW;
     typedef typename Impl::CPUPol::LSQ LSQ;
     typedef typename Impl::CPUPol::IssueStruct IssueStruct;
+    typedef typename Impl::CPUPol::LSQ::PredictDataRequest PredictDataRequest;
 
     using LSQSenderState = typename LSQ::LSQSenderState;
     using LSQRequest = typename Impl::CPUPol::LSQ::LSQRequest;
@@ -242,7 +244,7 @@ class LSQUnit
 
     /** Initializes the LSQ unit with the specified number of entries. */
     void init(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params,
-            LSQ *lsq_ptr, unsigned id);
+            LSQ *lsq_ptr, unsigned id, ADD_PRED *pred);
 
     /** Returns the name of the LSQ unit. */
     std::string name() const;

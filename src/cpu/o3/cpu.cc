@@ -182,6 +182,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
     decode.setFetchQueue(&fetchQueue);
     commit.setFetchQueue(&fetchQueue);
     decode.setDecodeQueue(&decodeQueue);
+    decode.setInstQueue(&iew.instQueue);
     rename.setDecodeQueue(&decodeQueue);
     rename.setRenameQueue(&renameQueue);
     iew.setRenameQueue(&renameQueue);
