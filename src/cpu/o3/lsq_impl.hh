@@ -782,7 +782,7 @@ LSQ<Impl>::pushRequest(const DynInstPtr& inst, bool isLoad, uint8_t *data,
 template<class Impl>
 void
 LSQ<Impl>::PredictDataRequest::finish(const Fault &fault,
-        const RequestPtr &req,ThreadContext* tc, BaseTLB::Mode mode)
+        const RequestPtr &req, ThreadContext* tc, BaseTLB::Mode mode)
 {
 
 }
@@ -994,6 +994,14 @@ LSQ<Impl>::LSQRequest::sendFragmentToTranslation(int i)
             this->request(i),
             this->_inst->thread->getTC(), this,
             this->isLoad() ? BaseTLB::Read : BaseTLB::Write);
+}
+
+template<class Impl>
+bool
+LSQ<Impl>::PredictDataRequest::recvTimingResp(PacketPtr pkt)
+{
+    assert(pkt == _packets.front());
+    return true;
 }
 
 template<class Impl>

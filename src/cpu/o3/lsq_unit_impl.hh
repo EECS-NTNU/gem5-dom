@@ -867,6 +867,10 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 
     req->initiateTranslation();
     req->buildPackets();
+
+    LSQSenderState *state = new LQSnoopState(req);
+    req->senderState(state);
+
     req->sendPacketToCache();
 
     if (req->isSent())
@@ -877,10 +881,10 @@ template <class Impl>
 void
 LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
 {
-    add_pred->updatePredictor(inst->physEffAddr,
+    add_pred->updatePredictor(inst->effAddr,
                               inst->instAddr(),
                               inst->seqNum);
-    auto cache_line = (inst->physEffAddr >> 6) << 6;
+    auto cache_line = (inst->effAddr >> 6) << 6;
     if (inst->predAddr == 0) {
         ++stats.nonAddrPredictedLoads;
     } else if (inst->predAddr == cache_line) {
