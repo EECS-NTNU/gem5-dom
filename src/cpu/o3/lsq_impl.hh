@@ -895,7 +895,7 @@ template<class Impl>
 void
 LSQ<Impl>::PredictDataRequest::initiateTranslation()
 {
-    this->addRequest(_addr, _size, _byteEnable);
+    this->addRequest(_addr, _size, std::vector<bool>(_size, true));
     _port.getMMUPtr()->translateTiming(this->request(0),
                     this->_inst->thread->getTC(), this,
                     BaseTLB::Read);
@@ -1051,14 +1051,11 @@ template<class Impl>
 void
 LSQ<Impl>::PredictDataRequest::buildPackets()
 {
-    assert(_senderState);
-
     assert(_packets.size() == 0);
     assert(isLoad());
 
     _packets.push_back(Packet::createRead(request()));
-    _packets.back()->dataStatic(_inst->memData);
-    _packets.back()->senderState = _senderState;
+    _packets.back()->dataStatic(_inst->predictData);
     _packets.back()->speculative = speculative;
 
     assert(!(_packets.front()->hasData()));

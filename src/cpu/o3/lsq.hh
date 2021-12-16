@@ -325,10 +325,11 @@ class LSQ
             flags.set(Flag::IsAtomic, _inst->isAtomic());
             install();
         }
-        LSQRequest(LSQUnit* port, const DynInstPtr& inst) :
+        LSQRequest(LSQUnit* port, const DynInstPtr& inst,
+                   const Addr& addr, const uint32_t& size) :
             _state(State::NotIssued), _senderState(nullptr),
             _port(*port), _inst(inst), _data(nullptr),
-            _res(nullptr), _addr(0), _size(0), _flags(0),
+            _res(nullptr), _addr(addr), _size(size), _flags(0),
             _numOutstandingPackets(0), _amo_op(nullptr),
             speculative(true)
             {
@@ -861,7 +862,7 @@ class LSQ
                            PacketDataPtr data = nullptr,
                            uint64_t* res = nullptr,
                            AtomicOpFunctorPtr amo_op = nullptr) :
-                           LSQRequest(port, inst) {}
+                           LSQRequest(port, inst, addr, size) {}
         inline virtual ~PredictDataRequest() {}
         virtual void initiateTranslation();
         virtual void finish(const Fault &fault, const RequestPtr &req,

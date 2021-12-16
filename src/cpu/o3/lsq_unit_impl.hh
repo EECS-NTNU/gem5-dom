@@ -865,6 +865,12 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     LSQRequest *req = new PredictDataRequest(this, inst, prediction, 8,
                                             _flags);
 
+    bool needs_burst = transferNeedsBurst(prediction, 8, 64);
+
+    if (needs_burst) {
+        DPRINTF(AddrPrediction, "Dropping prediction as it is split\n");
+        return;
+    }
     req->initiateTranslation();
     req->buildPackets();
 

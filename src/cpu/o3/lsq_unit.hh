@@ -56,6 +56,7 @@
 #include "config/the_isa.hh"
 #include "cpu/inst_seq.hh"
 #include "cpu/timebuf.hh"
+#include "cpu/utils.hh"
 #include "debug/AddrPrediction.hh"
 #include "debug/DOM.hh"
 #include "debug/DebugDOM.hh"
