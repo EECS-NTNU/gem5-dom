@@ -53,9 +53,9 @@
 #include "base/flags.hh"
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
+#include "cpu/o3/add_pred/base_add_pred.hh"
+#include "cpu/o3/add_pred/simple_pred.hh"
 #include "cpu/o3/lsq_unit.hh"
-
-#include "cpu/o3/add_pred.cc"
 #include "cpu/utils.hh"
 #include "debug/AddrPrediction.hh"
 #include "debug/LSQ.hh"
@@ -1391,7 +1391,7 @@ class LSQ
     /** Number of Threads. */
     ThreadID numThreads;
 
-    ADD_PRED *add_pred;
+    BaseAddPred *add_pred;
 };
 
 template <class Impl>

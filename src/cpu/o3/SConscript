@@ -34,6 +34,7 @@ if 'O3CPU' in env['CPU_MODELS']:
     SimObject('FUPool.py')
     SimObject('FuncUnitConfig.py')
     SimObject('O3CPU.py')
+    SimObject('add_pred/AddPred.py')
 
     Source('base_dyn_inst.cc')
     Source('commit.cc')
@@ -56,6 +57,8 @@ if 'O3CPU' in env['CPU_MODELS']:
     Source('scoreboard.cc')
     Source('store_set.cc')
     Source('thread_context.cc')
+
+    Source ('add_pred/simple_pred.cc')
 
     DebugFlag('CommitRate')
     DebugFlag('IEW')

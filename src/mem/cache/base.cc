@@ -1008,8 +1008,8 @@ void
 BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
 {
     DPRINTF(SpeculativeCache, "Attempting to satisfy pkt %s "
-    "speculative: %d, request: %d \n", pkt->print(),
-    pkt->isSpeculative(), pkt->isRequest());
+    "speculative: %d, request: %d, pktSize: %d\n", pkt->print(),
+    pkt->isSpeculative(), pkt->isRequest(), pkt->getSize());
     assert(pkt->isRequest());
 
     assert(blk && blk->isValid());

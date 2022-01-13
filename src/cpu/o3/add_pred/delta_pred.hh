@@ -1,7 +1,7 @@
 #ifndef __CPU_PRED_ADD_PRED_DELTA_PRED_HH__
 #define __CPU_PRED_ADD_PRED_DELTA_PRED_HH__
 
-#include "cpu/pred/add_pred/base_add_pred.hh"
+#include "cpu/o3/add_pred/base_add_pred.hh"
 
 template<class Impl>
 class DeltaPred : public BaseAddPred

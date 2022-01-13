@@ -74,7 +74,7 @@ LSQ<Impl>::LSQ(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params)
 {
     assert(numThreads > 0 && numThreads <= Impl::MaxThreads);
 
-    add_pred = new ADD_PRED();
+    add_pred = new SimplePred(params);
 
     //**********************************************
     //************ Handle SMT Parameters ***********
@@ -784,7 +784,15 @@ void
 LSQ<Impl>::PredictDataRequest::finish(const Fault &fault,
         const RequestPtr &req, ThreadContext* tc, BaseTLB::Mode mode)
 {
+    // Don't need to do anything here, paddr managed by _req
+    numTranslatedFragments = 1;
+    flags.set(Flag::TranslationFinished);
 
+    if (fault == NoFault) {
+        setState(State::Request);
+    } else {
+        setState(State::Fault);
+    }
 }
 
 template<class Impl>
@@ -896,6 +904,9 @@ void
 LSQ<Impl>::PredictDataRequest::initiateTranslation()
 {
     this->addRequest(_addr, _size, std::vector<bool>(_size, true));
+    setState(State::Translation);
+    flags.set(Flag::TranslationStarted);
+
     _port.getMMUPtr()->translateTiming(this->request(0),
                     this->_inst->thread->getTC(), this,
                     BaseTLB::Read);

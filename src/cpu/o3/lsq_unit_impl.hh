@@ -237,7 +237,7 @@ template<class Impl>
 void
 LSQUnit<Impl>::init(O3CPU *cpu_ptr, IEW *iew_ptr,
         const DerivO3CPUParams &params, LSQ *lsq_ptr, unsigned id,
-        ADD_PRED *pred)
+        BaseAddPred *pred)
 {
     lsqID = id;
 
@@ -841,7 +841,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     updateRunAhead(inst->instAddr(), 1);
     inst->setRanAhead(true);
     // Get a predicted virtual address
-    Addr prediction = add_pred->predictLoad(inst->instAddr(),
+    Addr prediction = add_pred->predictFromPC(inst->instAddr(),
         runAhead[inst->instAddr()]);
 
     DPRINTF(AddrPrediction, "Making prediction on inst [sn:%llu]"
@@ -860,21 +860,32 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         return;
     }
 
+    int packetSize = add_pred->getPacketSize(inst->instAddr());
+    inst->predictData = new uint8_t[packetSize];
+
     // Try to translate address. Drop it if deferred
     Request::Flags _flags = 0x0000;
-    LSQRequest *req = new PredictDataRequest(this, inst, prediction, 8,
-                                            _flags);
+    LSQRequest *req = new PredictDataRequest(this, inst, prediction,
+                                            packetSize, _flags);
 
-    bool needs_burst = transferNeedsBurst(prediction, 8, 64);
+    bool needs_burst = transferNeedsBurst(prediction, packetSize, 64);
 
     if (needs_burst) {
         DPRINTF(AddrPrediction, "Dropping prediction as it is split\n");
         return;
     }
     req->initiateTranslation();
+
+    if (!req->isMemAccessRequired()) {
+        DPRINTF(AddrPrediction, "Addr prediction faulted\n");
+        return;
+    }
+
     req->buildPackets();
 
     LSQSenderState *state = new LQSnoopState(req);
+    state->inst = inst;
+
     req->senderState(state);
 
     req->sendPacketToCache();
@@ -889,21 +900,22 @@ LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
 {
     add_pred->updatePredictor(inst->effAddr,
                               inst->instAddr(),
-                              inst->seqNum);
+                              inst->seqNum,
+                              inst->effSize);
     auto cache_line = (inst->effAddr >> 6) << 6;
     if (inst->predAddr == 0) {
         ++stats.nonAddrPredictedLoads;
-    } else if (inst->predAddr == cache_line) {
+    } else if (inst->predAddr == inst->effAddr) {
         ++stats.correctlyAddressPredictedLoads;
     } else {
         ++stats.wronglyAddressPredictedLoads;
     }
     DPRINTF(AddrPrediction, "Updating predictor with [sn:%llu],"
-            "PC [%llx], pred_addr %llx, cache line: %llx\n",
+            "PC [%llx], pred_addr %llx, real_addr: %llx\n",
             inst->seqNum,
             inst->instAddr(),
             inst->predAddr,
-            cache_line);
+            inst->effAddr);
 }
 
 template <class Impl>
