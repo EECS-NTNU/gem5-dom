@@ -105,6 +105,9 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
     /* Check that the request is still alive before any further action. */
     if (senderState->alive()) {
         ret = req->recvTimingResp(pkt);
+        if (pkt->isPredictedAddress) {
+            req->discard();
+        }
     } else {
         senderState->outstanding--;
     }
@@ -872,12 +875,16 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 
     if (needs_burst) {
         DPRINTF(AddrPrediction, "Dropping prediction as it is split\n");
+        assert(!req->isAnyOutstandingRequest());
+        req->discard();
         return;
     }
     req->initiateTranslation();
 
     if (!req->isMemAccessRequired()) {
         DPRINTF(AddrPrediction, "Addr prediction faulted\n");
+        assert(!req->isAnyOutstandingRequest());
+        req->discard();
         return;
     }
 
@@ -892,6 +899,10 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 
     if (req->isSent())
         inst->setPredictedAddress(req->getPhysAddr());
+    else {
+        assert(!req->isAnyOutstandingRequest());
+        req->discard();
+    }
 }
 
 template <class Impl>

@@ -49,6 +49,7 @@
 #include "base/logging.hh"
 #include "cpu/o3/cpu.hh"
 #include "cpu/o3/lsq.hh"
+#include "debug/AddrPredDebug.hh"
 #include "debug/Drain.hh"
 #include "debug/Fetch.hh"
 #include "debug/HtmCpu.hh"
@@ -786,6 +787,7 @@ LSQ<Impl>::PredictDataRequest::finish(const Fault &fault,
 {
     // Don't need to do anything here, paddr managed by _req
     numTranslatedFragments = 1;
+    numInTranslationFragments = 0;
     flags.set(Flag::TranslationFinished);
 
     if (fault == NoFault) {
@@ -907,6 +909,7 @@ LSQ<Impl>::PredictDataRequest::initiateTranslation()
     setState(State::Translation);
     flags.set(Flag::TranslationStarted);
 
+    numInTranslationFragments = 1;
     _port.getMMUPtr()->translateTiming(this->request(0),
                     this->_inst->thread->getTC(), this,
                     BaseTLB::Read);
@@ -1012,6 +1015,10 @@ bool
 LSQ<Impl>::PredictDataRequest::recvTimingResp(PacketPtr pkt)
 {
     assert(pkt == _packets.front());
+    assert(_numOutstandingPackets == 1);
+    flags.set(Flag::Complete);
+    auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
+    DPRINTF(AddrPredDebug, "Received timing response for prediction\n");
     return true;
 }
 
@@ -1068,6 +1075,7 @@ LSQ<Impl>::PredictDataRequest::buildPackets()
     _packets.push_back(Packet::createRead(request()));
     _packets.back()->dataStatic(_inst->predictData);
     _packets.back()->speculative = speculative;
+    _packets.back()->isPredictedAddress = true;
 
     assert(!(_packets.front()->hasData()));
 }

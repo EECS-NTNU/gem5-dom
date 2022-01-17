@@ -23,7 +23,7 @@ class SimplePred : virtual public BaseAddPred
 
     int numEntries = 1024;
 
-    struct AddrHistory* entries[1024];
+    struct AddrHistory* entries[1024] = {};
 
     const std::string name() const;
 

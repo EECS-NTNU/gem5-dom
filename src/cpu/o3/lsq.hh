@@ -330,8 +330,8 @@ class LSQ
             _state(State::NotIssued), _senderState(nullptr),
             _port(*port), _inst(inst), _data(nullptr),
             _res(nullptr), _addr(addr), _size(size), _flags(0),
-            _numOutstandingPackets(0), _amo_op(nullptr),
-            speculative(true)
+            _numOutstandingPackets(0), numInTranslationFragments(0),
+            _amo_op(nullptr), speculative(true)
             {
                 flags.set(Flag::IsLoad, true);
             }

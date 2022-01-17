@@ -74,8 +74,8 @@ class DefaultDOM
 
 
         std::vector<std::tuple<DynInstPtr, int, bool>>
-            sbList[Impl::MaxThreads];
-        std::vector<std::tuple<int, DynInstPtr>> rqList[Impl::MaxThreads];
+            *sbList[Impl::MaxThreads];
+        std::vector<std::tuple<int, DynInstPtr>> *rqList[Impl::MaxThreads];
 
         struct DOMStats : public Stats::Group
         {
