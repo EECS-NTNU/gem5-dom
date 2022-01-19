@@ -698,12 +698,32 @@ InstructionQueue<Impl>::getInstToExecute()
 }
 
 template <class Impl>
+void
+InstructionQueue<Impl>::cleanPredictables()
+{
+    for (int i = 0; i < instsPredictable.size(); i++) {
+        DynInstPtr inst = instsPredictable.at(i);
+        if (inst->isCommitted()) {
+            instsPredictable.erase(instsPredictable.begin() + i);
+            i--;
+        } else if (inst->isSquashed()) {
+            instsPredictable.erase(instsPredictable.begin() + i);
+            i--;
+        } else if (inst->hasRequest()) {
+            instsPredictable.erase(instsPredictable.begin() + i);
+            i--;
+        }
+    }
+}
+
+
+template <class Impl>
 typename Impl::DynInstPtr
 InstructionQueue<Impl>::getPredictable()
 {
     assert(!instsPredictable.empty());
     DynInstPtr inst = std::move(instsPredictable.front());
-    instsPredictable.pop_front();
+    instsPredictable.erase(instsPredictable.begin());
     assert(!inst->isSquashed());
     assert(inst->isLoad());
     DPRINTF(IQ, "Returning [sn:%llu] for prediction\n",

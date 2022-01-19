@@ -193,6 +193,8 @@ class InstructionQueue
      */
     DynInstPtr getInstToExecute();
 
+    void cleanPredictables();
+
     DynInstPtr getPredictable();
 
     bool hasPredictable();
@@ -324,7 +326,7 @@ class InstructionQueue
     /** List of instructions that are ready to be executed. */
     std::list<DynInstPtr> instsToExecute;
 
-    std::list<DynInstPtr> instsPredictable;
+    std::vector<DynInstPtr> instsPredictable;
 
     /** List of instructions waiting for their DTB translation to
      *  complete (hw page table walk in progress).

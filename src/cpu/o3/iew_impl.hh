@@ -1415,6 +1415,7 @@ DefaultIEW<Impl>::executeInsts()
         }
     }
     int insts_to_predict = instQueue.totalWidth - insts_to_execute;
+    instQueue.cleanPredictables();
     while (insts_to_predict &&
            instQueue.hasPredictable() &&
            ldstQueue.cachePortAvailable(true)) {
