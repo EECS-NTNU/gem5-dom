@@ -887,7 +887,6 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         req->discard();
         return;
     }
-
     req->buildPackets();
 
     LSQSenderState *state = new LQSnoopState(req);
@@ -898,7 +897,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     req->sendPacketToCache();
 
     if (req->isSent())
-        inst->setPredictedAddress(req->getPhysAddr());
+        inst->setPredictedAddress(prediction);
     else {
         assert(!req->isAnyOutstandingRequest());
         req->discard();

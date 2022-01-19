@@ -1047,7 +1047,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
     if (cpu->AP &&
         load_inst->isPredicted()) {
-        if (((load_inst->physEffAddr >> 6) << 6) == load_inst->predAddr) {
+        if (load_inst->effAddr == load_inst->predAddr) {
             ++stats.earlyIssues;
         } else {
             ++stats.extraIssues;
