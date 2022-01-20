@@ -1,0 +1,35 @@
+#!/bin/sh
+
+#SBATCH --partition=CPUQ
+#SBATCH --account=share-ie-idi
+#SBATCH --time=8:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --array=1-49
+#SBATCH --mem=8000
+#SBATCH --job-name="gem5_spec2006"
+#SBATCH --mail-user=amund.kvalsvik@ntnu.no
+#SBATCH --mail-type=ALL
+#SBATCH --output=slurm/%A_%a.simout
+
+WORKDIR=${SLURM_SUBMIT_DIR}
+cd ${WORKDIR}
+
+mapfile -t cmds < dom/full_commands.txt
+mapfile -t bnames < dom/bnames.txt
+mapfile -t options < dom/options.txt
+mapfile -t fullnames < dom/fullnames.txt
+mapfile -t iterations < dom/iterations.txt
+
+((index=$SLURM_ARRAY_TASK_ID-1))
+
+cmd=${cmds[$index]}
+bname=${bnames[$index]}
+option=${options[$index]}
+fullname=${fullnames[$index]}
+iteration=${iterations[$index]}
+
+module load SCons/4.0.1-GCCcore-10.2.0
+module load Python/3.8.6-GCCcore-10.2.0
+
+python run_benchmark.py "$cmd" $bname "$option" $fullname $iteration
