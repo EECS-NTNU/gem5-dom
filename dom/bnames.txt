@@ -47,4 +47,3 @@ astar
 wrf
 sphinx3
 Xalan
-specrand

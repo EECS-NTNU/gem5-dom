@@ -47,4 +47,3 @@ rivers.cfg
 < namelist.input
 ctlfile . args.an4
 -v t5.xml xalanc.xsl
--v t5.xml xalanc.xsl
