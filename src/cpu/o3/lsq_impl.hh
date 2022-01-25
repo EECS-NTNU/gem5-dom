@@ -1018,7 +1018,13 @@ LSQ<Impl>::PredictDataRequest::recvTimingResp(PacketPtr pkt)
     assert(_numOutstandingPackets == 1);
     flags.set(Flag::Complete);
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
-    DPRINTF(AddrPredDebug, "Received timing response for prediction\n");
+    state->inst->markPredDataReady();
+    DPRINTF(AddrPredDebug, "Received timing response for prediction,"
+            "for inst [sn:%llu], with squash: %d and addr %llx\n",
+            state->inst->seqNum, state->inst->isSquashed(),
+            state->inst->effAddr);
+    if ((!state->inst->isSquashed()) && state->inst->shouldForward)
+        _port.forwardPredictedData(state->inst, this);
     return true;
 }
 
@@ -1073,7 +1079,7 @@ LSQ<Impl>::PredictDataRequest::buildPackets()
     assert(isLoad());
 
     _packets.push_back(Packet::createRead(request()));
-    _packets.back()->dataStatic(_inst->predictData);
+    _packets.back()->dataStatic(_inst->predData);
     _packets.back()->speculative = speculative;
     _packets.back()->isPredictedAddress = true;
 

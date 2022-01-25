@@ -668,11 +668,22 @@ class LSQUnit
         Stats::Scalar correctlyAddressPredictedLoads;
 
         Stats::Scalar wronglyAddressPredictedLoads;
+
+        Stats::Scalar splitAddressPredictionsDropped;
+
+        Stats::Scalar failedTranslationsFromPredictions;
+
+        Stats::Scalar issuedAddressPredictions;
+
+        Stats::Scalar failedToIssuePredictions;
+
     } stats;
 
   public:
     /** Executes the load at the given index. */
     Fault read(LSQRequest *req, int load_idx);
+
+    bool forwardPredictedData(const DynInstPtr &load_inst, LSQRequest *req);
 
     bool snoopCache(LSQRequest *req, const DynInstPtr& load_inst);
 
@@ -1008,6 +1019,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         }
     }
 
+
     // If there's no forwarding case, then go access memory
     DPRINTF(LSQUnit, "Doing memory access for inst [sn:%lli] PC %s\n",
             load_inst->seqNum, load_inst->pcState());
@@ -1032,6 +1044,21 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     // @todo We should account for cache port contention
     // and arbitrate between loads and stores.
 
+    if (cpu->AP &&
+        load_inst->isPredicted()) {
+        if (load_inst->effAddr == load_inst->predAddr) {
+            ++stats.earlyIssues;
+            if (load_inst->hasPredData) {
+                forwardPredictedData(load_inst, req);
+            } else {
+                load_inst->forwardOnPredData();
+            }
+            return NoFault;
+        } else {
+            ++stats.extraIssues;
+        }
+    }
+
     // if we the cache is not blocked, do cache access
     if (req->senderState() == nullptr) {
         LQSenderState *state = new LQSenderState(
@@ -1044,15 +1071,6 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     req->buildPackets();
 
     if (cpu->DOM) panic("needs to be reimplemented");
-
-    if (cpu->AP &&
-        load_inst->isPredicted()) {
-        if (load_inst->effAddr == load_inst->predAddr) {
-            ++stats.earlyIssues;
-        } else {
-            ++stats.extraIssues;
-        }
-    }
 
     // [MP-SPEM] Handle speculative loads separately
     assert(req->isSpeculative() == req->_inst->underShadow());
@@ -1080,6 +1098,43 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         iewStage->delayMemInst(load_inst);
     }
     return NoFault;
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
+                                    LSQRequest *req)
+{
+    // Allocate memory if this is the first time a load is issued.
+    assert(!load_inst->isSquashed());
+
+    if (!load_inst->memData) {
+        load_inst->memData =
+            new uint8_t[req->mainRequest()->getSize()];
+    }
+
+    memcpy(load_inst->memData,
+           load_inst->getPredData(),
+           req->mainRequest()->getSize());
+
+    DPRINTF(LSQUnit, "Forwarding from predicted address to load to "
+            "addr %#x\n for inst [sn:%llu]",
+            req->mainRequest()->getVaddr(),
+            load_inst->seqNum);
+
+    PacketPtr data_pkt = new Packet(req->mainRequest(),
+            MemCmd::ReadReq);
+    data_pkt->dataStatic(load_inst->memData);
+
+    WritebackEvent *wb = new WritebackEvent(load_inst, data_pkt,
+            this);
+
+    // We'll say this has a 1 cycle load-store forwarding latency
+    // for now.
+    // @todo: Need to make this a parameter.
+    cpu->schedule(wb, curTick());
+
+    return true;
 }
 
 template<class Impl>

@@ -369,6 +369,10 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     bool hasPredAddr;
 
+    bool hasPredData;
+
+    bool shouldForward;
+
     bool hasRanAhead;
 
     /** The memory request flags (from translation). */
@@ -380,7 +384,7 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Pointer to the data for the memory access. */
     uint8_t *memData;
 
-    uint8_t *predictData;
+    uint8_t *predData;
 
     /** Load queue index. */
     ssize_t lqIdx;
@@ -981,7 +985,7 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Returns whether or not this instruction is squashed in the LSQ. */
     bool isSquashedInLSQ() const { return status[SquashedInLSQ]; }
 
-    void setPredictedAddress(Addr predidction);
+    void setPredAddr(Addr predidction);
 
     bool isPredicted() const {return hasPredAddr;}
 
@@ -989,7 +993,13 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     void setRanAhead(bool state) {hasRanAhead = state;}
 
-    Addr getPrediction();
+    void markPredDataReady();
+
+    Addr getPredAddr();
+
+    uint8_t* getPredData();
+
+    void forwardOnPredData();
 
     //Reorder Buffer Functions
     //-----------------------

@@ -345,7 +345,15 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(correctlyAddressPredictedLoads, UNIT_COUNT,
                "Loads that were correctly address predicted (commit)"),
       ADD_STAT(wronglyAddressPredictedLoads, UNIT_COUNT,
-               "Loads that were incorrectly address predicted (commit)")
+               "Loads that were incorrectly address predicted (commit)"),
+      ADD_STAT(splitAddressPredictionsDropped, UNIT_COUNT,
+               "Predictions dropped due to being split"),
+      ADD_STAT(failedTranslationsFromPredictions, UNIT_COUNT,
+               "Addr predictions that failed translation"),
+      ADD_STAT(issuedAddressPredictions, UNIT_COUNT,
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(failedToIssuePredictions, UNIT_COUNT,
+               "Final stage predictions that got rejected by cache port")
 {
 }
 
@@ -689,11 +697,17 @@ LSQUnit<Impl>::executeLoad(const DynInstPtr &inst)
     "fault is : %s\n", load_fault != NoFault ? load_fault->name() :
     "none");
 
-    if (load_fault == NoFault && !inst->readMemAccPredicate()) {
+    if (load_fault == NoFault && !inst->readMemAccPredicate()
+        && !inst->shouldForward) {
         assert(inst->readPredicate());
         inst->setExecuted();
         inst->completeAcc(nullptr);
         iewStage->instToCommit(inst);
+        iewStage->activityThisCycle();
+        return NoFault;
+    }
+
+    if (load_fault == NoFault && inst->shouldForward) {
         iewStage->activityThisCycle();
         return NoFault;
     }
@@ -864,7 +878,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     }
 
     int packetSize = add_pred->getPacketSize(inst->instAddr());
-    inst->predictData = new uint8_t[packetSize];
+    inst->predData = new uint8_t[packetSize];
 
     // Try to translate address. Drop it if deferred
     Request::Flags _flags = 0x0000;
@@ -876,6 +890,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     if (needs_burst) {
         DPRINTF(AddrPrediction, "Dropping prediction as it is split\n");
         assert(!req->isAnyOutstandingRequest());
+        ++stats.splitAddressPredictionsDropped;
         req->discard();
         return;
     }
@@ -885,6 +900,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         DPRINTF(AddrPrediction, "Addr prediction faulted\n");
         assert(!req->isAnyOutstandingRequest());
         req->discard();
+        ++stats.failedTranslationsFromPredictions;
         return;
     }
     req->buildPackets();
@@ -896,11 +912,13 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 
     req->sendPacketToCache();
 
-    if (req->isSent())
-        inst->setPredictedAddress(prediction);
-    else {
+    if (req->isSent()) {
+        inst->setPredAddr(prediction);
+        ++stats.issuedAddressPredictions;
+    } else {
         assert(!req->isAnyOutstandingRequest());
         req->discard();
+        ++stats.failedToIssuePredictions;
     }
 }
 

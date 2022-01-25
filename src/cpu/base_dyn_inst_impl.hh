@@ -67,7 +67,7 @@ BaseDynInst<Impl>::BaseDynInst(const StaticInstPtr &_staticInst,
     regs(staticInst->numSrcRegs(), staticInst->numDestRegs()),
     macroop(_macroop),
     memData(nullptr),
-    predictData(nullptr),
+    predData(nullptr),
     savedReq(nullptr),
     reqToVerify(nullptr)
 {
@@ -95,11 +95,13 @@ void
 BaseDynInst<Impl>::initVars()
 {
     memData = NULL;
-    predictData = NULL;
+    predData = NULL;
     effAddr = 0;
     physEffAddr = 0;
     predAddr = 0;
     hasPredAddr = false;
+    hasPredData = false;
+    shouldForward = false;
     hasRanAhead = false;
     readyRegs = 0;
     memReqFlags = 0;
@@ -152,8 +154,8 @@ BaseDynInst<Impl>::~BaseDynInst()
         delete [] memData;
     }
 
-    if (predictData) {
-        delete [] predictData;
+    if (predData) {
+        delete [] predData;
     }
 
     if (traceData) {
@@ -276,7 +278,7 @@ BaseDynInst<Impl>::setSquashed()
 
 template <class Impl>
 void
-BaseDynInst<Impl>::setPredictedAddress(Addr predicted)
+BaseDynInst<Impl>::setPredAddr(Addr predicted)
 {
     assert(!hasPredAddr);
     hasPredAddr = true;
@@ -284,11 +286,34 @@ BaseDynInst<Impl>::setPredictedAddress(Addr predicted)
 }
 
 template <class Impl>
+void
+BaseDynInst<Impl>::markPredDataReady()
+{
+    hasPredData = true;
+}
+
+template <class Impl>
 Addr
-BaseDynInst<Impl>::getPrediction()
+BaseDynInst<Impl>::getPredAddr()
 {
     assert(hasPredAddr);
     return predAddr;
+}
+
+template <class Impl>
+uint8_t*
+BaseDynInst<Impl>::getPredData()
+{
+    assert(hasPredData);
+    return predData;
+}
+
+template <class Impl>
+void
+BaseDynInst<Impl>::forwardOnPredData()
+{
+    assert(!hasPredData);
+    shouldForward = true;
 }
 
 
