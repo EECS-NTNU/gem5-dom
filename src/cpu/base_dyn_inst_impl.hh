@@ -68,6 +68,7 @@ BaseDynInst<Impl>::BaseDynInst(const StaticInstPtr &_staticInst,
     macroop(_macroop),
     memData(nullptr),
     predData(nullptr),
+    storeData(nullptr),
     savedReq(nullptr),
     reqToVerify(nullptr)
 {
@@ -96,11 +97,14 @@ BaseDynInst<Impl>::initVars()
 {
     memData = NULL;
     predData = NULL;
+    storeData = NULL;
     effAddr = 0;
     physEffAddr = 0;
     predAddr = 0;
+    predSize = 0;
     hasPredAddr = false;
     hasPredData = false;
+    hasStoreData = false;
     shouldForward = false;
     hasRanAhead = false;
     readyRegs = 0;
@@ -156,6 +160,10 @@ BaseDynInst<Impl>::~BaseDynInst()
 
     if (predData) {
         delete [] predData;
+    }
+
+    if (storeData) {
+        delete [] storeData;
     }
 
     if (traceData) {
@@ -278,11 +286,12 @@ BaseDynInst<Impl>::setSquashed()
 
 template <class Impl>
 void
-BaseDynInst<Impl>::setPredAddr(Addr predicted)
+BaseDynInst<Impl>::setPredAddr(Addr predicted, int size)
 {
     assert(!hasPredAddr);
     hasPredAddr = true;
     predAddr = predicted;
+    predSize = size;
 }
 
 template <class Impl>
@@ -298,6 +307,14 @@ BaseDynInst<Impl>::getPredAddr()
 {
     assert(hasPredAddr);
     return predAddr;
+}
+
+template <class Impl>
+int
+BaseDynInst<Impl>::getPredSize()
+{
+    assert(hasPredAddr);
+    return predSize;
 }
 
 template <class Impl>

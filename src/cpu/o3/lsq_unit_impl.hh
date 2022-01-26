@@ -913,7 +913,8 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     req->sendPacketToCache();
 
     if (req->isSent()) {
-        inst->setPredAddr(prediction);
+        inst->setPredAddr(prediction, packetSize);
+        addToPredInsts(inst);
         ++stats.issuedAddressPredictions;
     } else {
         assert(!req->isAnyOutstandingRequest());
@@ -1312,7 +1313,94 @@ LSQUnit<Impl>::storePostSend()
         storeInFlight = true;
     }
 
+    forwardToPredicted();
+
     storeWBIt++;
+}
+
+template <class Impl>
+void
+LSQUnit<Impl>::forwardToPredicted()
+{
+    DynInstPtr store_inst = storeWBIt->instruction();
+    for (int i = 0; i < predInsts.size(); i++) {
+        DynInstPtr load_inst = predInsts.at(i);
+        if (load_inst->isCommitted() || load_inst->isSquashed()) {
+            predInsts.erase(predInsts.begin() + i);
+            i--;
+            continue;
+        }
+
+        int store_size = storeWBIt->size();
+
+        // Cache maintenance instructions go down via the store
+        // path but they carry no data and they shouldn't be
+        // considered for forwarding
+        if (store_size != 0 && !storeWBIt->instruction()->strictlyOrdered() &&
+            !(storeWBIt->request()->mainRequest() &&
+              storeWBIt->request()->mainRequest()->isCacheMaintenance())) {
+            assert(storeWBIt->instruction()->effAddrValid());
+
+            // Check if the store data is within the lower and upper bounds of
+            // addresses that the request needs.
+            auto req_s = load_inst->getPredAddr();
+            auto req_e = load_inst->getPredSize();
+            auto st_s = store_inst->effAddr;
+            auto st_e = st_s + store_size;
+
+            bool store_has_lower_limit = req_s >= st_s;
+            bool store_has_upper_limit = req_e <= st_e;
+            bool lower_load_has_store_part = req_s < st_e;
+            bool upper_load_has_store_part = req_e > st_s;
+
+            auto coverage = AddrRangeCoverage::NoAddrRangeCoverage;
+
+            // If the store entry is not atomic (atomic does not have valid
+            // data), the store has all of the data needed, and
+            // the load is not LLSC, then
+            // we can forward data from the store to the load
+            if (!storeWBIt->instruction()->isAtomic() &&
+                store_has_lower_limit && store_has_upper_limit) {
+
+                const auto& store_req = storeWBIt->request()->mainRequest();
+                coverage = store_req->isMasked() ?
+                    AddrRangeCoverage::PartialAddrRangeCoverage :
+                    AddrRangeCoverage::FullAddrRangeCoverage;
+            } else if (
+                (storeWBIt->instruction()->isAtomic() &&
+                 ((store_has_lower_limit || upper_load_has_store_part) &&
+                  (store_has_upper_limit || lower_load_has_store_part)))) {
+
+                panic("LLSC stores should never be linked here");
+            }
+
+            if (coverage == AddrRangeCoverage::FullAddrRangeCoverage) {
+                // Get shift amount for offset into the store's data.
+                int shift_amt = req_s - st_s;
+
+                // Allocate memory if this is the first time a load is issued.
+                if (!load_inst->storeData) {
+                    load_inst->storeData =
+                        new uint8_t[req_e];
+                }
+                if (storeWBIt->isAllZeros())
+                    memset(load_inst->storeData, 0,
+                            req_e);
+                else
+                    memcpy(load_inst->storeData,
+                        storeWBIt->data() + shift_amt,
+                        req_e);
+
+                DPRINTF(LSQUnit, "Forwarding from store idx %i to pred load "
+                        "for addr %#x for load_inst [sn:%llu]\n",
+                        storeWBIt._idx,
+                        req_s,
+                        load_inst->seqNum);
+
+                load_inst->hasStoreData = true;
+            }
+        }
+    }
 }
 
 template <class Impl>

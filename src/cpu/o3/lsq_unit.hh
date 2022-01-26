@@ -49,6 +49,7 @@
 #include <map>
 #include <memory>
 #include <queue>
+#include <vector>
 
 #include "arch/generic/debugfaults.hh"
 #include "arch/generic/vec_reg.hh"
@@ -395,6 +396,8 @@ class LSQUnit
     /** Reset the LSQ state */
     void resetState();
 
+    void forwardToPredicted();
+
   public:
     /** Writes back the instruction, sending it to IEW. */
     void writeback(const DynInstPtr &inst, PacketPtr pkt);
@@ -606,6 +609,8 @@ class LSQUnit
     /** Flag for memory model. */
     bool needsTSO;
 
+    std::vector<DynInstPtr> predInsts;
+
   protected:
     // Will also need how many read/write ports the Dcache has.  Or keep track
     // of that in stage that is one level up, and only call executeLoad/Store
@@ -684,6 +689,10 @@ class LSQUnit
     Fault read(LSQRequest *req, int load_idx);
 
     bool forwardPredictedData(const DynInstPtr &load_inst, LSQRequest *req);
+
+    bool forwardStoredData(const DynInstPtr &load_inst, LSQRequest *req);
+
+    void addToPredInsts(const DynInstPtr &load_inst);
 
     bool snoopCache(LSQRequest *req, const DynInstPtr& load_inst);
 
@@ -979,7 +988,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
                 ++stats.forwLoads;
 
                 return NoFault;
-            } else if (coverage == AddrRangeCoverage::PartialAddrRangeCoverage) {
+            } else if (coverage ==
+                       AddrRangeCoverage::PartialAddrRangeCoverage) {
                 // If it's already been written back, then don't worry about
                 // stalling on it.
                 if (store_it->completed()) {
@@ -1048,7 +1058,9 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         load_inst->isPredicted()) {
         if (load_inst->effAddr == load_inst->predAddr) {
             ++stats.earlyIssues;
-            if (load_inst->hasPredData) {
+            if (load_inst->hasStoreData) {
+                forwardStoredData(load_inst, req);
+            } else if (load_inst->hasPredData) {
                 forwardPredictedData(load_inst, req);
             } else {
                 load_inst->forwardOnPredData();
@@ -1107,6 +1119,7 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
 {
     // Allocate memory if this is the first time a load is issued.
     assert(!load_inst->isSquashed());
+    assert(!load_inst->hasStoreData);
 
     if (!load_inst->memData) {
         load_inst->memData =
@@ -1118,7 +1131,7 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
            req->mainRequest()->getSize());
 
     DPRINTF(LSQUnit, "Forwarding from predicted address to load to "
-            "addr %#x\n for inst [sn:%llu]",
+            "addr %#x for inst [sn:%llu]\n",
             req->mainRequest()->getVaddr(),
             load_inst->seqNum);
 
@@ -1135,6 +1148,45 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
     cpu->schedule(wb, curTick());
 
     return true;
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::forwardStoredData(const DynInstPtr& load_inst,
+                                 LSQRequest *req)
+{
+    assert(!load_inst->isSquashed());
+
+    if (!load_inst->memData) {
+        load_inst->memData =
+            new uint8_t[req->mainRequest()->getSize()];
+    }
+
+    memcpy(load_inst->memData,
+           load_inst->getPredData(),
+           req->mainRequest()->getSize());
+
+    DPRINTF(LSQUnit, "Forwarding from predicted address store"
+            " to load for addr %#x for inst [xn:%llu]\n",
+            req->mainRequest()->getVaddr(),
+            load_inst->seqNum);
+    PacketPtr data_pkt = new Packet(req->mainRequest(),
+                                    MemCmd::ReadReq);
+
+    data_pkt->dataStatic(load_inst->memData);
+
+    WritebackEvent *wb = new WritebackEvent(load_inst, data_pkt, this);
+
+    cpu->schedule(wb, curTick());
+
+    return true;
+}
+
+template<class Impl>
+void
+LSQUnit<Impl>::addToPredInsts(const DynInstPtr& load_inst)
+{
+    predInsts.push_back(load_inst);
 }
 
 template<class Impl>

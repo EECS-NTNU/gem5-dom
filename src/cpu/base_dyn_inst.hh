@@ -367,9 +367,13 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     Addr predAddr;
 
+    int predSize;
+
     bool hasPredAddr;
 
     bool hasPredData;
+
+    bool hasStoreData;
 
     bool shouldForward;
 
@@ -385,6 +389,8 @@ class BaseDynInst : public ExecContext, public RefCounted
     uint8_t *memData;
 
     uint8_t *predData;
+
+    uint8_t *storeData;
 
     /** Load queue index. */
     ssize_t lqIdx;
@@ -985,7 +991,7 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Returns whether or not this instruction is squashed in the LSQ. */
     bool isSquashedInLSQ() const { return status[SquashedInLSQ]; }
 
-    void setPredAddr(Addr predidction);
+    void setPredAddr(Addr predidction, int size);
 
     bool isPredicted() const {return hasPredAddr;}
 
@@ -996,6 +1002,8 @@ class BaseDynInst : public ExecContext, public RefCounted
     void markPredDataReady();
 
     Addr getPredAddr();
+
+    int getPredSize();
 
     uint8_t* getPredData();
 
