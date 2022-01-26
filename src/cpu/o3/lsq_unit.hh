@@ -682,6 +682,12 @@ class LSQUnit
 
         Stats::Scalar failedToIssuePredictions;
 
+        Stats::Scalar forwardedStoreData;
+
+        Stats::Scalar forwardedPredictedData;
+
+        Stats::Scalar forwardedToPredictions;
+
     } stats;
 
   public:
@@ -1120,6 +1126,7 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
     // Allocate memory if this is the first time a load is issued.
     assert(!load_inst->isSquashed());
     assert(!load_inst->hasStoreData);
+    ++stats.forwardedPredictedData;
 
     if (!load_inst->memData) {
         load_inst->memData =
@@ -1156,6 +1163,7 @@ LSQUnit<Impl>::forwardStoredData(const DynInstPtr& load_inst,
                                  LSQRequest *req)
 {
     assert(!load_inst->isSquashed());
+    ++stats.forwardedStoreData;
 
     if (!load_inst->memData) {
         load_inst->memData =

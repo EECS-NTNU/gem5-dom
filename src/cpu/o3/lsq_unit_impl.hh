@@ -353,7 +353,13 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(issuedAddressPredictions, UNIT_COUNT,
                "Addr predicted loads issued to memory"),
       ADD_STAT(failedToIssuePredictions, UNIT_COUNT,
-               "Final stage predictions that got rejected by cache port")
+               "Final stage predictions that got rejected by cache port"),
+      ADD_STAT(forwardedStoreData, UNIT_COUNT,
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(forwardedPredictedData, UNIT_COUNT,
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(forwardedToPredictions, UNIT_COUNT,
+               "Addr predicted loads issued to memory")
 {
 }
 
@@ -1396,7 +1402,7 @@ LSQUnit<Impl>::forwardToPredicted()
                         storeWBIt._idx,
                         req_s,
                         load_inst->seqNum);
-
+                ++stats.forwardedToPredictions;
                 load_inst->hasStoreData = true;
             }
         }
