@@ -49,6 +49,7 @@
 #include "cpu/inst_seq.hh"
 #include "cpu/o3/cpu.hh"
 #include "cpu/o3/isa_specific.hh"
+#include "cpu/o3/lsq.hh"
 #include "cpu/reg_class.hh"
 
 class Packet;

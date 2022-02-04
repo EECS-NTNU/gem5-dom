@@ -699,9 +699,9 @@ class LSQUnit
     /** Executes the load at the given index. */
     Fault read(LSQRequest *req, int load_idx);
 
-    bool forwardPredictedData(const DynInstPtr &load_inst, LSQRequest *req);
+    bool forwardPredictedData(const DynInstPtr &load_inst);
 
-    bool forwardStoredData(const DynInstPtr &load_inst, LSQRequest *req);
+    bool forwardStoredData(const DynInstPtr &load_inst);
 
     void addToPredInsts(const DynInstPtr &load_inst);
 
@@ -1086,12 +1086,15 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             load_inst->hasPredData);
 
             if (load_inst->hasStoreData) {
-                forwardStoredData(load_inst, req);
+                forwardStoredData(load_inst);
             } else if (load_inst->hasPredData) {
-                forwardPredictedData(load_inst, req);
+                forwardPredictedData(load_inst);
             } else {
                 load_inst->forwardOnPredData();
             }
+            //TODO: This is a consequence of how we are freeing them
+            //Should do this samecycle when we can
+            iewStage->delayMemInst(load_inst);
 
             return NoFault;
         } else if (load_inst->effAddr == load_inst->predAddr) {

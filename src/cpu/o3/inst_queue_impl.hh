@@ -1287,6 +1287,11 @@ InstructionQueue<Impl>::completeSafeLoads()
                 if (inst->savedReq != nullptr &&
                     inst->savedReq->isSplit()) inst->delResp();
                 i--;
+            } else if (inst->shouldForward &&
+                          (inst->hasStoreData || inst->hasPredData)) {
+                iewStage->ldstQueue.completeInst(inst);
+                delayedMemInsts.erase(delayedMemInsts.begin() + i);
+                i--;
             }
         }
     }

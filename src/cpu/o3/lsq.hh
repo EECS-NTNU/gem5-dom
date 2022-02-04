@@ -1416,10 +1416,15 @@ template <class Impl>
 void
 LSQ<Impl>::completeInst(DynInstPtr inst)
 {
-    if (inst->succPred)
-        assert(thread.at(inst->threadNumber)
-                     .verifyLoadDataIntegrity(inst));
-    thread.at(inst->threadNumber).writeback(inst, inst->getResp());
+    if (inst->shouldForward) {
+        if (inst->hasStoreData) {
+            thread.at(inst->threadNumber).forwardStoredData(inst);
+        } else {
+            thread.at(inst->threadNumber).forwardPredictedData(inst);
+        }
+    } else {
+        thread.at(inst->threadNumber).writeback(inst, inst->getResp());
+    }
 }
 
 #endif // __CPU_O3_LSQ_HH__

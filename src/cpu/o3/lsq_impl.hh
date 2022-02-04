@@ -1032,14 +1032,6 @@ LSQ<Impl>::PredictDataRequest::recvTimingResp(PacketPtr pkt)
             state->inst->predData[1],
             state->inst->predData[2],
             state->inst->predData[3]);
-    if ((!state->inst->isSquashed()) && state->inst->shouldForward) {
-        if (state->inst->hasStoreData) {
-            _port.forwardStoredData(state->inst, this);
-        } else {
-            _port.forwardPredictedData(state->inst, this);
-        }
-    }
-
     return true;
 }
 

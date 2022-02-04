@@ -196,6 +196,7 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
             (!pkt->isPredictable())) {
             DPRINTF(DOM, "Saved complete response for [sn:%llu]\n",
                     inst->seqNum);
+            assert(!inst->shouldForward);
             inst->storeResp(pkt);
         } else if (state->needWB) {
             // Only loads, store conditionals and atomics perform the writeback
@@ -1715,8 +1716,7 @@ LSQUnit<Impl>::cacheLineSize()
 
 template<class Impl>
 bool
-LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
-                                    LSQRequest *req)
+LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst)
 {
     DPRINTF(AddrPredDebug, "Forwarding predicted data for "
             "load_inst [sn:%llu]\n", load_inst->seqNum);
@@ -1725,6 +1725,8 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
     assert(!load_inst->isSquashed());
     assert(!load_inst->hasStoreData);
     ++stats.forwardedPredictedData;
+
+    LSQRequest *req = load_inst->savedReq;
 
     if (!load_inst->memData) {
         load_inst->memData =
@@ -1760,14 +1762,15 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
 
 template<class Impl>
 bool
-LSQUnit<Impl>::forwardStoredData(const DynInstPtr& load_inst,
-                                 LSQRequest *req)
+LSQUnit<Impl>::forwardStoredData(const DynInstPtr& load_inst)
 {
     DPRINTF(AddrPredDebug, "Forwarding store data for "
             "load_inst [sn:%llu]\n", load_inst->seqNum);
 
     assert(!load_inst->isSquashed());
     ++stats.forwardedStoreData;
+
+    LSQRequest *req = load_inst->savedReq;
 
     if (!load_inst->memData) {
         load_inst->memData =
