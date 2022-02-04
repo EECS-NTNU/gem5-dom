@@ -334,7 +334,8 @@ class Packet : public Printable
     {
         None,
         DelayOnMiss,
-        MP
+        MP,
+        Verification
     };
 
   public:
@@ -848,12 +849,20 @@ class Packet : public Printable
         speculativeMode = SpeculativeMode::MP;
     }
 
+    void verificationSpeculativeMode() {
+        speculativeMode = SpeculativeMode::Verification;
+    }
+
     bool isDomMode() {
         return speculativeMode == SpeculativeMode::DelayOnMiss;
     }
 
     bool isMpspemMode() {
         return speculativeMode == SpeculativeMode::MP;
+    }
+
+    bool isVerification() {
+        return speculativeMode == SpeculativeMode::Verification;
     }
 
     void setPredictable(bool setPredictable) {
@@ -1303,7 +1312,7 @@ class Packet : public Printable
         // same pointer from source to destination and back
         assert(p != getPtr<uint8_t>() || flags.isSet(STATIC_DATA));
 
-        if (p != getPtr<uint8_t>() && (!isPredictedAddress)) {
+        if (p != getPtr<uint8_t>()) {
             // for packet with allocated dynamic data, we copy data from
             // one to the other, e.g. a forwarded response to a response
             std::memcpy(getPtr<uint8_t>(), p, getSize());

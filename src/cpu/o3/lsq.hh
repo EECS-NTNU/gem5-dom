@@ -1416,6 +1416,9 @@ template <class Impl>
 void
 LSQ<Impl>::completeInst(DynInstPtr inst)
 {
+    if (inst->succPred)
+        assert(thread.at(inst->threadNumber)
+                     .verifyLoadDataIntegrity(inst));
     thread.at(inst->threadNumber).writeback(inst, inst->getResp());
 }
 

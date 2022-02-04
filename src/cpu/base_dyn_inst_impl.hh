@@ -69,6 +69,7 @@ BaseDynInst<Impl>::BaseDynInst(const StaticInstPtr &_staticInst,
     memData(nullptr),
     predData(nullptr),
     storeData(nullptr),
+    verifyData(nullptr),
     savedReq(nullptr),
     reqToVerify(nullptr)
 {
@@ -98,8 +99,10 @@ BaseDynInst<Impl>::initVars()
     memData = NULL;
     predData = NULL;
     storeData = NULL;
+    verifyData = NULL;
     effAddr = 0;
     physEffAddr = 0;
+    succPred = false;
     predAddr = 0;
     predSize = 0;
     hasPredAddr = false;
@@ -164,6 +167,10 @@ BaseDynInst<Impl>::~BaseDynInst()
 
     if (storeData) {
         delete [] storeData;
+    }
+
+    if (verifyData) {
+        delete [] verifyData;
     }
 
     if (traceData) {
@@ -282,6 +289,13 @@ BaseDynInst<Impl>::setSquashed()
         }
     }
     setPinnedRegsSquashDone();
+}
+
+template <class Impl>
+void
+BaseDynInst<Impl>::setSuccPred(bool succ)
+{
+    succPred = succ;
 }
 
 template <class Impl>

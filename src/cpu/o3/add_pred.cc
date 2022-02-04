@@ -243,7 +243,7 @@ class ADD_PRED
         if (next_fetches.find(ip) != next_fetches.end() &&
             next_fetches[ip]->prefetches.size() >= runahead) {
             prediction = next_fetches[ip]->prefetches.at(runahead-1);
-            DPRINTF(AddrPredDebug,"Made predction %llx for "
+            DPRINTF(AddrPredDebug,"Made predction %#x for "
             " PC [%llx]\n", prediction, ip);
         }
         return prediction;

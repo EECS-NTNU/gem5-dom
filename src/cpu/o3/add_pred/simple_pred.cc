@@ -38,7 +38,7 @@ SimplePred::updatePredictor(Addr realAddr, Addr pc,
                                    int packetSize)
 {
     DPRINTF(AddrPrediction, "Updating predictor for [sn:%llu],"
-            "with pc %llx and realAddr %llx\n",
+            "with pc %llx and realAddr %#x\n",
             seqNum, pc, realAddr);
     int index = pc % numEntries;
     struct AddrHistory* entry = entries[index];

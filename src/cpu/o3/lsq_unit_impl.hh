@@ -359,7 +359,9 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(forwardedPredictedData, UNIT_COUNT,
                "Addr predicted loads issued to memory"),
       ADD_STAT(forwardedToPredictions, UNIT_COUNT,
-               "Addr predicted loads issued to memory")
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(wrongSizeRightAddress, UNIT_COUNT,
+               "Addr predictions with right address and wrong size")
 {
 }
 
@@ -868,7 +870,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         runAhead[inst->instAddr()]);
 
     DPRINTF(AddrPrediction, "Making prediction on inst [sn:%llu]"
-            " for PC [%llx] with vaddr %llx and runahead: %d\n",
+            " for PC [%llx] with vaddr %#x and runahead: %d\n",
             inst->seqNum,
             inst->instAddr(),
             prediction,
@@ -884,7 +886,11 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     }
 
     int packetSize = add_pred->getPacketSize(inst->instAddr());
-    inst->predData = new uint8_t[packetSize];
+    if (!inst->predData){
+        inst->predData = new uint8_t[packetSize];
+        memset(inst->predData, 0, packetSize);
+
+    }
 
     // Try to translate address. Drop it if deferred
     Request::Flags _flags = 0x0000;
@@ -922,11 +928,48 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         inst->setPredAddr(prediction, packetSize);
         addToPredInsts(inst);
         ++stats.issuedAddressPredictions;
+        debugPredLoad(inst, req);
     } else {
         assert(!req->isAnyOutstandingRequest());
         req->discard();
         ++stats.failedToIssuePredictions;
     }
+}
+
+template <class Impl>
+void
+LSQUnit<Impl>::debugPredLoad(const DynInstPtr &load_inst, LSQRequest *req)
+{
+    auto request = std::make_shared<Request>(
+        req->mainRequest()->getPaddr(), load_inst->getPredSize(),
+        0x0000, load_inst->requestorId(),
+        load_inst->instAddr(), load_inst->contextId(),
+        nullptr
+    );
+    request->setPaddr(req->mainRequest()->getPaddr());
+    assert(request->hasPaddr());
+    PacketPtr snoop = Packet::createRead(request);
+    if (!load_inst->verifyData){
+        load_inst->verifyData = new uint8_t[load_inst->getPredSize()];
+        memset(load_inst->verifyData, 0, load_inst->getPredSize());
+    }
+    snoop->dataStatic(load_inst->verifyData);
+    snoop->verificationSpeculativeMode();
+    LSQSenderState *state = new LQSnoopState(req);
+    snoop->senderState = state;
+    dcachePort->sendFunctional(snoop);
+
+    DPRINTF(AddrPredDebug, "Issuing Predicted Address load "
+            "instant cache response:\n"
+            "%#x:%#x:%#x:%#x:%#x:%#x:%#x:%#x\n",
+            load_inst->verifyData[0],
+            load_inst->verifyData[1],
+            load_inst->verifyData[2],
+            load_inst->verifyData[3],
+            load_inst->verifyData[4],
+            load_inst->verifyData[5],
+            load_inst->verifyData[6],
+            load_inst->verifyData[7]);
 }
 
 template <class Impl>
@@ -946,7 +989,7 @@ LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
         ++stats.wronglyAddressPredictedLoads;
     }
     DPRINTF(AddrPrediction, "Updating predictor with [sn:%llu],"
-            "PC [%llx], pred_addr %llx, real_addr: %llx\n",
+            "PC [%llx], pred_addr %#x, real_addr: %#x\n",
             inst->seqNum,
             inst->instAddr(),
             inst->predAddr,
@@ -1329,11 +1372,20 @@ void
 LSQUnit<Impl>::forwardToPredicted()
 {
     DynInstPtr store_inst = storeWBIt->instruction();
+    DPRINTF(AddrPredDebug, "Attempting to forward sent store to predInsts "
+            "for [sn:%llu] with addr %#x, paddr %#x and size %d. "
+            "Number of predInsts: %d\n",
+            store_inst->seqNum, store_inst->effAddr,
+            store_inst->physEffAddr, storeWBIt->size(),
+            predInsts.size());
     for (int i = 0; i < predInsts.size(); i++) {
         DynInstPtr load_inst = predInsts.at(i);
         if (load_inst->isCommitted() || load_inst->isSquashed()) {
             predInsts.erase(predInsts.begin() + i);
             i--;
+            continue;
+        }
+        if (load_inst->seqNum < store_inst->seqNum) {
             continue;
         }
 
@@ -1350,7 +1402,7 @@ LSQUnit<Impl>::forwardToPredicted()
             // Check if the store data is within the lower and upper bounds of
             // addresses that the request needs.
             auto req_s = load_inst->getPredAddr();
-            auto req_e = load_inst->getPredSize();
+            auto req_e = req_s + load_inst->getPredSize();
             auto st_s = store_inst->effAddr;
             auto st_e = st_s + store_size;
 
@@ -1387,15 +1439,17 @@ LSQUnit<Impl>::forwardToPredicted()
                 // Allocate memory if this is the first time a load is issued.
                 if (!load_inst->storeData) {
                     load_inst->storeData =
-                        new uint8_t[req_e];
+                        new uint8_t[load_inst->getPredSize()];
+                    memset(load_inst->storeData, 0, load_inst->getPredSize());
+
                 }
                 if (storeWBIt->isAllZeros())
                     memset(load_inst->storeData, 0,
-                            req_e);
+                            load_inst->getPredSize());
                 else
                     memcpy(load_inst->storeData,
                         storeWBIt->data() + shift_amt,
-                        req_e);
+                        load_inst->getPredSize());
 
                 DPRINTF(LSQUnit, "Forwarding from store idx %i to pred load "
                         "for addr %#x for load_inst [sn:%llu]\n",

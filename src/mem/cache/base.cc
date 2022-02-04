@@ -397,6 +397,20 @@ BaseCache::recvTimingReq(PacketPtr pkt)
             schedMemSideSendEvent(next_pf_time);
         }
     }
+
+    if (pkt->isPredictedAddress) {
+        DPRINTF(SpeculativeCache, "Received prediction packet for "
+            "addr %#x, satisfied: %d\n",
+            pkt->getAddr(), satisfied);
+        if (satisfied) {
+            int offset = (pkt->getAddr() & 0x3F);
+            DPRINTF(SpeculativeCache, "data: %#x:%#x:%#x:%#x\n",
+                blk->data[0 + offset],
+                blk->data[1 + offset],
+                blk->data[2 + offset],
+                blk->data[3 + offset]);
+        }
+    }
 }
 
 void
@@ -656,6 +670,28 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
 
     CacheBlkPrintWrapper cbpw(blk);
 
+/*
+    if (pkt->isVerification()) {
+        //This doesnt hold when it misses in L1 cache
+        //If deep debugging, comment this out
+        //assert(from_cpu_side);
+        bool have_data = blk && blk->isValid()
+            && pkt->trySatisfyFunctional(&cbpw, blk_addr, is_secure,
+                                         blkSize, blk->data);
+        DPRINTF(CacheVerbose, "Functional verification access for "
+                "addr %#2x, have_data: %d\n",
+                pkt->getAddr(),
+                have_data);
+        if (!have_data) {
+            bool success =  mshrQueue.trySatisfyFunctional(pkt) ||
+                mshrQueue.trySatisfyFunctional(pkt) ||
+                writeBuffer.trySatisfyFunctional(pkt) ||
+                memSidePort.trySatisfyFunctional(pkt);
+            assert(success);
+        }
+        return;
+    } */
+
     // Note that just because an L2/L3 has valid data doesn't mean an
     // L1 doesn't have a more up-to-date modified copy that still
     // needs to be found.  As a result we always update the request if
@@ -681,6 +717,30 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
     DPRINTF(CacheVerbose, "%s: %s %s%s%s\n", __func__,  pkt->print(),
             (blk && blk->isValid()) ? "valid " : "",
             have_data ? "data " : "", done ? "done " : "");
+
+
+    if (pkt->isVerification()) {
+        int offset = pkt->getAddr() & 0x3F;
+        if (have_data) {
+            DPRINTF(CacheVerbose, "Functional verification access for "
+                "addr %#2x, have_data: %d, size: %d, data:\n"
+                "%#x:%#x:%#x:%#x\n",
+                pkt->getAddr(),
+                have_data,
+                pkt->getSize(),
+                blk->data[0 + offset],
+                blk->data[1 + offset],
+                blk->data[2 + offset],
+                blk->data[3 + offset]);
+        } else {
+            DPRINTF(CacheVerbose, "Functional verification access for "
+                "addr %#2x, have_data: %d, size: %d\n",
+                pkt->getAddr(),
+                have_data,
+                pkt->getSize());
+        };
+
+    }
 
     // We're leaving the cache, so pop cache->name() label
     pkt->popLabel();

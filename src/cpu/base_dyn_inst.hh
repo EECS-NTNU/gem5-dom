@@ -365,6 +365,8 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** The effective physical address. */
     Addr physEffAddr;
 
+    bool succPred;
+
     Addr predAddr;
 
     int predSize;
@@ -391,6 +393,8 @@ class BaseDynInst : public ExecContext, public RefCounted
     uint8_t *predData;
 
     uint8_t *storeData;
+
+    uint8_t *verifyData;
 
     /** Load queue index. */
     ssize_t lqIdx;
@@ -990,6 +994,8 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     /** Returns whether or not this instruction is squashed in the LSQ. */
     bool isSquashedInLSQ() const { return status[SquashedInLSQ]; }
+
+    void setSuccPred(bool succ);
 
     void setPredAddr(Addr predidction, int size);
 

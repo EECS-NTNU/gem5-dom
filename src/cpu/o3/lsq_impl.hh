@@ -1020,11 +1020,23 @@ LSQ<Impl>::PredictDataRequest::recvTimingResp(PacketPtr pkt)
     auto state = dynamic_cast<LSQSenderState*>(pkt->senderState);
     state->inst->markPredDataReady();
     DPRINTF(AddrPredDebug, "Received timing response for prediction,"
-            "for inst [sn:%llu], with squash: %d and addr %llx\n",
+            "for inst [sn:%llu], with squash: %d and addr %#x "
+            " and paddr: %#x, data: \n"
+            "%#x:%#x:%#x:%#x\n",
             state->inst->seqNum, state->inst->isSquashed(),
-            state->inst->effAddr);
-    if ((!state->inst->isSquashed()) && state->inst->shouldForward)
-        _port.forwardPredictedData(state->inst, this);
+            state->inst->effAddr, state->inst->physEffAddr,
+            state->inst->predData[0],
+            state->inst->predData[1],
+            state->inst->predData[2],
+            state->inst->predData[3]);
+    if ((!state->inst->isSquashed()) && state->inst->shouldForward) {
+        if (state->inst->hasStoreData) {
+            _port.forwardStoredData(state->inst, this);
+        } else {
+            _port.forwardPredictedData(state->inst, this);
+        }
+    }
+
     return true;
 }
 

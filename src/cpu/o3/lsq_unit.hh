@@ -61,6 +61,7 @@
 #include "cpu/o3/lsq.hh"
 #include "cpu/timebuf.hh"
 #include "cpu/utils.hh"
+#include "debug/AddrPredDebug.hh"
 #include "debug/AddrPrediction.hh"
 #include "debug/DOM.hh"
 #include "debug/DebugDOM.hh"
@@ -294,6 +295,8 @@ class LSQUnit
     void walkDShadows(const DynInstPtr &store_inst);
 
     void predictLoad(DynInstPtr &inst);
+
+    void debugPredLoad(const DynInstPtr &load_inst, LSQRequest *req);
 
     void updatePredictor(const DynInstPtr &inst);
 
@@ -688,6 +691,8 @@ class LSQUnit
 
         Stats::Scalar forwardedToPredictions;
 
+        Stats::Scalar wrongSizeRightAddress;
+
     } stats;
 
   public:
@@ -699,6 +704,8 @@ class LSQUnit
     bool forwardStoredData(const DynInstPtr &load_inst, LSQRequest *req);
 
     void addToPredInsts(const DynInstPtr &load_inst);
+
+    bool verifyLoadDataIntegrity(const DynInstPtr &load_inst);
 
     bool snoopCache(LSQRequest *req, const DynInstPtr& load_inst);
 
@@ -1062,8 +1069,20 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
     if (cpu->AP &&
         load_inst->isPredicted()) {
-        if (load_inst->effAddr == load_inst->predAddr) {
+        if (load_inst->effAddr == load_inst->predAddr &&
+            req->mainRequest()->getSize() == load_inst->predSize) {
             ++stats.earlyIssues;
+            load_inst->setSuccPred(false);
+
+            DPRINTF(AddrPredDebug, "Observed successful pred forwarding "
+            "for load [sn:%llu] with addr %#x and paddr %#x. "
+            "storeData: %d, predData: %d\n",
+            load_inst->seqNum,
+            load_inst->effAddr,
+            load_inst->physEffAddr,
+            load_inst->hasStoreData,
+            load_inst->hasPredData);
+
             if (load_inst->hasStoreData) {
                 forwardStoredData(load_inst, req);
             } else if (load_inst->hasPredData) {
@@ -1071,9 +1090,21 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             } else {
                 load_inst->forwardOnPredData();
             }
+
             return NoFault;
+        } else if (load_inst->effAddr == load_inst->predAddr) {
+            DPRINTF(AddrPredDebug, "Observed correct address but "
+            "wrong size, for load [sn:%llu] with addr %#x, "
+            "paddr %#x, size %d, predSize %d\n",
+            load_inst->seqNum,
+            load_inst->effAddr,
+            load_inst->physEffAddr,
+            req->mainRequest()->getSize(),
+            load_inst->predSize);
+            ++stats.wrongSizeRightAddress;
         } else {
             ++stats.extraIssues;
+            load_inst->setSuccPred(false);
         }
     }
 
@@ -1123,6 +1154,9 @@ bool
 LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
                                     LSQRequest *req)
 {
+    DPRINTF(AddrPredDebug, "Forwarding predicted data for "
+            "load_inst [sn:%llu]\n", load_inst->seqNum);
+
     // Allocate memory if this is the first time a load is issued.
     assert(!load_inst->isSquashed());
     assert(!load_inst->hasStoreData);
@@ -1133,14 +1167,17 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst,
             new uint8_t[req->mainRequest()->getSize()];
     }
 
+    assert(verifyLoadDataIntegrity(load_inst));
+
     memcpy(load_inst->memData,
            load_inst->getPredData(),
            req->mainRequest()->getSize());
 
-    DPRINTF(LSQUnit, "Forwarding from predicted address to load to "
-            "addr %#x for inst [sn:%llu]\n",
+    DPRINTF(LSQUnit, "Forwarding from predAddr to load for "
+            "inst [sn:%llu], addr: %#x, size: %d\n",
+            load_inst->seqNum,
             req->mainRequest()->getVaddr(),
-            load_inst->seqNum);
+            req->mainRequest()->getSize());
 
     PacketPtr data_pkt = new Packet(req->mainRequest(),
             MemCmd::ReadReq);
@@ -1162,22 +1199,30 @@ bool
 LSQUnit<Impl>::forwardStoredData(const DynInstPtr& load_inst,
                                  LSQRequest *req)
 {
+    DPRINTF(AddrPredDebug, "Forwarding store data for "
+            "load_inst [sn:%llu]\n", load_inst->seqNum);
+
     assert(!load_inst->isSquashed());
     ++stats.forwardedStoreData;
 
     if (!load_inst->memData) {
         load_inst->memData =
             new uint8_t[req->mainRequest()->getSize()];
+        memset(load_inst->memData, 0, req->mainRequest()->getSize());
     }
+
+    assert(verifyLoadDataIntegrity(load_inst));
 
     memcpy(load_inst->memData,
            load_inst->getPredData(),
            req->mainRequest()->getSize());
 
-    DPRINTF(LSQUnit, "Forwarding from predicted address store"
-            " to load for addr %#x for inst [xn:%llu]\n",
+    DPRINTF(LSQUnit, "Forwarding from predAddr store"
+            " to load for inst [sn:%llu], addr %#x, size: %d\n",
+            load_inst->seqNum,
             req->mainRequest()->getVaddr(),
-            load_inst->seqNum);
+            req->mainRequest()->getSize());
+
     PacketPtr data_pkt = new Packet(req->mainRequest(),
                                     MemCmd::ReadReq);
 
@@ -1199,6 +1244,67 @@ LSQUnit<Impl>::addToPredInsts(const DynInstPtr& load_inst)
 
 template<class Impl>
 bool
+LSQUnit<Impl>::verifyLoadDataIntegrity(const DynInstPtr& load_inst)
+{
+    assert(load_inst->hasStoreData || load_inst->hasPredData);
+
+    int size = load_inst->savedReq->mainRequest()->getSize();
+
+    if (!load_inst->verifyData){
+        load_inst->verifyData = new uint8_t[size];
+        memset(load_inst->verifyData, 0, size);
+    }
+
+    LSQRequest *req = load_inst->savedReq;
+    PacketPtr snoop = Packet::createRead(req->mainRequest());
+
+    snoop->dataStatic(load_inst->verifyData);
+    snoop->verificationSpeculativeMode();
+    LSQSenderState *state = new LQSnoopState(req);
+    snoop->senderState = state;
+    dcachePort->sendFunctional(snoop);
+
+
+
+    DPRINTF(AddrPredDebug, "Verifying load data integrity for "
+            "inst [sn:%llu] with paddr %llx and size: %d. \n"
+            "pred: %#x:%#x:%#x:%#x:%#x:%#x:%#x:%#x\n"
+            "real: %#x:%#x:%#x:%#x:%#x:%#x:%#x:%#x\n",
+            load_inst->seqNum,
+            load_inst->physEffAddr,
+            size,
+            load_inst->predData[0],
+            load_inst->predData[1],
+            load_inst->predData[2],
+            load_inst->predData[3],
+            load_inst->predData[4],
+            load_inst->predData[5],
+            load_inst->predData[6],
+            load_inst->predData[7],
+            load_inst->verifyData[0],
+            load_inst->verifyData[1],
+            load_inst->verifyData[2],
+            load_inst->verifyData[3],
+            load_inst->verifyData[4],
+            load_inst->verifyData[5],
+            load_inst->verifyData[6],
+            load_inst->verifyData[7]);
+
+    bool equal = true;
+
+    for (int i = 0; i < size; i++) {
+        equal = equal && (load_inst->verifyData[i] ==
+            (load_inst->hasStoreData ?
+                load_inst->storeData[i] : load_inst->predData[i]));
+    }
+
+    assert(equal);
+
+    return equal;
+}
+
+template<class Impl>
+bool
 LSQUnit<Impl>::snoopCache(LSQRequest *req, const DynInstPtr& load_inst)
 {
     PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
@@ -1215,7 +1321,7 @@ LSQUnit<Impl>::snoopCache(LSQRequest *req, const DynInstPtr& load_inst)
     delete(ex_snoop);
     delete(state);
     DPRINTF(DOM, "Issued snoop to cache"
-        "Missed: %d for [sn:%llu]\n", missed, load_inst->seqNum);
+        "Missed: %d for [sn:%llu] \n", missed, load_inst->seqNum);
     return missed;
 }
 
