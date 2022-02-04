@@ -1013,6 +1013,8 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     uint8_t* getPredData();
 
+    uint8_t* getStoreData();
+
     void forwardOnPredData();
 
     //Reorder Buffer Functions

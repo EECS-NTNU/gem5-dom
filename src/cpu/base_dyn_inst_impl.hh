@@ -340,6 +340,14 @@ BaseDynInst<Impl>::getPredData()
 }
 
 template <class Impl>
+uint8_t*
+BaseDynInst<Impl>::getStoreData()
+{
+    assert(hasStoreData);
+    return storeData;
+}
+
+template <class Impl>
 void
 BaseDynInst<Impl>::forwardOnPredData()
 {

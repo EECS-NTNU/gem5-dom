@@ -49,7 +49,15 @@ SimplePred::updatePredictor(Addr realAddr, Addr pc,
         DPRINTF(AddrPredDebug, "New entry created, returning\n");
         return;
     }
-    assert(pc = entry->pc);
+    if (pc != entry->pc) {
+        delete(entry);
+        AddrHistory* new_entry =
+            new AddrHistory(seqNum, pc, realAddr, 1, packetSize);
+        entries[index] = new_entry;
+        DPRINTF(AddrPredDebug, "New tag for old entry, returning\n");
+        return;
+    }
+    assert(pc == entry->pc);
 
     if (entry->strideHistory.empty()) {
         entry->strideHistory.push(realAddr - entry->lastAddr);

@@ -173,6 +173,9 @@ LSQ<Impl>::tick()
     // Re-issue loads which got blocked on the per-cycle load ports limit.
     if (usedLoadPorts == cacheLoadPorts && !_cacheBlocked)
         iewStage->cacheUnblocked();
+    for (ThreadID tid = 0; tid < numThreads; tid++) {
+        thread[tid].cleanPredInsts();
+    }
 
     usedLoadPorts = 0;
     usedStorePorts = 0;
