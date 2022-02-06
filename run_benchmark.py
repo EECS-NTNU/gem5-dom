@@ -44,6 +44,7 @@ caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
 fast_forward="--fast-forward 1000000000"
 runtime="--maxinsts=1000000000"
 
+
 mkdir = f"mkdir {gem5_root}/results"
 
 print(sys.argv)
@@ -53,6 +54,8 @@ bname = sys.argv[2]
 options = sys.argv[3]
 fullname = sys.argv[4]
 iteration = sys.argv[5]
+
+redirect=f"-r --stdout-file={bname}_{iteration}.simout"
 
 def copy_dir():
     src = f'{spec_root}/{fullname}'
@@ -67,14 +70,17 @@ def move_result():
     src = f'{bname}_{iteration}/m5out/stats.txt'
     dst = f'results/{bname}_{iteration}.txt'
     shutil.copy(src, dst)
+    src = f'{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
+    dst = f'results/{bname}_{iteration}.simout'
+    shutil.copy(src, dst)
 
 def run_benchmark():
     copy_dir()
     os.chdir(f"{bname}_{iteration}")
-    run_ref = f"{gem5} {se} {fast_forward} {memory} "\
+    run_ref = f"{gem5} {redirect} {se} {fast_forward} {memory} "\
         f"{runtime} {caches} {runCPU} -c {bname} -o \"{options}\""
 
-    os.system(f"Finished with code {os.system(run_ref)}")
+    print(f"Finished with code {os.system(run_ref)}")
     os.chdir(f'{gem5_root}')
     move_result()
     cleanup()
