@@ -688,7 +688,7 @@ DefaultDecode<Impl>::decodeInsts(ThreadID tid)
             inst->setCanIssue();
         }
 
-        if (inst->isLoad())
+        if (cpu->AP && inst->isLoad())
             instQueue->addToPredictable(inst);
 
         // This current instruction is valid, so add it into the decode
