@@ -381,6 +381,8 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     bool hasRanAhead;
 
+    bool partialStoreConflict;
+
     /** The memory request flags (from translation). */
     unsigned memReqFlags;
 

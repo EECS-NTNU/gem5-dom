@@ -362,7 +362,11 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(forwardedToPredictions, UNIT_COUNT,
                "Addr predicted loads issued to memory"),
       ADD_STAT(wrongSizeRightAddress, UNIT_COUNT,
-               "Addr predictions with right address and wrong size")
+               "Addr predictions with right address and wrong size"),
+      ADD_STAT(partialPredStoreConflicts, UNIT_COUNT,
+               "Addr predictions with partially conflicting stores"),
+      ADD_STAT(conflictDroppedPreds, UNIT_COUNT,
+               "Correct addr predictions dropped due to conflicting stores")
 {
 }
 
@@ -1432,7 +1436,15 @@ LSQUnit<Impl>::forwardToPredicted()
                  ((store_has_lower_limit || upper_load_has_store_part) &&
                   (store_has_upper_limit || lower_load_has_store_part)))) {
 
-                panic("LLSC stores should never be linked here");
+                panic("LLSC/atomic stores should never be linked here");
+            } else if (
+                // This is the partial store-load forwarding case where a store
+                // has only part of the load's data and the load isn't LLSC
+                ((store_has_lower_limit && lower_load_has_store_part) ||
+                  (store_has_upper_limit && upper_load_has_store_part) ||
+                  (lower_load_has_store_part && upper_load_has_store_part))) {
+
+                coverage = AddrRangeCoverage::PartialAddrRangeCoverage;
             }
 
             if (coverage == AddrRangeCoverage::FullAddrRangeCoverage) {
@@ -1461,6 +1473,10 @@ LSQUnit<Impl>::forwardToPredicted()
                         load_inst->seqNum);
                 ++stats.forwardedToPredictions;
                 load_inst->hasStoreData = true;
+            } else if (coverage ==
+                        AddrRangeCoverage::PartialAddrRangeCoverage) {
+                load_inst->partialStoreConflict = true;
+                ++stats.partialPredStoreConflicts;
             }
         }
     }

@@ -693,6 +693,10 @@ class LSQUnit
 
         Stats::Scalar wrongSizeRightAddress;
 
+        Stats::Scalar partialPredStoreConflicts;
+
+        Stats::Scalar conflictDroppedPreds;
+
     } stats;
 
   public:
@@ -1072,7 +1076,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     if (cpu->AP &&
         load_inst->isPredicted()) {
         if (load_inst->effAddr == load_inst->predAddr &&
-            req->mainRequest()->getSize() == load_inst->predSize) {
+            req->mainRequest()->getSize() == load_inst->predSize &&
+            !load_inst->partialStoreConflict) {
             ++stats.earlyIssues;
             load_inst->setSuccPred(false);
 
@@ -1085,16 +1090,19 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             load_inst->hasStoreData,
             load_inst->hasPredData);
 
+            // We don't check for LLSC other places, if this trips
+            // checks have to be rebuilt to avoid it.
+            assert(!req->mainRequest()->isLLSC());
+
             if (load_inst->hasStoreData) {
                 forwardStoredData(load_inst);
             } else if (load_inst->hasPredData) {
                 forwardPredictedData(load_inst);
             } else {
                 load_inst->forwardOnPredData();
+                //TODO: Does this work?
+                iewStage->delayMemInst(load_inst);
             }
-            //TODO: This is a consequence of how we are freeing them
-            //Should do this samecycle when we can
-            iewStage->delayMemInst(load_inst);
 
             return NoFault;
         } else if (load_inst->effAddr == load_inst->predAddr) {
@@ -1107,6 +1115,9 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
             req->mainRequest()->getSize(),
             load_inst->predSize);
             ++stats.wrongSizeRightAddress;
+        } else if (load_inst->effAddr == load_inst->predAddr &&
+            req->mainRequest()->getSize() == load_inst->predSize) {
+                ++stats.conflictDroppedPreds;
         } else {
             ++stats.extraIssues;
             load_inst->setSuccPred(false);
