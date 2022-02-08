@@ -11,7 +11,10 @@
 SimplePred::SimplePred(const Params &params)
     : BaseAddPred(params)
 {
-
+    confidenceSaturation = 10;
+    confidenceThreshold = 8;
+    confidenceUpStep = 1;
+    confidenceDownStep = 4;
 }
 
 SimplePred::~SimplePred()
@@ -26,7 +29,7 @@ SimplePred::predictFromPC(Addr pc, int runAhead)
         "%llx with runahead %d\n", pc, runAhead);
     int index = pc % numEntries;
     struct AddrHistory* entry = entries[index];
-    if (entry && entry->confidence >= 8) {
+    if (entry && entry->confidence >= confidenceThreshold) {
         return entry->lastAddr + (entry->strideHistory.front()*runAhead);
     }
     return 0;
@@ -69,9 +72,11 @@ SimplePred::updatePredictor(Addr realAddr, Addr pc,
 
     if (strideAddr == 0) {
     } else if (strideAddr == realAddr) {
-        entry->confidence++;
+        entry->confidence += confidenceUpStep;
+        if (entry->confidence > confidenceSaturation)
+            entry->confidence = confidenceSaturation;
     } else {
-        entry->confidence--;
+        entry->confidence -= confidenceDownStep;
     }
     entry->strideHistory.pop();
     entry->strideHistory.push(

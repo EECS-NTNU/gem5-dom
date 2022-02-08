@@ -43,7 +43,20 @@ class BaseAddPred : public SimObject
 {
   public:
     BaseAddPred(const Params &params) :
-      SimObject(params) {};
+      SimObject(params),
+      confidenceSaturation(0),
+      confidenceThreshold(0),
+      confidenceUpStep(0),
+      confidenceDownStep(0) {};
+
+    int confidenceSaturation;
+
+    int confidenceThreshold;
+
+    int confidenceUpStep;
+
+    int confidenceDownStep;
+
     virtual ~BaseAddPred() {};
 
     virtual Addr predictFromPC(Addr pc, int runAhead) = 0;
