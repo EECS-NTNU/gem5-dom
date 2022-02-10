@@ -36,6 +36,15 @@ class DeltaPred : virtual public BaseAddPred
         std::map<Addr, struct AddrHistory*> entries {};
 
         const std::string name() const;
+
+    struct DeltaPredStats : public Stats::Group{
+        DeltaPredStats(Stats::Group *parent);
+
+        Stats::Scalar complexPatterns;
+
+    } stats;
+
+        Stats::Group* getStatGroup() { return &stats; }
 };
 
 #endif //__CPU_PRED_ADD_PRED_DELTA_PRED_HH__

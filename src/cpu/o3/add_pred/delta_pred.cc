@@ -4,7 +4,7 @@
 #include "cpu/o3/add_pred/delta_pred.hh"
 
 DeltaPred::DeltaPred(const Params &params)
-    : BaseAddPred(params)
+    : BaseAddPred(params), stats(nullptr)
 {
     confidenceSaturation = 10;
     confidenceThreshold = 8;
@@ -19,9 +19,9 @@ DeltaPred::~DeltaPred()
 
 Addr
 DeltaPred::predictFromPC(Addr pc, int runAhead) {
-    int index = pc % numEntries;
-    struct AddrHistory* entry = entries[index];
-    if (!entry) return 0;
+    auto it = entries.find(pc);
+    if (it == entries.end()) return 0;
+    struct AddrHistory* entry = it->second;
     DPRINTF(AddrPrediction, "Attempting to predict for pc %llx with "
         "runAhead %d. stride history size: %d and confidence :%d \n",
         pc, runAhead, entry->strideHistory.size(), entry->confidence);
@@ -62,6 +62,10 @@ DeltaPred::updatePredictor(Addr realAddr, Addr pc,
             new AddrHistory(seqNum, pc, realAddr, deltaHistory, packetSize);
         entries.insert({pc, new_entry});
         DPRINTF(AddrPredDebug, "New entry created, returning\n");
+        if (entries.size() > numEntries) {
+            entries.erase(entries.begin());
+            DPRINTF(AddrPredDebug, "Deleted entry due to too many entries\n");
+        }
         return;
     }
     struct AddrHistory* entry = it->second;
@@ -123,17 +127,16 @@ DeltaPred::updatePredictor(Addr realAddr, Addr pc,
 
 int
 DeltaPred::getPacketSize(Addr pc) {
-    int index = pc % numEntries;
-    struct AddrHistory* entry = entries[index];
-    if (!entry) return 0;
+    auto it = entries.find(pc);
+    if (it == entries.end()) return 0;
+    struct AddrHistory* entry = it->second;
     return entry->packetSize;
 }
 
 Addr
 DeltaPred::walkPred(Addr pc, int patternSize, int steps) {
     int pattern[patternSize];
-    int index = pc % numEntries;
-    struct AddrHistory* entry = entries[index];
+    struct AddrHistory* entry = entries.find(pc)->second;
     for (int i = 0; i < patternSize; i++) {
         int deltaIndex = ((entry->deltaPointer - i) + deltaHistory)
                                                     % deltaHistory;
@@ -172,8 +175,7 @@ DeltaPred::longestMatchingPattern(Addr pc) {
 bool
 DeltaPred::matchSize(Addr pc, int size) {
     int pattern[size];
-    int index = pc % numEntries;
-    struct AddrHistory* entry = entries[index];
+    struct AddrHistory* entry = entries.find(pc)->second;
     if (entry->strideHistory.size() < deltaHistory)
         return false;
     for (int i = 0; i < size; i++) {
@@ -192,12 +194,30 @@ DeltaPred::matchSize(Addr pc, int size) {
                     entry->strideHistory.at(deltaIndex));
         }
     }
+    if (match) {
+        bool complex = false;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (pattern[i] != pattern[j])
+                    complex = true;
+            }
+        }
+        if (complex)
+            ++stats.complexPatterns;
+    }
     return match;
 }
 const std::string
 DeltaPred::name() const
 {
     return "delta_predictor";
+}
+
+DeltaPred::DeltaPredStats::DeltaPredStats(Stats::Group *parent)
+    : Stats::Group(parent),
+        ADD_STAT(complexPatterns, UNIT_COUNT,
+                "Number of complex patterns detected")
+{
 }
 
 #endif

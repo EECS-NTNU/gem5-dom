@@ -67,6 +67,8 @@ class BaseAddPred : public SimObject
                                  InstSeqNum seqNum, int packetSize)
                                  = 0;
     virtual int getPacketSize(Addr pc) = 0;
+
+    virtual Stats::Group* getStatGroup() = 0;
 };
 
 #endif //__CPU_PRED_ADD_PRED_BASE_ADD_PRED_HH__

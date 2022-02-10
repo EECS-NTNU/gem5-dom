@@ -77,6 +77,8 @@ LSQ<Impl>::LSQ(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params)
 
     add_pred = new DeltaPred(params); //SimplePred(params);
 
+    cpu->addStatGroup("delta_pred", add_pred->getStatGroup());
+
     //**********************************************
     //************ Handle SMT Parameters ***********
     //**********************************************
