@@ -54,6 +54,7 @@
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
 #include "cpu/o3/add_pred/base_add_pred.hh"
+#include "cpu/o3/add_pred/delta_pred.hh"
 #include "cpu/o3/add_pred/simple_pred.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "cpu/utils.hh"

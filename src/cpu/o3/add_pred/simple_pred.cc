@@ -63,8 +63,9 @@ SimplePred::updatePredictor(Addr realAddr, Addr pc,
     assert(pc == entry->pc);
 
     if (entry->strideHistory.empty()) {
-        entry->strideHistory.push(realAddr - entry->lastAddr);
+        entry->strideHistory.push_back(realAddr - entry->lastAddr);
         DPRINTF(AddrPredDebug, "Empty stridehistory, making new\n");
+        entry->lastAddr = realAddr;
         return;
     }
 
@@ -77,10 +78,10 @@ SimplePred::updatePredictor(Addr realAddr, Addr pc,
             entry->confidence = confidenceSaturation;
     } else {
         entry->confidence -= confidenceDownStep;
+        if (entry->confidence < 0)
+            entry->confidence = 0;
     }
-    entry->strideHistory.pop();
-    entry->strideHistory.push(
-                              realAddr - entry->lastAddr);
+    entry->strideHistory.at(0) = realAddr - entry->lastAddr;
     entry->lastAddr = realAddr;
 }
 

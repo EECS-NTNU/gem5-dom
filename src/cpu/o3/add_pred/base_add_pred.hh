@@ -21,7 +21,7 @@ struct AddrHistory {
           packetSize(packetSize),
           confidence(0),
           historySize(history_size),
-          strideHistory(std::queue<int>())
+          strideHistory(std::vector<int>())
     {}
 
     InstSeqNum seqNum;
@@ -36,7 +36,9 @@ struct AddrHistory {
 
     int historySize;
 
-    std::queue<int> strideHistory;
+    int deltaPointer = 0;
+
+    std::vector<int> strideHistory;
 };
 
 class BaseAddPred : public SimObject

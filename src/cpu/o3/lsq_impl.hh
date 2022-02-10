@@ -75,7 +75,7 @@ LSQ<Impl>::LSQ(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params)
 {
     assert(numThreads > 0 && numThreads <= Impl::MaxThreads);
 
-    add_pred = new SimplePred(params);
+    add_pred = new DeltaPred(params); //SimplePred(params);
 
     //**********************************************
     //************ Handle SMT Parameters ***********
