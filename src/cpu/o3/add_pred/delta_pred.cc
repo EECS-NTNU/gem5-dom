@@ -52,7 +52,7 @@ DeltaPred::updatePredictor(Addr realAddr, Addr pc,
                                    InstSeqNum seqNum,
                                    int packetSize)
 {
-    DPRINTF(AddrPrediction, "Updating predictor for [sn:%llu],"
+    DPRINTF(AddrPrediction, "Updating predictor for [sn:%llu], "
             "with pc %llx and realAddr %#x\n",
             seqNum, pc, realAddr);
 
@@ -61,11 +61,12 @@ DeltaPred::updatePredictor(Addr realAddr, Addr pc,
         AddrHistory* new_entry =
             new AddrHistory(seqNum, pc, realAddr, deltaHistory, packetSize);
         entries.insert({pc, new_entry});
+        assert(entries.find(pc) != entries.end());
         DPRINTF(AddrPredDebug, "New entry created, returning\n");
-        if (entries.size() > numEntries) {
+        /* if (entries.size() > numEntries) {
             entries.erase(entries.begin());
             DPRINTF(AddrPredDebug, "Deleted entry due to too many entries\n");
-        }
+        } */
         return;
     }
     struct AddrHistory* entry = it->second;
@@ -85,6 +86,7 @@ DeltaPred::updatePredictor(Addr realAddr, Addr pc,
             realAddr - entry->lastAddr);
         entry->deltaPointer = (entry->deltaPointer + 1) % deltaHistory;
         entry->lastAddr = realAddr;
+        assert(!entry->strideHistory.empty());
         return;
     }
     int patternSize = longestMatchingPattern(pc);
@@ -97,7 +99,25 @@ DeltaPred::updatePredictor(Addr realAddr, Addr pc,
         }
         entry->deltaPointer = (entry->deltaPointer + 1) % deltaHistory;
         entry->lastAddr = realAddr;
-        DPRINTF(AddrPredDebug, "Empty stridehistory, starting new\n");
+        DPRINTF(AddrPredDebug, "No pattern yet detected, adding entries. "
+                "strideHistory size: %d, deltaPointer: %d\n",
+                entry->strideHistory.size(), entry->deltaPointer);
+        if (entry->strideHistory.size() >= deltaHistory) {
+            DPRINTF(AddrPredDebug, "strideHistory: "
+                    "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d\n",
+                    entry->strideHistory.at(0),
+                    entry->strideHistory.at(1),
+                    entry->strideHistory.at(2),
+                    entry->strideHistory.at(3),
+                    entry->strideHistory.at(4),
+                    entry->strideHistory.at(5),
+                    entry->strideHistory.at(6),
+                    entry->strideHistory.at(7),
+                    entry->strideHistory.at(8),
+                    entry->strideHistory.at(9),
+                    entry->strideHistory.at(10),
+                    entry->strideHistory.at(11));
+        }
         return;
     }
 
@@ -156,8 +176,9 @@ DeltaPred::walkPred(Addr pc, int patternSize, int steps) {
         pattern[0], pattern[1], pattern[2]);
     }
     DPRINTF(AddrPredDebug, "Finished walking for pc %llx with "
-            "patternSize %d, steps %d and distance %d",
+            "patternSize %d, steps %d and distance %d\n",
             pc, patternSize, steps, distance);
+
     return distance;
 }
 

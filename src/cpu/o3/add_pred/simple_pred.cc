@@ -40,7 +40,7 @@ SimplePred::updatePredictor(Addr realAddr, Addr pc,
                                    InstSeqNum seqNum,
                                    int packetSize)
 {
-    DPRINTF(AddrPrediction, "Updating predictor for [sn:%llu],"
+    DPRINTF(AddrPrediction, "Updating predictor for [sn:%llu], "
             "with pc %llx and realAddr %#x\n",
             seqNum, pc, realAddr);
     int index = pc % numEntries;
@@ -66,6 +66,7 @@ SimplePred::updatePredictor(Addr realAddr, Addr pc,
         entry->strideHistory.push_back(realAddr - entry->lastAddr);
         DPRINTF(AddrPredDebug, "Empty stridehistory, making new\n");
         entry->lastAddr = realAddr;
+        assert(!entry->strideHistory.empty());
         return;
     }
 
@@ -100,4 +101,4 @@ SimplePred::name() const
     return "simple_predictor";
 }
 
-#endif
+#endif //__CPU_PRED_ADD_PRED_SIMPLE_PRED_CC__
