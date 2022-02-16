@@ -8,13 +8,9 @@
 #include "debug/AddrPredDebug.hh"
 #include "debug/AddrPrediction.hh"
 
-SimplePred::SimplePred(const Params &params)
-    : BaseAddPred(params)
+SimplePred::SimplePred(const SimplePredParams &params)
+    : BaseAddPred(params), stats(nullptr)
 {
-    confidenceSaturation = 10;
-    confidenceThreshold = 8;
-    confidenceUpStep = 1;
-    confidenceDownStep = 4;
 }
 
 SimplePred::~SimplePred()
@@ -99,6 +95,11 @@ const std::string
 SimplePred::name() const
 {
     return "simple_predictor";
+}
+
+SimplePred::SimplePredStats::SimplePredStats(Stats::Group *parent)
+    : Stats::Group(parent)
+{
 }
 
 #endif //__CPU_PRED_ADD_PRED_SIMPLE_PRED_CC__

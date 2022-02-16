@@ -4,13 +4,13 @@
 #include "base/flags.hh"
 #include "base/types.hh"
 #include "cpu/o3/add_pred/base_add_pred.hh"
-#include "params/DerivO3CPU.hh"
+#include "params/SimplePred.hh"
 
 class SimplePred : virtual public BaseAddPred
 {
   public:
 
-    SimplePred(const Params &params);
+    SimplePred(const SimplePredParams &params);
 
     virtual ~SimplePred();
 
@@ -26,6 +26,12 @@ class SimplePred : virtual public BaseAddPred
     struct AddrHistory* entries[1024] = {};
 
     const std::string name() const;
+
+  struct SimplePredStats : public Stats::Group{
+    SimplePredStats(Stats::Group *parent);
+  } stats;
+
+    Stats::Group* getStatGroup() { return &stats; }
 
 };
 

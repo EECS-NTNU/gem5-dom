@@ -987,7 +987,6 @@ LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
                               inst->instAddr(),
                               inst->seqNum,
                               inst->effSize);
-    auto cache_line = (inst->effAddr >> 6) << 6;
     if (inst->predAddr == 0) {
         ++stats.nonAddrPredictedLoads;
     } else if (inst->predAddr == inst->effAddr) {

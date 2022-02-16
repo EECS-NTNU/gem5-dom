@@ -12,9 +12,9 @@ DefaultDOM<Impl>::DefaultDOM(O3CPU *_cpu, const DerivO3CPUParams &params)
     maxNumRqEntries(params.numRqEntries),
     width(params.decodeWidth),
     numThreads(params.numThreads),
-    domStats(_cpu),
     sbList {},
-    rqList {}
+    rqList {},
+    domStats(_cpu)
 {
     for (int i = 0; i < numThreads; i++) {
         sbList[i] = new std::vector<std::tuple<DynInstPtr, int, bool>>();

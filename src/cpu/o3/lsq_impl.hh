@@ -71,13 +71,12 @@ LSQ<Impl>::LSQ(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params)
       maxSQEntries(maxLSQAllocation(lsqPolicy, SQEntries, params.numThreads,
                   params.smtLSQThreshold)),
       dcachePort(this, cpu_ptr),
-      numThreads(params.numThreads)
+      numThreads(params.numThreads),
+      add_pred(params.addPred)
 {
     assert(numThreads > 0 && numThreads <= Impl::MaxThreads);
 
-    add_pred = new DeltaPred(params); //SimplePred(params);
-
-    cpu->addStatGroup("delta_pred", add_pred->getStatGroup());
+    cpu->addStatGroup("simple_pred", add_pred->getStatGroup());
 
     //**********************************************
     //************ Handle SMT Parameters ***********

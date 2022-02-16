@@ -7,6 +7,7 @@
 #include "base/trace.hh"
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
+#include "params/BaseAddPred.hh"
 #include "sim/sim_object.hh"
 
 struct AddrHistory {
@@ -44,12 +45,7 @@ struct AddrHistory {
 class BaseAddPred : public SimObject
 {
   public:
-    BaseAddPred(const Params &params) :
-      SimObject(params),
-      confidenceSaturation(0),
-      confidenceThreshold(0),
-      confidenceUpStep(0),
-      confidenceDownStep(0) {};
+    BaseAddPred(const BaseAddPredParams &params);
 
     int confidenceSaturation;
 
@@ -59,16 +55,16 @@ class BaseAddPred : public SimObject
 
     int confidenceDownStep;
 
-    virtual ~BaseAddPred() {};
+    virtual ~BaseAddPred();
 
-    virtual Addr predictFromPC(Addr pc, int runAhead) = 0;
+    virtual Addr predictFromPC(Addr pc, int runAhead);
 
     virtual void updatePredictor(Addr realAddr, Addr pc,
-                                 InstSeqNum seqNum, int packetSize)
-                                 = 0;
-    virtual int getPacketSize(Addr pc) = 0;
+                                 InstSeqNum seqNum, int packetSize);
 
-    virtual Stats::Group* getStatGroup() = 0;
+    virtual int getPacketSize(Addr pc);
+
+    virtual Stats::Group* getStatGroup();
 };
 
 #endif //__CPU_PRED_ADD_PRED_BASE_ADD_PRED_HH__

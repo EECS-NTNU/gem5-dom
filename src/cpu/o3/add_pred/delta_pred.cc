@@ -3,13 +3,9 @@
 
 #include "cpu/o3/add_pred/delta_pred.hh"
 
-DeltaPred::DeltaPred(const Params &params)
+DeltaPred::DeltaPred(const DeltaPredParams &params)
     : BaseAddPred(params), stats(nullptr)
 {
-    confidenceSaturation = 10;
-    confidenceThreshold = 8;
-    confidenceUpStep = 1;
-    confidenceDownStep = 4;
 }
 
 DeltaPred::~DeltaPred()
@@ -241,4 +237,4 @@ DeltaPred::DeltaPredStats::DeltaPredStats(Stats::Group *parent)
 {
 }
 
-#endif
+#endif //__CPU_PRED_ADD_PRED_DELTA_PRED_CC__

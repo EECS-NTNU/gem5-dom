@@ -6,13 +6,13 @@
 #include "cpu/o3/add_pred/base_add_pred.hh"
 #include "debug/AddrPredDebug.hh"
 #include "debug/AddrPrediction.hh"
-#include "params/DerivO3CPU.hh"
+#include "params/DeltaPred.hh"
 
 class DeltaPred : virtual public BaseAddPred
 {
     public:
 
-        DeltaPred(const Params &params);
+        DeltaPred(const DeltaPredParams &params);
 
         virtual ~DeltaPred();
 
