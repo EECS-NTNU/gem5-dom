@@ -271,12 +271,15 @@ if options.wait_gdb:
     for cpu in system.cpu:
         cpu.wait_for_remote_gdb = True
 
-system.cpu[0].mpMode = options.mp_mode
-system.cpu[0].apMode = options.ap_mode
-system.cpu[0].confidence_saturation = options.confidence_saturation
-system.cpu[0].confidence_threshold = options.confidence_threshold
-system.cpu[0].confidence_up_step = options.confidence_up_step
-system.cpu[0].confidence_down_step = options.confidence_down_step
+for i in range(len(system.cpu)):
+    if type(system.cpu[i]) is DerivO3CPU:
+        system.cpu[i].mpMode = options.mp_mode
+        system.cpu[i].apMode = options.ap_mode
+        system.cpu[i].confidence_saturation = options.confidence_saturation
+        system.cpu[i].confidence_threshold = options.confidence_threshold
+        system.cpu[i].confidence_up_step = options.confidence_up_step
+        system.cpu[i].confidence_down_step = options.confidence_down_step
+
 
 root = Root(full_system = False, system = system)
 
