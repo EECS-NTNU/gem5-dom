@@ -45,8 +45,6 @@ fast_forward="--fast-forward 1000000000"
 runtime="--maxinsts=1000000000"
 
 
-mkdir = f"mkdir {gem5_root}/results"
-
 print(sys.argv)
 
 cmd = sys.argv[1]
@@ -54,29 +52,30 @@ bname = sys.argv[2]
 options = sys.argv[3]
 fullname = sys.argv[4]
 iteration = sys.argv[5]
+jobid = sys.argv[6]
 
 redirect=f"-r --stdout-file={bname}_{iteration}.simout"
 
 def copy_dir():
     src = f'{spec_root}/{fullname}'
-    dst = f'{bname}_{iteration}'
+    dst = f'{jobid}/{bname}_{iteration}'
     shutil.copytree(src, dst)
 
 def cleanup():
-    tgt = f'{bname}_{iteration}'
+    tgt = f'{jobid}/{bname}_{iteration}'
     shutil.rmtree(tgt)
 
 def move_result():
-    src = f'{bname}_{iteration}/m5out/stats.txt'
-    dst = f'results/{bname}_{iteration}.txt'
+    src = f'{jobid}/{bname}_{iteration}/m5out/stats.txt'
+    dst = f'{jobid}/results/{bname}_{iteration}.txt'
     shutil.copy(src, dst)
-    src = f'{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
-    dst = f'results/{bname}_{iteration}.simout'
+    src = f'{jobid}/{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
+    dst = f'{jobid}/results/{bname}_{iteration}.simout'
     shutil.copy(src, dst)
 
 def run_benchmark():
     copy_dir()
-    os.chdir(f"{bname}_{iteration}")
+    os.chdir(f"{jobid}/{bname}_{iteration}")
     run_ref = f"{gem5} {redirect} {se} {fast_forward} {memory} "\
         f"{runtime} {caches} {runCPU} -c {bname} -o \"{options}\""
 
