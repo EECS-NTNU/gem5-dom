@@ -550,6 +550,10 @@ class FullO3CPU : public BaseO3CPU
 
     typename CPUPolicy::DOM dom;
 
+public:
+    typename CPUPolicy::AddPred add_pred;
+protected:
+
     /** The commit stage. */
     typename CPUPolicy::Commit commit;
 

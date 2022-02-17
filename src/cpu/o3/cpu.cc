@@ -86,6 +86,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       rename(this, params),
       iew(this, params),
       dom(this, params),
+      add_pred(this, params),
       commit(this, params),
 
       /* It is mandatory that all SMT threads use the same renaming mode as

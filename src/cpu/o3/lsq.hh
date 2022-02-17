@@ -53,8 +53,6 @@
 #include "base/flags.hh"
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
-#include "cpu/o3/add_pred/base_add_pred.hh"
-#include "cpu/o3/add_pred/delta_pred.hh"
 #include "cpu/o3/add_pred/simple_pred.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "cpu/utils.hh"
@@ -1394,7 +1392,7 @@ class LSQ
     /** Number of Threads. */
     ThreadID numThreads;
 
-    SimplePred *add_pred;
+    SimplePred<Impl> *add_pred;
 };
 
 template <class Impl>

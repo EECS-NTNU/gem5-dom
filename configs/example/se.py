@@ -118,6 +118,7 @@ def get_processes(options):
 parser = optparse.OptionParser()
 Options.addCommonOptions(parser)
 Options.addSEOptions(parser)
+Options.addMPOptions(parser)
 
 if '--ruby' in sys.argv:
     Ruby.define_options(parser)
@@ -270,9 +271,13 @@ if options.wait_gdb:
     for cpu in system.cpu:
         cpu.wait_for_remote_gdb = True
 
-for cpu in system.cpu:
-    if type(cpu) is DerivO3CPU:
-        cpu.MPSPEM = True
+system.cpu[0].mpMode = options.mp_mode
+system.cpu[0].apMode = options.ap_mode
+system.cpu[0].confidence_saturation = options.confidence_saturation
+system.cpu[0].confidence_threshold = options.confidence_threshold
+system.cpu[0].confidence_up_step = options.confidence_up_step
+system.cpu[0].confidence_down_step = options.confidence_down_step
 
 root = Root(full_system = False, system = system)
+
 Simulation.run(options, root, system, FutureClass)

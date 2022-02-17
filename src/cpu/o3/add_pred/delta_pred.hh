@@ -6,13 +6,18 @@
 #include "cpu/o3/add_pred/base_add_pred.hh"
 #include "debug/AddrPredDebug.hh"
 #include "debug/AddrPrediction.hh"
-#include "params/DeltaPred.hh"
 
-class DeltaPred : virtual public BaseAddPred
+template<class Impl>
+class DeltaPred : virtual public BaseAddPred<Impl>
 {
+    private:
+        typedef typename Impl::CPUPol CPUPol;
+        typedef typename Impl::DynInstPtr DynInstPtr;
+        typedef typename Impl::O3CPU O3CPU;
+
     public:
 
-        DeltaPred(const DeltaPredParams &params);
+        DeltaPred(O3CPU *_cpu, const DerivO3CPUParams &params);
 
         virtual ~DeltaPred();
 

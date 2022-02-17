@@ -179,7 +179,6 @@ class DerivO3CPU(BaseCPU):
                                        "Branch Predictor")
     needsTSO = Param.Bool(buildEnv['TARGET_ISA'] == 'x86',
                           "Enable TSO Memory model")
-    addPred = Param.SimplePred("The Address Predictor to use")
 
     mpMode = Param.Bool(False,
                         "Toggle MP mode to block side-channel attacks")
@@ -190,6 +189,16 @@ class DerivO3CPU(BaseCPU):
     vpMode = Param.Bool(False,
                         "Toggle value predictor for performance boost")
     predAccuracy = Param.Int(100, "Accuracy of faked value predictor")
+
+
+    confidence_saturation = Param.Int(10,
+                            "Maximum confidence achievable for prediction")
+    confidence_threshold = Param.Int(8,
+                            "Threshold to begin prediction at")
+    confidence_up_step = Param.Int(1,
+                            "Gain of confidence on correct prediction")
+    confidence_down_step = Param.Int(4,
+                            "Loss of confidence on wrong prediction")
 
     def addCheckerCpu(self):
         if buildEnv['TARGET_ISA'] in ['arm']:
