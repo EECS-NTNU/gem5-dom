@@ -280,7 +280,6 @@ for i in range(len(system.cpu)):
         system.cpu[i].confidence_up_step = options.confidence_up_step
         system.cpu[i].confidence_down_step = options.confidence_down_step
 
-
 root = Root(full_system = False, system = system)
 
 Simulation.run(options, root, system, FutureClass)
