@@ -191,13 +191,13 @@ class DerivO3CPU(BaseCPU):
     predAccuracy = Param.Int(100, "Accuracy of faked value predictor")
 
 
-    confidence_saturation = Param.Int(10,
+    confidence_saturation = Param.Int(
                             "Maximum confidence achievable for prediction")
-    confidence_threshold = Param.Int(8,
+    confidence_threshold = Param.Int(
                             "Threshold to begin prediction at")
-    confidence_up_step = Param.Int(1,
+    confidence_up_step = Param.Int(
                             "Gain of confidence on correct prediction")
-    confidence_down_step = Param.Int(4,
+    confidence_down_step = Param.Int(
                             "Loss of confidence on wrong prediction")
 
     def addCheckerCpu(self):
