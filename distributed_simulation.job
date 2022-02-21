@@ -5,7 +5,7 @@
 #SBATCH --time=10:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --array=1-2
+#SBATCH --array=1-49
 #SBATCH --mem=8000
 #SBATCH --job-name="gem5_spec2006"
 #SBATCH --mail-user=amund.kvalsvik@ntnu.no
@@ -24,12 +24,15 @@ mapfile -t iterations < dom/iterations.txt
 ((index=$SLURM_ARRAY_TASK_ID-1))
 ((jobid=$SLURM_ARRAY_JOB_ID))
 
-if [ $jobid -eq 1 ]; then
+echo "$jobid"
+
+if [ $index -eq 0 ]; then
+	echo "IM HERE"
 	mkdir "$jobid"
 	mkdir "$jobid"/results
 	mkdir "$jobid"/slurm
 else
-	sleep 30
+	sleep 5
 fi
 
 cmd=${cmds[$index]}

@@ -41,9 +41,12 @@ caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
 "--l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
+mp_args="--mp_mode --ap_mode --confidence_saturation=6 "\
+"--confidence_threshold=4 --confidence_up_step=1 "\
+"--confidence_down_step=4"
+
 fast_forward="--fast-forward 1000000000"
 runtime="--maxinsts=1000000000"
-
 
 print(sys.argv)
 
@@ -72,12 +75,15 @@ def move_result():
     src = f'{jobid}/{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
     dst = f'{jobid}/results/{bname}_{iteration}.simout'
     shutil.copy(src, dst)
+    src = f'{jobid}/{bname}_{iteration}/m5out/config.ini'
+    dst = f'{jobid}/results/{bname}_{iteration}.config'
+    shutil.copy(src, dst)
 
 def run_benchmark():
     copy_dir()
     os.chdir(f"{jobid}/{bname}_{iteration}")
     run_ref = f"{gem5} {redirect} {se} {fast_forward} {memory} "\
-        f"{runtime} {caches} {runCPU} -c {bname} -o \"{options}\""
+        f"{runtime} {mp_args} {caches} {runCPU} -c {bname} -o \"{options}\""
 
     print(f"Finished with code {os.system(run_ref)}")
     os.chdir(f'{gem5_root}')
