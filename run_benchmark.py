@@ -41,11 +41,12 @@ caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
 "--l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
+mp_args="--mp_mode --ap_mode --confidence_saturation=6 "\
+"--confidence_threshold=4 --confidence_up_step=1 "\
+"--confidence_down_step=4"
+
 fast_forward="--fast-forward 1000000000"
 runtime="--maxinsts=1000000000"
-
-
-mkdir = f"mkdir {gem5_root}/results"
 
 print(sys.argv)
 
@@ -54,31 +55,35 @@ bname = sys.argv[2]
 options = sys.argv[3]
 fullname = sys.argv[4]
 iteration = sys.argv[5]
+jobid = sys.argv[6]
 
 redirect=f"-r --stdout-file={bname}_{iteration}.simout"
 
 def copy_dir():
     src = f'{spec_root}/{fullname}'
-    dst = f'{bname}_{iteration}'
+    dst = f'{jobid}/{bname}_{iteration}'
     shutil.copytree(src, dst)
 
 def cleanup():
-    tgt = f'{bname}_{iteration}'
+    tgt = f'{jobid}/{bname}_{iteration}'
     shutil.rmtree(tgt)
 
 def move_result():
-    src = f'{bname}_{iteration}/m5out/stats.txt'
-    dst = f'results/{bname}_{iteration}.txt'
+    src = f'{jobid}/{bname}_{iteration}/m5out/stats.txt'
+    dst = f'{jobid}/results/{bname}_{iteration}.txt'
     shutil.copy(src, dst)
-    src = f'{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
-    dst = f'results/{bname}_{iteration}.simout'
+    src = f'{jobid}/{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
+    dst = f'{jobid}/results/{bname}_{iteration}.simout'
+    shutil.copy(src, dst)
+    src = f'{jobid}/{bname}_{iteration}/m5out/config.ini'
+    dst = f'{jobid}/results/{bname}_{iteration}.config'
     shutil.copy(src, dst)
 
 def run_benchmark():
     copy_dir()
-    os.chdir(f"{bname}_{iteration}")
+    os.chdir(f"{jobid}/{bname}_{iteration}")
     run_ref = f"{gem5} {redirect} {se} {fast_forward} {memory} "\
-        f"{runtime} {caches} {runCPU} -c {bname} -o \"{options}\""
+        f"{runtime} {mp_args} {caches} {runCPU} -c {bname} -o \"{options}\""
 
     print(f"Finished with code {os.system(run_ref)}")
     os.chdir(f'{gem5_root}')

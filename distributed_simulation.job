@@ -2,7 +2,7 @@
 
 #SBATCH --partition=CPUQ
 #SBATCH --account=share-ie-idi
-#SBATCH --time=8:00:00
+#SBATCH --time=10:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --array=1-49
@@ -22,6 +22,18 @@ mapfile -t fullnames < dom/fullnames.txt
 mapfile -t iterations < dom/iterations.txt
 
 ((index=$SLURM_ARRAY_TASK_ID-1))
+((jobid=$SLURM_ARRAY_JOB_ID))
+
+echo "$jobid"
+
+if [ $index -eq 0 ]; then
+	echo "IM HERE"
+	mkdir "$jobid"
+	mkdir "$jobid"/results
+	mkdir "$jobid"/slurm
+else
+	sleep 5
+fi
 
 cmd=${cmds[$index]}
 bname=${bnames[$index]}
@@ -32,4 +44,4 @@ iteration=${iterations[$index]}
 module load SCons/4.0.1-GCCcore-10.2.0
 module load Python/3.8.6-GCCcore-10.2.0
 
-python run_benchmark.py "$cmd" $bname "$option" $fullname $iteration
+python run_benchmark.py "$cmd" $bname "$option" $fullname $iteration $jobid

@@ -3,10 +3,15 @@
 
 #include <queue>
 
+#include "arch/registers.hh"
+#include "arch/types.hh"
 #include "base/statistics.hh"
+#include "base/stats/group.hh"
 #include "base/trace.hh"
 #include "base/types.hh"
+#include "config/the_isa.hh"
 #include "cpu/inst_seq.hh"
+#include "params/DerivO3CPU.hh"
 #include "sim/sim_object.hh"
 
 struct AddrHistory {
@@ -41,15 +46,20 @@ struct AddrHistory {
     std::vector<int> strideHistory;
 };
 
-class BaseAddPred : public SimObject
+struct DerivO3CPUParams;
+
+template<class Impl>
+class BaseAddPred
 {
+  private:
+    typedef typename Impl::CPUPol CPUPol;
+    typedef typename Impl::DynInstPtr DynInstPtr;
+    typedef typename Impl::O3CPU O3CPU;
+
+    O3CPU *_cpu;
+
   public:
-    BaseAddPred(const Params &params) :
-      SimObject(params),
-      confidenceSaturation(0),
-      confidenceThreshold(0),
-      confidenceUpStep(0),
-      confidenceDownStep(0) {};
+    BaseAddPred(O3CPU *_cpu, const DerivO3CPUParams &params);
 
     int confidenceSaturation;
 
@@ -59,16 +69,21 @@ class BaseAddPred : public SimObject
 
     int confidenceDownStep;
 
-    virtual ~BaseAddPred() {};
-
     virtual Addr predictFromPC(Addr pc, int runAhead) = 0;
 
     virtual void updatePredictor(Addr realAddr, Addr pc,
                                  InstSeqNum seqNum, int packetSize)
                                  = 0;
+
     virtual int getPacketSize(Addr pc) = 0;
 
-    virtual Stats::Group* getStatGroup() = 0;
+    struct BaseAddPredStats : public Stats::Group{
+
+      BaseAddPredStats(Stats::Group *parent);
+    } stats;
+
+    virtual Stats::Group* getStatGroup() { return &stats; }
+
 };
 
 #endif //__CPU_PRED_ADD_PRED_BASE_ADD_PRED_HH__

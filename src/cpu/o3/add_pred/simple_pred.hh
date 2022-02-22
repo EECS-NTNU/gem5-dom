@@ -1,18 +1,69 @@
 #ifndef __CPU_PRED_ADD_PRED_SIMPLE_PRED_HH__
 #define __CPU_PRED_ADD_PRED_SIMPLE_PRED_HH__
 
-#include "base/flags.hh"
+#include "arch/registers.hh"
+#include "arch/types.hh"
+#include "base/statistics.hh"
+#include "base/stats/group.hh"
 #include "base/types.hh"
-#include "cpu/o3/add_pred/base_add_pred.hh"
+#include "config/the_isa.hh"
+#include "cpu/inst_seq.hh"
 #include "params/DerivO3CPU.hh"
+#include "sim/sim_object.hh"
 
-class SimplePred : virtual public BaseAddPred
+struct DerivO3CPUParams;
+
+struct AddrHistory {
+
+    AddrHistory(const InstSeqNum &seq_num,
+                Addr instPC,
+                Addr lastAddr,
+                int history_size,
+                int packetSize)
+        : seqNum(seq_num), pc(instPC),
+          lastAddr(lastAddr),
+          packetSize(packetSize),
+          confidence(0),
+          historySize(history_size),
+          strideHistory(std::vector<int>())
+    {}
+
+    InstSeqNum seqNum;
+
+    Addr pc;
+
+    Addr lastAddr;
+
+    int packetSize;
+
+    int confidence;
+
+    int historySize;
+
+    int deltaPointer = 0;
+
+    std::vector<int> strideHistory;
+};
+
+template<class Impl>
+class SimplePred
 {
+    private:
+        typedef typename Impl::CPUPol CPUPol;
+        typedef typename Impl::DynInstPtr DynInstPtr;
+        typedef typename Impl::O3CPU O3CPU;
+
   public:
 
-    SimplePred(const Params &params);
+    SimplePred(O3CPU *_cpu, const DerivO3CPUParams &params);
 
-    virtual ~SimplePred();
+    int confidenceSaturation;
+
+    int confidenceThreshold;
+
+    int confidenceUpStep;
+
+    int confidenceDownStep;
 
     Addr predictFromPC(Addr pc, int runAhead);
 
@@ -26,6 +77,12 @@ class SimplePred : virtual public BaseAddPred
     struct AddrHistory* entries[1024] = {};
 
     const std::string name() const;
+
+  struct SimplePredStats : public Stats::Group{
+    SimplePredStats(Stats::Group *parent);
+  } stats;
+
+    Stats::Group* getStatGroup() { return &stats; }
 
 };
 

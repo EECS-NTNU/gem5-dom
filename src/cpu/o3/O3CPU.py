@@ -180,10 +180,25 @@ class DerivO3CPU(BaseCPU):
     needsTSO = Param.Bool(buildEnv['TARGET_ISA'] == 'x86',
                           "Enable TSO Memory model")
 
-    # [MP-SPEM]
-    MPSPEM = Param.Bool(False, "Whether to use MP-SPEM to block Spectre")
+    mpMode = Param.Bool(False,
+                        "Toggle MP mode to block side-channel attacks")
+    domMode = Param.Bool(False,
+                        "Toggle DOM mode to block cache side-channel attacks")
+    apMode = Param.Bool(False,
+                        "Toggle address predictor for performance boost")
+    vpMode = Param.Bool(False,
+                        "Toggle value predictor for performance boost")
+    predAccuracy = Param.Int(100, "Accuracy of faked value predictor")
 
-    DOM = Param.Bool(False, "Whether to use DoM to block Spectre")
+
+    confidence_saturation = Param.Int(
+                            "Maximum confidence achievable for prediction")
+    confidence_threshold = Param.Int(
+                            "Threshold to begin prediction at")
+    confidence_up_step = Param.Int(
+                            "Gain of confidence on correct prediction")
+    confidence_down_step = Param.Int(
+                            "Loss of confidence on wrong prediction")
 
     def addCheckerCpu(self):
         if buildEnv['TARGET_ISA'] in ['arm']:

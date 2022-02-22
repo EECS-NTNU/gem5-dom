@@ -241,7 +241,7 @@ template<class Impl>
 void
 LSQUnit<Impl>::init(O3CPU *cpu_ptr, IEW *iew_ptr,
         const DerivO3CPUParams &params, LSQ *lsq_ptr, unsigned id,
-        BaseAddPred *pred)
+        SimplePred<Impl> *pred)
 {
     lsqID = id;
 
@@ -987,7 +987,6 @@ LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
                               inst->instAddr(),
                               inst->seqNum,
                               inst->effSize);
-    auto cache_line = (inst->effAddr >> 6) << 6;
     if (inst->predAddr == 0) {
         ++stats.nonAddrPredictedLoads;
     } else if (inst->predAddr == inst->effAddr) {

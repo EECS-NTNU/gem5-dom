@@ -86,6 +86,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       rename(this, params),
       iew(this, params),
       dom(this, params),
+      add_pred(this, params),
       commit(this, params),
 
       /* It is mandatory that all SMT threads use the same renaming mode as
@@ -121,16 +122,17 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       lastRunningCycle(curCycle()),
       cpuStats(this),
       //MP-SPEM
-      MP(true),
-      DOM(false),
-      VP(false),
-      AP(true),
-      accuracy(100)
+      MP(params.mpMode),
+      DOM(params.domMode),
+      VP(params.vpMode),
+      AP(params.apMode),
+      accuracy(params.predAccuracy)
 {
     assert(!(MP && DOM));
     assert(!(AP && VP));
     assert(!(AP && accuracy !=100));
     assert((!(VP || AP)) || MP);
+    assert(!DOM);
     fatal_if(FullSystem && params.numThreads > 1,
             "SMT is not supported in O3 in full system mode currently.");
 

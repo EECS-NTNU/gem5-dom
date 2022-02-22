@@ -53,8 +53,6 @@
 #include "base/flags.hh"
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
-#include "cpu/o3/add_pred/base_add_pred.hh"
-#include "cpu/o3/add_pred/delta_pred.hh"
 #include "cpu/o3/add_pred/simple_pred.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "cpu/utils.hh"
@@ -329,9 +327,10 @@ class LSQ
         LSQRequest(LSQUnit* port, const DynInstPtr& inst,
                    const Addr& addr, const uint32_t& size) :
             _state(State::NotIssued), _senderState(nullptr),
+            numInTranslationFragments(0),
             _port(*port), _inst(inst), _data(nullptr),
             _res(nullptr), _addr(addr), _size(size), _flags(0),
-            _numOutstandingPackets(0), numInTranslationFragments(0),
+            _numOutstandingPackets(0),
             _amo_op(nullptr), speculative(true)
             {
                 flags.set(Flag::IsLoad, true);
@@ -380,7 +379,8 @@ class LSQ
         numTranslatedFragments(other->numTranslatedFragments),
         numInTranslationFragments(other->numInTranslationFragments),
         _port(other->_port), _inst(other->_inst), _data(nullptr),
-        _res(other->_res), _addr(other->_addr), _size(other->_size),
+        _res(other->_res), _addr(other->_addr),
+        _size(other->_size),
         flags(other->_flags),
         _numOutstandingPackets(copy_packets ?
             other->_numOutstandingPackets : 0),
@@ -1392,7 +1392,7 @@ class LSQ
     /** Number of Threads. */
     ThreadID numThreads;
 
-    BaseAddPred *add_pred;
+    SimplePred<Impl> *add_pred;
 };
 
 template <class Impl>
