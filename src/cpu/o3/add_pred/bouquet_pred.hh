@@ -2,9 +2,18 @@
 #ifndef __CPU_PRED_ADD_PRED_BOUQUET_PRED_HH__
 #define __CPU_PRED_ADD_PRED_BOUQUET_PRED_CC__
 
-#include "base/flags.hh"
+#include "arch/registers.hh"
+#include "arch/types.hh"
+#include "base/statistics.hh"
+#include "base/stats/group.hh"
 #include "base/types.hh"
-#include "cpu/o3/add_pred/base_add_pred.hh"
+#include "config/the_isa.hh"
+#include "cpu/inst_seq.hh"
+#include "params/DerivO3CPU.hh"
+#include "sim/sim_object.hh"
+
+struct DerivO3CPUParams;
+
 
 // IP table entries
 #define NUM_IP_TABLE_L1_ENTRIES 1024
@@ -23,6 +32,8 @@
 // next line
 #define NL_TYPE 4
 #define NUM_CPUS 1
+#define LOG2_PAGE_SIZE = 16;
+#define LOG2_BLOCK_SIZE = 6;
 
 class IP_TABLE_L1 {
     public:
@@ -46,6 +57,8 @@ class IP_TABLE_L1 {
         // stream strength
         uint16_t str_strength;
 
+        int size;
+
         IP_TABLE_L1 () {
             ip_tag = 0;
             last_page = 0;
@@ -57,6 +70,7 @@ class IP_TABLE_L1 {
             str_dir = 0;
             str_valid = 0;
             str_strength = 0;
+            size = 0;
         };
 };
 
@@ -71,11 +85,12 @@ class DELTA_PRED_TABLE {
         };
 };
 
-class BouquetPred : virtual public BaseAddPred
+template<class Impl>
+class BouquetPred
 {
     public:
 
-        BouquetPred(const Params &params);
+        BouquetPred(const DerivO3CPUParams &params);
 
         virtual ~BouquetPred();
 
@@ -83,6 +98,9 @@ class BouquetPred : virtual public BaseAddPred
 
         void updatePredictor(Addr realAddr, Addr pc,
                             InstSeqNum seqNum, int packetSize);
+
+        void l1d_prefetcher_operate(uint64_t addr, uint64_t ip,
+                                    int packetSize);
 
         int getPacketSize(Addr pc);
 
@@ -98,15 +116,13 @@ class BouquetPred : virtual public BaseAddPred
 
         int update_conf(int stride, int pred_stride, int conf);
 
-        void l1d_prefetcher_operate(uint64_t addr, uint64_t ip);
-
-        IP_TABLE_L1 trackers_l1[NUM_CPUS][NUM_IP_TABLE_L1_ENTRIES];
-        DELTA_PRED_TABLE DPT_l1[NUM_CPUS][4096];
-        uint64_t ghb_l1[NUM_CPUS][NUM_GHB_ENTRIES];
-        uint64_t prev_cpu_cycle[NUM_CPUS];
-        uint64_t num_misses[NUM_CPUS];
-        float mpkc[NUM_CPUS] = {0};
-        int spec_nl[NUM_CPUS] = {0};
+        IP_TABLE_L1 trackers_l1[NUM_IP_TABLE_L1_ENTRIES];
+        DELTA_PRED_TABLE DPT_l1[4096];
+        uint64_t ghb_l1[NUM_GHB_ENTRIES];
+        uint64_t prev_cpu_cycle;
+        uint64_t num_misses;
+        float mpkc = 0;
+        int spec_nl = 0;
 
 };
 
