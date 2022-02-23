@@ -35,6 +35,8 @@ class DefaultDOM
         int width;
         int stallCycles;
 
+        bool resetSwitch = false;
+
         ThreadID numThreads;
 
         void resetState();

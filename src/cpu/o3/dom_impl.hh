@@ -385,8 +385,13 @@ DefaultDOM<Impl>::tick()
         }
 
         // Sanity checks
-        assert(!(sbList[i]->size() == 0 && sbHead[i] != sbTail[i]));
-        assert(!(sbHead[i] == sbTail[i] && sbList[i]->size() > 0));
+        if ((sbList[i]->size() == 0) && (sbHead[i] != sbTail[i])) {
+            squashFromInstSeqNum(0, i);
+            assert(!resetSwitch);
+            resetSwitch = true;
+        }
+        //assert(!(sbList[i]->size() == 0 && sbHead[i] != sbTail[i]));
+        assert(!((sbHead[i] == sbTail[i]) && (sbList[i]->size() > 0)));
         assert(!(stallCycles > 10000));
     }
 

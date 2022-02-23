@@ -366,7 +366,11 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(partialPredStoreConflicts, UNIT_COUNT,
                "Addr predictions with partially conflicting stores"),
       ADD_STAT(conflictDroppedPreds, UNIT_COUNT,
-               "Correct addr predictions dropped due to conflicting stores")
+               "Correct addr predictions dropped due to conflicting stores"),
+      ADD_STAT(incorrectPredData, UNIT_COUNT,
+               "Verify accesses with different data than pred"),
+      ADD_STAT(incorrectStoredData, UNIT_COUNT,
+               "Verify accesses with different data than stored")
 {
 }
 
@@ -1747,11 +1751,11 @@ LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst)
         load_inst->memData =
             new uint8_t[req->mainRequest()->getSize()];
     }
-
-    assert(verifyLoadDataIntegrity(load_inst));
+    if (!verifyLoadDataIntegrity(load_inst))
+        ++stats.incorrectPredData;
 
     memcpy(load_inst->memData,
-           load_inst->getPredData(),
+           load_inst->verifyData,
            req->mainRequest()->getSize());
 
     DPRINTF(LSQUnit, "Forwarding from predAddr to load for "
@@ -1793,10 +1797,11 @@ LSQUnit<Impl>::forwardStoredData(const DynInstPtr& load_inst)
         memset(load_inst->memData, 0, req->mainRequest()->getSize());
     }
 
-    assert(verifyLoadDataIntegrity(load_inst));
+    if (!verifyLoadDataIntegrity(load_inst))
+        ++stats.incorrectStoredData;
 
     memcpy(load_inst->memData,
-           load_inst->getStoreData(),
+           load_inst->verifyData,
            req->mainRequest()->getSize());
 
     DPRINTF(LSQUnit, "Forwarding from predAddr store"
@@ -1904,8 +1909,6 @@ LSQUnit<Impl>::verifyLoadDataIntegrity(const DynInstPtr& load_inst)
             (load_inst->hasStoreData ?
                 load_inst->storeData[i] : load_inst->predData[i]));
     }
-
-    assert(equal);
 
     delete(snoop);
     delete(state);

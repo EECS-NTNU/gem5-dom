@@ -696,6 +696,10 @@ class LSQUnit
 
         Stats::Scalar conflictDroppedPreds;
 
+        Stats::Scalar incorrectPredData;
+
+        Stats::Scalar incorrectStoredData;
+
     } stats;
 
   public:
