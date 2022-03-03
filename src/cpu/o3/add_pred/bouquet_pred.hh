@@ -1,6 +1,6 @@
 
 #ifndef __CPU_PRED_ADD_PRED_BOUQUET_PRED_HH__
-#define __CPU_PRED_ADD_PRED_BOUQUET_PRED_CC__
+#define __CPU_PRED_ADD_PRED_BOUQUET_PRED_HH__
 
 #include "arch/registers.hh"
 #include "arch/types.hh"
@@ -32,8 +32,8 @@ struct DerivO3CPUParams;
 // next line
 #define NL_TYPE 4
 #define NUM_CPUS 1
-#define LOG2_PAGE_SIZE = 16;
-#define LOG2_BLOCK_SIZE = 6;
+#define LOG2_PAGE_SIZE 16
+#define LOG2_BLOCK_SIZE 0
 
 class IP_TABLE_L1 {
     public:
@@ -42,6 +42,8 @@ class IP_TABLE_L1 {
         uint64_t last_page;
         // last cl offset in the 4KB page
         uint64_t last_cl_offset;
+
+        uint64_t last_addr;
         // last delta observed
         int64_t last_stride;
         // Valid IP or not
@@ -63,6 +65,7 @@ class IP_TABLE_L1 {
             ip_tag = 0;
             last_page = 0;
             last_cl_offset = 0;
+            last_addr = 0;
             last_stride = 0;
             ip_valid = 0;
             signature = 0;
@@ -88,11 +91,22 @@ class DELTA_PRED_TABLE {
 template<class Impl>
 class BouquetPred
 {
+    private:
+        typedef typename Impl::CPUPol CPUPol;
+        typedef typename Impl::DynInstPtr DynInstPtr;
+        typedef typename Impl::O3CPU O3CPU;
+
     public:
 
-        BouquetPred(const DerivO3CPUParams &params);
+        BouquetPred(O3CPU *_cpu, const DerivO3CPUParams &params);
 
-        virtual ~BouquetPred();
+        int confidenceSaturation;
+
+        int confidenceThreshold;
+
+        int confidenceUpStep;
+
+        int confidenceDownStep;
 
         Addr predictFromPC(Addr pc, int runAhead);
 
@@ -103,10 +117,6 @@ class BouquetPred
                                     int packetSize);
 
         int getPacketSize(Addr pc);
-
-        int numEntries = 1024;
-
-        const std::string name() const;
 
         uint16_t update_sig_l1(uint16_t old_sig, int delta);
 
@@ -123,6 +133,14 @@ class BouquetPred
         uint64_t num_misses;
         float mpkc = 0;
         int spec_nl = 0;
+
+        const std::string name() const;
+
+        struct BouquetPredStats : public Stats::Group{
+            BouquetPredStats(Stats::Group *parent);
+        } stats;
+
+        Stats::Group* getStatGroup() { return &stats; }
 
 };
 

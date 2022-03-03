@@ -53,7 +53,7 @@
 #include "base/flags.hh"
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
-#include "cpu/o3/add_pred/simple_pred.hh"
+#include "cpu/o3/add_pred/bouquet_pred.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "cpu/utils.hh"
 #include "debug/AddrPrediction.hh"
@@ -1392,7 +1392,7 @@ class LSQ
     /** Number of Threads. */
     ThreadID numThreads;
 
-    SimplePred<Impl> *add_pred;
+    BouquetPred<Impl> *add_pred;
 };
 
 template <class Impl>

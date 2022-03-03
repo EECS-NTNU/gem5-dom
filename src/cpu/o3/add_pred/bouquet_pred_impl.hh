@@ -1,35 +1,39 @@
-#ifndef __CPU_PRED_ADD_PRED_BOUQUET_PRED_CC__
-#define __CPU_PRED_ADD_PRED_BOUQUET_PRED_CC__
+#ifndef __CPU_PRED_ADD_PRED_BOUQUET_PRED_IMPL_HH__
+#define __CPU_PRED_ADD_PRED_BOUQUET_PRED_IMPL_HH__
 
 #include "cpu/o3/add_pred/bouquet_pred.hh"
+#include "debug/AddrPredDebug.hh"
+#include "debug/AddrPrediction.hh"
 
 template<class Impl>
-BouquetPred<Impl>::BouquetPred(const DerivO3CPUParams &params)
+BouquetPred<Impl>::BouquetPred(O3CPU *_cpu, const DerivO3CPUParams &params)
     : confidenceSaturation(params.confidence_saturation),
       confidenceThreshold(params.confidence_threshold),
       confidenceUpStep(params.confidence_up_step),
-      confidenceDownStep(params.confidence_down_step)
+      confidenceDownStep(params.confidence_down_step),
+      stats(_cpu)
 {
+    DPRINTF(AddrPredDebug, "BouquetPred created with "
+            "saturation: %d, threshold: %d, upStep: %d, downStep: %d\n",
+            this->confidenceSaturation,
+            this->confidenceThreshold,
+            this->confidenceUpStep,
+            this->confidenceDownStep);
 }
 
 
 
-template<class Impl>
-void
-BouquetPred<Impl>::updatePredictor(Addr realAddr, Addr pc,
-                             InstSeqNum seqNum, int packetSize)
-{
-    l1d_prefetcher_operate(realAddr, pc, packetSize);
-}
 
 template<class Impl>
 Addr BouquetPred<Impl>::predictFromPC(Addr pc, int runAhead)
 {
     uint16_t signature = 0, last_signature = 0;
     uint32_t metadata = 0;
-    uint16_t ip_tag = (ip >> NUM_IP_INDEX_BITS) & ((1 << NUM_IP_TAG_BITS) - 1);
+    uint16_t ip_tag = (pc >> NUM_IP_INDEX_BITS) & ((1 << NUM_IP_TAG_BITS) - 1);
 
-    int index = ip & ((1 << NUM_IP_INDEX_BITS) - 1);
+    int index = pc & ((1 << NUM_IP_INDEX_BITS) - 1);
+
+    Addr last_addr = trackers_l1[index].last_addr;
 
     uint64_t pf_address = 0;
 
@@ -37,11 +41,11 @@ Addr BouquetPred<Impl>::predictFromPC(Addr pc, int runAhead)
     {   // stream IP
         for (int i = 0; i < runAhead; i++)
         {
-            uint64_t pf_address = 0;
+            pf_address = 0;
 
             if (trackers_l1[index].str_dir == 1)
             { // +ve stream
-                pf_address = (cl_addr + i + 1)
+                pf_address = (last_addr + i + 1)
                               << LOG2_BLOCK_SIZE;
                 // stride is 1
                 metadata =
@@ -51,7 +55,7 @@ Addr BouquetPred<Impl>::predictFromPC(Addr pc, int runAhead)
             }
             else
             { // -ve stream
-                pf_address = (cl_addr - i - 1)
+                pf_address = (last_addr - i - 1)
                               << LOG2_BLOCK_SIZE;
                 // stride is -1
                 metadata =
@@ -62,27 +66,27 @@ Addr BouquetPred<Impl>::predictFromPC(Addr pc, int runAhead)
 
             // Check if prefetch address is in same 4 KB page
             if ((pf_address >> LOG2_PAGE_SIZE)
-                 != (addr >> LOG2_PAGE_SIZE))
+                 != (last_addr >> LOG2_PAGE_SIZE))
             {
+                pf_address = 0;
                 break;
             }
-
-            prefetch_line(ip, addr, pf_address, FILL_L1, metadata);
-            num_prefs++;
         }
     }
     else if (trackers_l1[index].conf > 1
              && trackers_l1[index].last_stride != 0)
     { // CS IP
-        for (int i = 0; i < prefetch_degree; i++)
+        for (int i = 0; i < runAhead; i++)
         {
-            uint64_t pf_address =
-                    (cl_addr + (trackers_l1[index].last_stride * (i + 1)))
+            pf_address =
+                    (last_addr + (trackers_l1[index].last_stride * (i + 1)))
                     << LOG2_BLOCK_SIZE;
 
             // Check if prefetch address is in same 4 KB page
-            if ((pf_address >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE))
+            if ((pf_address >> LOG2_PAGE_SIZE)
+                 != (last_addr >> LOG2_PAGE_SIZE))
             {
+                pf_address = 0;
                 break;
             }
 
@@ -90,22 +94,20 @@ Addr BouquetPred<Impl>::predictFromPC(Addr pc, int runAhead)
                 encode_metadata(trackers_l1[index].last_stride,
                                 CS_TYPE,
                                 spec_nl);
-            prefetch_line(ip, addr, pf_address, FILL_L1, metadata);
-            num_prefs++;
-            SIG_DP(cout << trackers_l1[index].last_stride << ", ");
         }
     }
     else if (DPT_l1[signature].conf >= 0
              && DPT_l1[signature].delta != 0)
     {                               // if conf>=0, continue looking for delta
         int pref_offset = 0, i = 0; // CPLX IP
-        for (i = 0; i < prefetch_degree; i++)
+        for (i = 0; i < runAhead; i++)
         {
             pref_offset += DPT_l1[signature].delta;
-            pf_address = ((cl_addr + pref_offset) << LOG2_BLOCK_SIZE);
+            pf_address = ((last_addr + pref_offset) << LOG2_BLOCK_SIZE);
 
             // Check if prefetch address is in same 4 KB page
-            if (((pf_address >> LOG2_PAGE_SIZE) != (addr >> LOG2_PAGE_SIZE)) ||
+            if (((pf_address >> LOG2_PAGE_SIZE)
+                  != (last_addr >> LOG2_PAGE_SIZE)) ||
                 (DPT_l1[signature].conf == -1) ||
                 (DPT_l1[signature].delta == 0))
             {
@@ -115,17 +117,26 @@ Addr BouquetPred<Impl>::predictFromPC(Addr pc, int runAhead)
 
             // we are not prefetching at L2 for CPLX type, so encode delta as 0
             metadata = encode_metadata(0, CPLX_TYPE, spec_nl);
-            if (DPT_l1[signature].conf > 0)
+            if (DPT_l1[signature].conf <= 0)
             { // prefetch only when conf>0 for CPLX
-                prefetch_line(ip, addr, pf_address, FILL_L1, metadata);
-                num_prefs++;
-                SIG_DP(cout << pref_offset << ", ");
+                pf_address = 0;
             }
             signature = update_sig_l1(signature, DPT_l1[signature].delta);
         }
+    } else if (trackers_l1[index].conf > 1)
+    {
+        pf_address = last_addr;
     }
 
     return pf_address;
+}
+
+template<class Impl>
+void
+BouquetPred<Impl>::updatePredictor(Addr realAddr, Addr pc,
+                             InstSeqNum seqNum, int packetSize)
+{
+    l1d_prefetcher_operate(realAddr, pc, packetSize);
 }
 
 template<class Impl>
@@ -152,6 +163,7 @@ void BouquetPred<Impl>::l1d_prefetcher_operate(uint64_t addr,
             trackers_l1[index].last_page = curr_page;
             trackers_l1[index].last_cl_offset = cl_offset;
             trackers_l1[index].last_stride = 0;
+            trackers_l1[index].last_addr = addr;
             trackers_l1[index].signature = 0;
             trackers_l1[index].conf = 0;
             trackers_l1[index].str_valid = 0;
@@ -179,8 +191,8 @@ void BouquetPred<Impl>::l1d_prefetcher_operate(uint64_t addr,
     stride = cl_offset - trackers_l1[index].last_cl_offset;
 
     // don't do anything if same address is seen twice in a row
-    if (stride == 0)
-        return;
+    //if (stride == 0)
+    //    return;
 
     // page boundary learning
     if (curr_page != trackers_l1[index].last_page)
@@ -217,15 +229,12 @@ void BouquetPred<Impl>::l1d_prefetcher_operate(uint64_t addr,
     trackers_l1[index].signature = signature;
 
     // check GHB for stream IP
-    check_for_stream_l1(index, cl_addr, cpu);
-
-
-
-    SIG_DP(cout << endl);
+    check_for_stream_l1(index, cl_addr, 0);
 
     // update the IP table entries
     trackers_l1[index].last_cl_offset = cl_offset;
     trackers_l1[index].last_page = curr_page;
+    trackers_l1[index].last_addr = addr;
 
     // update GHB
     // search for matching cl addr
@@ -248,10 +257,8 @@ template <class Impl>
 int
 BouquetPred<Impl>::getPacketSize(Addr pc)
 {
-    uint16_t ip_tag = (ip >> NUM_IP_INDEX_BITS) & ((1 << NUM_IP_TAG_BITS) - 1);
-    int index = ip & ((1 << NUM_IP_INDEX_BITS) - 1);
+    int index = pc & ((1 << NUM_IP_INDEX_BITS) - 1);
     return trackers_l1[index].size;
-
 }
 
 /***************Updating the signature*************************************/
@@ -373,4 +380,18 @@ int BouquetPred<Impl>::update_conf(int stride, int pred_stride, int conf)
     return conf;
 }
 
-#endif //__CPU_PRED_ADD_PRED_BOUQET_PRED_CC__
+
+template<class Impl>
+const std::string
+BouquetPred<Impl>::name() const
+{
+    return "bouquet_predictor";
+}
+
+template<class Impl>
+BouquetPred<Impl>::BouquetPredStats::BouquetPredStats(Stats::Group *parent)
+    : Stats::Group(parent)
+{
+}
+
+#endif //__CPU_PRED_ADD_PRED_BOUQUET_PRED_IMPL_HH__

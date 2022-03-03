@@ -30,7 +30,7 @@
 #ifndef __CPU_O3_CPU_POLICY_HH__
 #define __CPU_O3_CPU_POLICY_HH__
 
-#include "cpu/o3/add_pred/simple_pred.hh"
+#include "cpu/o3/add_pred/bouquet_pred.hh"
 #include "cpu/o3/comm.hh"
 #include "cpu/o3/commit.hh"
 #include "cpu/o3/decode.hh"
@@ -86,7 +86,7 @@ struct SimpleCPUPolicy
     /** Typedef for Delay-on-Miss */
     typedef DefaultDOM<Impl> DOM;
 
-    typedef SimplePred<Impl> AddPred;
+    typedef BouquetPred<Impl> AddPred;
     /** Typedef for commit. */
     typedef DefaultCommit<Impl> Commit;
 

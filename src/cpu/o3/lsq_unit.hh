@@ -56,7 +56,7 @@
 #include "arch/locked_mem.hh"
 #include "config/the_isa.hh"
 #include "cpu/inst_seq.hh"
-#include "cpu/o3/add_pred/simple_pred.hh"
+#include "cpu/o3/add_pred/bouquet_pred.hh"
 #include "cpu/o3/lsq.hh"
 #include "cpu/timebuf.hh"
 #include "cpu/utils.hh"
@@ -246,7 +246,7 @@ class LSQUnit
 
     /** Initializes the LSQ unit with the specified number of entries. */
     void init(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params,
-            LSQ *lsq_ptr, unsigned id, SimplePred<Impl> *pred);
+            LSQ *lsq_ptr, unsigned id, BouquetPred<Impl> *pred);
 
     /** Returns the name of the LSQ unit. */
     std::string name() const;
@@ -449,7 +449,7 @@ class LSQUnit
     /** Pointer to the dcache port.  Used only for sending. */
     RequestPort *dcachePort;
 
-    SimplePred<Impl> *add_pred;
+    BouquetPred<Impl> *add_pred;
 
     /** Particularisation of the LSQSenderState to the LQ. */
     class LQSenderState : public LSQSenderState

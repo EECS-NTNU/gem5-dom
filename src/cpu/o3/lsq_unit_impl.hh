@@ -241,7 +241,7 @@ template<class Impl>
 void
 LSQUnit<Impl>::init(O3CPU *cpu_ptr, IEW *iew_ptr,
         const DerivO3CPUParams &params, LSQ *lsq_ptr, unsigned id,
-        SimplePred<Impl> *pred)
+        BouquetPred<Impl> *pred)
 {
     lsqID = id;
 
