@@ -383,6 +383,8 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     bool partialStoreConflict;
 
+    Tick recvPredTick;
+
     /** The memory request flags (from translation). */
     unsigned memReqFlags;
 

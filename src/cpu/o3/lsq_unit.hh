@@ -704,6 +704,8 @@ class LSQUnit
 
         Stats::Scalar dShadowClearedFirst;
 
+        Stats::Distribution predResolutionTime;
+
     } stats;
 
   public:
@@ -1082,6 +1084,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
     if (cpu->AP &&
         load_inst->isPredicted()) {
+        stats.predResolutionTime.sample((curTick() - load_inst->recvPredTick)
+            / 500);
         if (load_inst->effAddr == load_inst->predAddr &&
             req->mainRequest()->getSize() == load_inst->predSize &&
             !load_inst->partialStoreConflict) {

@@ -374,8 +374,13 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(cShadowClearedFirst, UNIT_COUNT,
                "Insts which for C shadow was cleared first"),
       ADD_STAT(dShadowClearedFirst, UNIT_COUNT,
-               "Insts which for D shadow was cleared first")
+               "Insts which for D shadow was cleared first"),
+      ADD_STAT(predResolutionTime, UNIT_TICK,
+               "Resolution (physical) time for predicted addresses")
 {
+    predResolutionTime
+        .init(0, 98, 3)
+        .flags(Stats::total);
 }
 
 template<class Impl>
@@ -946,6 +951,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
 
     if (req->isSent()) {
         inst->setPredAddr(prediction, packetSize);
+        inst->recvPredTick = curTick();
         addToPredInsts(inst);
         ++stats.issuedAddressPredictions;
         debugPredLoad(inst, req);

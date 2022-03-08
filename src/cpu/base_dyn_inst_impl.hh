@@ -111,6 +111,7 @@ BaseDynInst<Impl>::initVars()
     shouldForward = false;
     hasRanAhead = false;
     partialStoreConflict = false;
+    recvPredTick = 0;
     readyRegs = 0;
     memReqFlags = 0;
     // hardware transactional memory
