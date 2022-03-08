@@ -370,7 +370,11 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
       ADD_STAT(incorrectPredData, UNIT_COUNT,
                "Verify accesses with different data than pred"),
       ADD_STAT(incorrectStoredData, UNIT_COUNT,
-               "Verify accesses with different data than stored")
+               "Verify accesses with different data than stored"),
+      ADD_STAT(cShadowClearedFirst, UNIT_COUNT,
+               "Insts which for C shadow was cleared first"),
+      ADD_STAT(dShadowClearedFirst, UNIT_COUNT,
+               "Insts which for D shadow was cleared first")
 {
 }
 
@@ -848,6 +852,13 @@ LSQUnit<Impl>::updateDShadow(DynInstPtr &load_inst)
     }
     DPRINTF(DOM, "Cleared dShadow for [sn:%llu]\n",
             load_inst->seqNum);
+    if (load_inst->dShadow) {
+        if (load_inst->cShadow) {
+            ++stats.dShadowClearedFirst;
+        } else {
+            ++stats.cShadowClearedFirst;
+        }
+    }
     load_inst->dShadow = false;
 }
 

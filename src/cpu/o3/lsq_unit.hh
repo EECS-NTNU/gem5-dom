@@ -700,6 +700,10 @@ class LSQUnit
 
         Stats::Scalar incorrectStoredData;
 
+        Stats::Scalar cShadowClearedFirst;
+
+        Stats::Scalar dShadowClearedFirst;
+
     } stats;
 
   public:
