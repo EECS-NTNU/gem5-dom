@@ -425,6 +425,7 @@ def addSEOptions(parser):
 def addMPOptions(parser):
     parser.add_option("--mp_mode", action="store_true", default=False)
     parser.add_option("--ap_mode", action="store_true", default=False)
+    parser.add_option("--stt_mode", action="store_true", default=False)
     parser.add_option("--confidence_saturation",
                         action="store", type="int", default=10)
     parser.add_option("--confidence_threshold",

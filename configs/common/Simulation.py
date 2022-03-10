@@ -492,6 +492,7 @@ def run(options, root, testsys, cpu_class):
             if type(switch_cpus[i]) is DerivO3CPU:
                 switch_cpus[i].mpMode = options.mp_mode
                 switch_cpus[i].apMode = options.ap_mode
+                switch_cpus[i].sttMode = options.stt_mode
                 switch_cpus[i].confidence_saturation \
                     = options.confidence_saturation
                 switch_cpus[i].confidence_threshold \

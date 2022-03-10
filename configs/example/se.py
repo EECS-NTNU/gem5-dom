@@ -275,6 +275,7 @@ for i in range(len(system.cpu)):
     if type(system.cpu[i]) is DerivO3CPU:
         system.cpu[i].mpMode = options.mp_mode
         system.cpu[i].apMode = options.ap_mode
+        system.cpu[i].sttMode = options.stt_mode
         system.cpu[i].confidence_saturation = options.confidence_saturation
         system.cpu[i].confidence_threshold = options.confidence_threshold
         system.cpu[i].confidence_up_step = options.confidence_up_step
