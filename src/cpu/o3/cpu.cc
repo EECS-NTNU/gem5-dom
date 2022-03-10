@@ -128,7 +128,10 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       VP(params.vpMode),
       AP(params.apMode),
       accuracy(params.predAccuracy),
-      STT(params.sttMode)
+      STT(params.sttMode),
+      safeMode(params.mpMode
+            || params.domMode
+            || params.sttMode)
 {
     assert(!(MP && DOM));
     assert(!(AP && VP));

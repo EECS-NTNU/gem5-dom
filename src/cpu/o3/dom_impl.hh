@@ -123,7 +123,7 @@ template <class Impl>
 void
 DefaultDOM<Impl>::insertBranch(const DynInstPtr &inst, ThreadID tid)
 {
-    if (!(_cpu->DOM || _cpu->MP)) return;
+    if (!(_cpu->safeMode)) return;
 
     DPRINTF(DebugDOM, "Trying to insert branch\n");
     assert(inst);
@@ -142,7 +142,7 @@ template <class Impl>
 void
 DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
 {
-    if (!(_cpu->DOM || _cpu->MP)) return;
+    if (!(_cpu->safeMode)) return;
 
     DPRINTF(DebugDOM, "Trying to insert load\n");
     assert(inst);
@@ -185,7 +185,7 @@ template <class Impl>
 void
 DefaultDOM<Impl>::safeBranch(const DynInstPtr &inst, ThreadID tid)
 {
-    if (!(_cpu->DOM || _cpu->MP)) return;
+    if (!(_cpu->safeMode)) return;
 
     DPRINTF(DebugDOM, "Trying to safe branch\n");
     assert(inst);
@@ -205,7 +205,7 @@ template <class Impl>
 void
 DefaultDOM<Impl>::mispredictBranch(const DynInstPtr &inst, ThreadID tid)
 {
-    if (!(_cpu->DOM || _cpu->MP)) return;
+    if (!(_cpu->safeMode)) return;
 
     DPRINTF(DebugDOM, "Trying to handle mispredicted branch\n");
     assert(inst);
@@ -348,7 +348,7 @@ template <class Impl>
 void
 DefaultDOM<Impl>::tick()
 {
-    if (!(_cpu->DOM || _cpu->MP)) return;
+    if (!(_cpu->safeMode)) return;
 
     clearDeadEntries();
     stallCycles++;

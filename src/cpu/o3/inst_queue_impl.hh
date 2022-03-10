@@ -1083,7 +1083,9 @@ InstructionQueue<Impl>::wakeDependents(const DynInstPtr &completed_inst)
             if (cpu->taintTracker.isTainted(src_reg)) {
                 DynInstPtr taintInst =
                     cpu->taintTracker.getTaintInstruction(src_reg);
-                if (taintInst->seqNum > youngestTaint->seqNum)
+                if (!youngestTaint) {
+                    youngestTaint = taintInst;
+                } else if (taintInst->seqNum > youngestTaint->seqNum)
                     youngestTaint = taintInst;
             }
         }

@@ -767,7 +767,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 {
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
-    if (cpu->MP || cpu->DOM) {
+    if (cpu->safeMode) {
         updateDShadow(load_req.instPtr());
         DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]"
             " with shadow value: %d\n",
