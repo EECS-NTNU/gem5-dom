@@ -109,6 +109,7 @@ MemDepUnit<MemDepPred, Impl>::init(
 
     std::string stats_group_name = csprintf("MemDepUnit__%i", tid);
     cpu->addStatGroup(stats_group_name.c_str(), &stats);
+    _cpu = cpu;
 }
 
 template <class MemDepPred, class Impl>
@@ -371,6 +372,19 @@ MemDepUnit<MemDepPred, Impl>::regsReady(const DynInstPtr &inst)
         DPRINTF(MemDepUnit, "Instruction has its memory "
                 "dependencies resolved, adding it to the ready list.\n");
 
+        if (_cpu->STT && inst->isLoad()) {
+            bool isTainted = false;
+            for (int src_reg_idx = 0;
+                 src_reg_idx < inst->numSrcRegs();
+                 src_reg_idx++)
+            {
+                PhysRegIdPtr regId = inst->regs.renamedSrcIdx(src_reg_idx);
+                if (_cpu->taintTracker.isTainted(regId)) {
+                    moveToTainted(inst_entry);
+                    return;
+                }
+            }
+        }
         moveToReady(inst_entry);
     } else {
         DPRINTF(MemDepUnit, "Instruction still waiting on "
@@ -514,6 +528,25 @@ MemDepUnit<MemDepPred, Impl>::wakeDependents(const DynInstPtr &inst)
 
 template <class MemDepPred, class Impl>
 void
+MemDepUnit<MemDepPred, Impl>::freeTaints()
+{
+    auto it = taintedQueue.begin();
+    while (it != taintedQueue.end()) {
+        for (int i = 0; i < (*it)->numSrcRegs(); i++) {
+            PhysRegIdPtr src_reg = (*it)->regs.renamedSrcIdx(i);
+            if (_cpu->taintTracker.isTainted(src_reg)) {
+                it++;
+                continue;
+            }
+        }
+        MemDepEntryPtr inst_entry = findInHash(*it);
+        moveToReady(inst_entry);
+        taintedQueue.erase(it);
+    }
+}
+
+template <class MemDepPred, class Impl>
+void
 MemDepUnit<MemDepPred, Impl>::squash(const InstSeqNum &squashed_num,
                                      ThreadID tid)
 {
@@ -595,6 +628,19 @@ MemDepUnit<MemDepPred, Impl>::findInHash(const DynInstConstPtr &inst)
     assert(hash_it != memDepHash.end());
 
     return (*hash_it).second;
+}
+
+template <class MemDepPred, class Impl>
+void
+MemDepUnit<MemDepPred, Impl>::moveToTainted(
+            MemDepEntryPtr &woken_tainted_entry)
+{
+    DPRINTF(MemDepUnit, "Adding instruction [sn:%lli] "
+            "to the ready list.\n", woken_tainted_entry->inst->seqNum);
+
+    assert(!woken_tainted_entry->squashed);
+
+    taintedQueue.push_back(woken_tainted_entry->inst);
 }
 
 template <class MemDepPred, class Impl>

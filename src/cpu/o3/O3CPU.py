@@ -190,6 +190,9 @@ class DerivO3CPU(BaseCPU):
                         "Toggle value predictor for performance boost")
     predAccuracy = Param.Int(100, "Accuracy of faked value predictor")
 
+    sttMode = Param.Bool(False,
+                        "Toggle STT mode to block side-channel attacks")
+
 
     confidence_saturation = Param.Int(
                             "Maximum confidence achievable for prediction")

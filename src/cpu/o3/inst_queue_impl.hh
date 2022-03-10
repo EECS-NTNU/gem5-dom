@@ -1070,12 +1070,39 @@ InstructionQueue<Impl>::wakeDependents(const DynInstPtr &completed_inst)
         memDepUnit[tid].completeInst(completed_inst);
     }
 
+    DynInstPtr youngestTaint = nullptr;
+
+    if (cpu->STT &&
+       (!(completed_inst->isLoad() && completed_inst->underShadow()))) {
+        for (int src_reg_idx = 0;
+            src_reg_idx < completed_inst->numSrcRegs();
+            src_reg_idx++)
+        {
+            PhysRegIdPtr src_reg =
+                completed_inst->regs.renamedSrcIdx(src_reg_idx);
+            if (cpu->taintTracker.isTainted(src_reg)) {
+                DynInstPtr taintInst =
+                    cpu->taintTracker.getTaintInstruction(src_reg);
+                if (taintInst->seqNum > youngestTaint->seqNum)
+                    youngestTaint = taintInst;
+            }
+        }
+    }
+    if (cpu->STT &&
+        completed_inst->isLoad() && completed_inst->underShadow())
+    {
+        youngestTaint = completed_inst;
+    }
+
     for (int dest_reg_idx = 0;
          dest_reg_idx < completed_inst->numDestRegs();
          dest_reg_idx++)
     {
         PhysRegIdPtr dest_reg =
             completed_inst->regs.renamedDestIdx(dest_reg_idx);
+
+        if (cpu->STT && youngestTaint)
+            cpu->taintTracker.insertTaint(dest_reg, youngestTaint);
 
         // Special case of uniq or control registers.  They are not
         // handled by the IQ and thus have no dependency graph entry.
@@ -1321,6 +1348,13 @@ InstructionQueue<Impl>::squash(ThreadID tid)
 
     // Also tell the memory dependence unit to squash.
     memDepUnit[tid].squash(squashedSeqNum[tid], tid);
+}
+
+template<class Impl>
+void
+InstructionQueue<Impl>::freeTaints()
+{
+    memDepUnit[0].freeTaints();
 }
 
 template <class Impl>

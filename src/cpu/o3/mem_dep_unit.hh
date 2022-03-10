@@ -87,6 +87,8 @@ class MemDepUnit
     typedef typename Impl::DynInstConstPtr DynInstConstPtr;
     typedef typename Impl::O3CPU O3CPU;
 
+    O3CPU *_cpu;
+
     /** Empty constructor. Must call init() prior to using in this case. */
     MemDepUnit();
 
@@ -143,6 +145,8 @@ class MemDepUnit
     /** Squashes all instructions up until a given sequence number for a
      *  specific thread.
      */
+    void freeTaints();
+
     void squash(const InstSeqNum &squashed_num, ThreadID tid);
 
     /** Indicates an ordering violation between a store and a younger load. */
@@ -234,6 +238,8 @@ class MemDepUnit
     /** Finds the memory dependence entry in the hash map. */
     inline MemDepEntryPtr &findInHash(const DynInstConstPtr& inst);
 
+    void moveToTainted(MemDepEntryPtr &ready_inst_entry);
+
     /** Moves an entry to the ready list. */
     inline void moveToReady(MemDepEntryPtr &ready_inst_entry);
 
@@ -249,6 +255,8 @@ class MemDepUnit
 
     /** A list of all instructions that are going to be replayed. */
     std::list<DynInstPtr> instsToReplay;
+
+    std::list<DynInstPtr> taintedQueue;
 
     /** The memory dependence predictor.  It is accessed upon new
      *  instructions being added to the IQ, and responds by telling

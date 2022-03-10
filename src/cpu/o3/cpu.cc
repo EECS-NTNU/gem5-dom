@@ -86,6 +86,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       rename(this, params),
       iew(this, params),
       dom(this, params),
+      taintTracker(this, params),
       add_pred(this, params),
       commit(this, params),
 
@@ -126,7 +127,8 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       DOM(params.domMode),
       VP(params.vpMode),
       AP(params.apMode),
-      accuracy(params.predAccuracy)
+      accuracy(params.predAccuracy),
+      STT(params.sttMode)
 {
     assert(!(MP && DOM));
     assert(!(AP && VP));
@@ -1676,6 +1678,13 @@ FullO3CPU<Impl>::dumpInsts()
         inst_list_it++;
         ++num;
     }
+}
+
+template<class Impl>
+void
+FullO3CPU<Impl>::freeTaints()
+{
+    iew.freeTaints();
 }
 /*
 template <class Impl>

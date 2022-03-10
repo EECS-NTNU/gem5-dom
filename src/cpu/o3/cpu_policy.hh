@@ -47,6 +47,7 @@
 #include "cpu/o3/rename_map.hh"
 #include "cpu/o3/rob.hh"
 #include "cpu/o3/store_set.hh"
+#include "cpu/o3/taint_tracker.hh"
 
 /**
  * Struct that defines the key classes to be used by the CPU.  All
@@ -87,6 +88,8 @@ struct SimpleCPUPolicy
     typedef DefaultDOM<Impl> DOM;
 
     typedef SimplePred<Impl> AddPred;
+
+    typedef DefaultTaintTracker<Impl> TaintTracker;
     /** Typedef for commit. */
     typedef DefaultCommit<Impl> Commit;
 

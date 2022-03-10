@@ -509,6 +509,8 @@ class FullO3CPU : public BaseO3CPU
     /** Debug function to print all instructions on the list. */
     void dumpInsts();
 
+    void freeTaints();
+
   public:
 #ifndef NDEBUG
     /** Count of total number of dynamic instructions in flight. */
@@ -551,6 +553,8 @@ class FullO3CPU : public BaseO3CPU
     typename CPUPolicy::DOM dom;
 
 public:
+    typename CPUPolicy::TaintTracker taintTracker;
+
     typename CPUPolicy::AddPred add_pred;
 protected:
 
@@ -790,6 +794,8 @@ protected:
     bool AP;
 
     int accuracy;
+
+    bool STT;
 
   public:
     // hardware transactional memory

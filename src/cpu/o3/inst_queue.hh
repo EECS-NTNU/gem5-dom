@@ -280,6 +280,8 @@ class InstructionQueue
     /** Debug function to print all instructions. */
     void printInsts();
 
+    void freeTaints();
+
   private:
     /** Does the actual squashing. */
     void doSquash(ThreadID tid);

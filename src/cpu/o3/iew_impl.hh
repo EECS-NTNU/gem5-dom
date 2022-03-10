@@ -568,6 +568,13 @@ DefaultIEW<Impl>::delayMemInst(const DynInstPtr& inst)
 
 template<class Impl>
 void
+DefaultIEW<Impl>::freeTaints()
+{
+    instQueue.freeTaints();
+}
+
+template<class Impl>
+void
 DefaultIEW<Impl>::replayMemInst(const DynInstPtr& inst)
 {
     instQueue.replayMemInst(inst);
