@@ -871,6 +871,7 @@ template<class Impl>
 void
 LSQUnit<Impl>::walkDShadows(const DynInstPtr &store_inst)
 {
+    if (!(cpu->DOM || cpu->MP)) return;
     auto load_it = store_inst->lqIt;
     DPRINTF(DebugDOM, "Walking younger loads for [sn:%llu]\n",
             store_inst->seqNum);
