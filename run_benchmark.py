@@ -37,12 +37,13 @@ results=f"{gem5_root}/results"
 
 runCPU="--cpu-type=DerivO3CPU"
 memory="--mem-size=8GB"
+prefetcher="--l1d-hwp-type=StridePrefetcher --l2-hwp-type=StridePrefetcher"
 caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
 "--l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
-mp_args="--mp_mode --ap_mode --confidence_saturation=6 "\
-"--confidence_threshold=4 --confidence_up_step=1 "\
+mp_args="--confidence_saturation=10 "\
+"--confidence_threshold=8 --confidence_up_step=1 "\
 "--confidence_down_step=4"
 
 fast_forward="--fast-forward 1000000000"
@@ -83,7 +84,8 @@ def run_benchmark():
     copy_dir()
     os.chdir(f"{jobid}/{bname}_{iteration}")
     run_ref = f"{gem5} {redirect} {se} {fast_forward} {memory} "\
-        f"{runtime} {mp_args} {caches} {runCPU} -c {bname} -o \"{options}\""
+        f"{runtime} {mp_args} {prefetcher} {caches} "\
+        f"{runCPU} -c {bname} -o \"{options}\""
 
     print(f"Finished with code {os.system(run_ref)}")
     os.chdir(f'{gem5_root}')
