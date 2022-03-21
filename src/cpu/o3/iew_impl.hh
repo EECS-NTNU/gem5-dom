@@ -1633,6 +1633,8 @@ DefaultIEW<Impl>::tick()
         DPRINTF(Activity, "Activity this cycle.\n");
         cpu->activityThisCycle();
     }
+
+    instQueue.tick();
 }
 
 template <class Impl>

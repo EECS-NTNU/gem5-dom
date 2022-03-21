@@ -51,6 +51,7 @@
 #include "debug/DOM.hh"
 #include "debug/DebugDOM.hh"
 #include "debug/IQ.hh"
+#include "debug/TaintTrackerDebug.hh"
 #include "enums/OpClass.hh"
 #include "params/DerivO3CPU.hh"
 #include "sim/core.hh"
@@ -610,8 +611,18 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
     // register(s).
     addToProducers(new_inst);
 
+    assert(!(new_inst->isMemRef() && new_inst->isControl()));
+
     if (new_inst->isMemRef()) {
+        if (new_inst->isLoad()) {
+            cpu->dom.insertLoad(new_inst,new_inst->threadNumber);
+            if (cpu->STT)
+                propagateTaints(new_inst, new_inst->threadNumber);
+        }
         memDepUnit[new_inst->threadNumber].insert(new_inst);
+    } else if (new_inst->isControl()) {
+        cpu->dom.insertBranch(new_inst, new_inst->threadNumber);
+        addIfReady(new_inst);
     } else {
         addIfReady(new_inst);
     }
@@ -1070,41 +1081,12 @@ InstructionQueue<Impl>::wakeDependents(const DynInstPtr &completed_inst)
         memDepUnit[tid].completeInst(completed_inst);
     }
 
-    DynInstPtr youngestTaint = nullptr;
-
-    if (cpu->STT &&
-       (!(completed_inst->isLoad() && completed_inst->underShadow()))) {
-        for (int src_reg_idx = 0;
-            src_reg_idx < completed_inst->numSrcRegs();
-            src_reg_idx++)
-        {
-            PhysRegIdPtr src_reg =
-                completed_inst->regs.renamedSrcIdx(src_reg_idx);
-            if (cpu->taintTracker.isTainted(src_reg)) {
-                DynInstPtr taintInst =
-                    cpu->taintTracker.getTaintInstruction(src_reg);
-                if (!youngestTaint) {
-                    youngestTaint = taintInst;
-                } else if (taintInst->seqNum > youngestTaint->seqNum)
-                    youngestTaint = taintInst;
-            }
-        }
-    }
-    if (cpu->STT &&
-        completed_inst->isLoad() && completed_inst->underShadow())
-    {
-        youngestTaint = completed_inst;
-    }
-
     for (int dest_reg_idx = 0;
          dest_reg_idx < completed_inst->numDestRegs();
          dest_reg_idx++)
     {
         PhysRegIdPtr dest_reg =
             completed_inst->regs.renamedDestIdx(dest_reg_idx);
-
-        if (cpu->STT && youngestTaint)
-            cpu->taintTracker.insertTaint(dest_reg, youngestTaint);
 
         // Special case of uniq or control registers.  They are not
         // handled by the IQ and thus have no dependency graph entry.
@@ -1597,6 +1579,9 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
     // available, then add it to the list of ready instructions.
     if (inst->readyToIssue()) {
 
+        if (cpu->STT)
+            propagateTaints(inst, inst->threadNumber);
+
         //Add the instruction to the proper ready list.
         if (inst->isMemRef()) {
 
@@ -1793,5 +1778,67 @@ InstructionQueue<Impl>::removeFromPredictable(const DynInstPtr &inst)
     if (pred_it == instsPredictable.end())
         DPRINTF(IQ, "Could not find inst in predictables\n");
 }
+
+template <class Impl>
+void
+InstructionQueue<Impl>::tick()
+{
+    memDepUnit[0].pruneTaints();
+}
+
+
+template <class Impl>
+void
+InstructionQueue<Impl>::propagateTaints(const DynInstPtr &inst, ThreadID tid)
+{
+    if (!cpu->STT) return;
+    DynInstPtr youngestTaint = nullptr;
+
+    DPRINTF(TaintTrackerDebug, "Propagating taints for [sn:%llu]\n",
+            inst->seqNum);
+
+    //If the inst is a store, it handles being ready other ways
+    if (inst->isStore()) {
+        assert(!inst->underShadow());
+        return;
+    }
+
+    if (inst->isLoad()) {
+        youngestTaint = inst;
+    } else {
+        for (int src_reg_idx = 0;
+            src_reg_idx < inst->numSrcRegs();
+            src_reg_idx++)
+        {
+            PhysRegIdPtr src_reg =
+                inst->regs.renamedSrcIdx(src_reg_idx);
+            if (src_reg->getNumPinnedWritesToComplete() != 0) continue;
+            if (cpu->taintTracker.isTainted(src_reg)) {
+                DynInstPtr taintInst =
+                    cpu->taintTracker.getTaintInstruction(src_reg);
+                if (!youngestTaint) {
+                    youngestTaint = taintInst;
+                } else if (taintInst->seqNum > youngestTaint->seqNum)
+                    youngestTaint = taintInst;
+            }
+        }
+    }
+
+    if (youngestTaint) {
+        assert(youngestTaint->seqNum <= inst->seqNum);
+
+        for (int dest_reg_idx = 0;
+         dest_reg_idx < inst->numDestRegs();
+         dest_reg_idx++)
+        {
+            PhysRegIdPtr dest_reg =
+                inst->regs.renamedDestIdx(dest_reg_idx);
+            //idk why but 16 is always 0?
+            if (dest_reg->flatIndex() == 16) continue;
+            cpu->taintTracker.insertTaint(dest_reg, youngestTaint);
+        }
+    }
+}
+
 
 #endif//__CPU_O3_INST_QUEUE_IMPL_HH__

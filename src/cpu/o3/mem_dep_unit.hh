@@ -41,6 +41,7 @@
 #ifndef __CPU_O3_MEM_DEP_UNIT_HH__
 #define __CPU_O3_MEM_DEP_UNIT_HH__
 
+#include <algorithm>
 #include <list>
 #include <memory>
 #include <set>
@@ -128,6 +129,8 @@ class MemDepUnit
     /** Indicate that an instruction has its registers ready. */
     void regsReady(const DynInstPtr &inst);
 
+    bool hasTaintedSrc(const DynInstPtr &inst);
+
     /** Indicate that a non-speculative instruction is ready. */
     void nonSpecInstReady(const DynInstPtr &inst);
 
@@ -142,11 +145,13 @@ class MemDepUnit
     /** Notifies completion of an instruction. */
     void completeInst(const DynInstPtr &inst);
 
+    void freeTaints();
+
+    void pruneTaints();
+
     /** Squashes all instructions up until a given sequence number for a
      *  specific thread.
      */
-    void freeTaints();
-
     void squash(const InstSeqNum &squashed_num, ThreadID tid);
 
     /** Indicates an ordering violation between a store and a younger load. */
@@ -256,7 +261,7 @@ class MemDepUnit
     /** A list of all instructions that are going to be replayed. */
     std::list<DynInstPtr> instsToReplay;
 
-    std::list<DynInstPtr> taintedQueue;
+    std::vector<DynInstPtr> taintedQueue;
 
     /** The memory dependence predictor.  It is accessed upon new
      *  instructions being added to the IQ, and responds by telling
@@ -298,6 +303,12 @@ class MemDepUnit
         /** Stat for number of conflicting stores that had to wait for a
          *  store. */
         Stats::Scalar conflictingStores;
+
+        Stats::Scalar delayedTaintedMems;
+
+        Stats::Scalar taintedMemsFreed;
+
+        Stats::Scalar taintedMemsSquashed;
     } stats;
 };
 

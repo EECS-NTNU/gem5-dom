@@ -67,6 +67,7 @@ if 'O3CPU' in env['CPU_MODELS']:
     DebugFlag('AddrPrediction')
     DebugFlag('AddrPredDebug')
     DebugFlag('ValuePrediction')
+    DebugFlag('TaintTrackerDebug')
     DebugFlag('IQ')
     DebugFlag('LSQ')
     DebugFlag('LSQUnit')

@@ -550,9 +550,9 @@ class FullO3CPU : public BaseO3CPU
     /** The issue/execute/writeback stages. */
     typename CPUPolicy::IEW iew;
 
+public:
     typename CPUPolicy::DOM dom;
 
-public:
     typename CPUPolicy::TaintTracker taintTracker;
 
     typename CPUPolicy::AddPred add_pred;

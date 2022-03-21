@@ -70,6 +70,8 @@ class DerivO3CPU(BaseCPU):
     def support_take_over(cls):
         return True
 
+    #Based on IceLake configuration
+
     activity = Param.Unsigned(0, "Initial count")
 
     cacheStorePorts = Param.Unsigned(200, "Cache Ports. "

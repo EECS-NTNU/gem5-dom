@@ -778,7 +778,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     load_req.setRequest(req);
     req->speculative = load_inst->underShadow();
 
-    if (!load_inst->isRanAhead()) {
+    if (cpu->AP &&
+        !load_inst->isRanAhead()) {
         updateRunAhead(load_inst->instAddr(), 1);
         load_inst->setRanAhead(true);
         iewStage->instQueue.removeFromPredictable(load_inst);

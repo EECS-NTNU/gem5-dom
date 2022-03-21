@@ -495,6 +495,8 @@ class InstructionQueue
   public:
     void addToPredictable(const DynInstPtr &inst);
     void removeFromPredictable(const DynInstPtr &inst);
+    void tick();
+    void propagateTaints(const DynInstPtr &inst, ThreadID tid);
   private:
     struct IQStats : public Stats::Group
     {

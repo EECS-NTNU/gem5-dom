@@ -62,7 +62,7 @@ DefaultDOM<Impl>::squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid)
     } else {
         sbTail[tid] = sbHead[tid];
     }
-    DPRINTF(DebugDOM, "Squashed %d SB entries from SeqNum %d\n",
+    DPRINTF(DebugDOM, "Squashed %d SB entries from [sn:%llu]\n",
         squashedEntries, seqNum);
 
     int squashedLoads = 0;
@@ -74,7 +74,7 @@ DefaultDOM<Impl>::squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid)
         rqList[tid]->pop_back();
     }
 
-    DPRINTF(DebugDOM, "Squashed %d RQ loads from SeqNum %d\n",
+    DPRINTF(DebugDOM, "Squashed %d RQ loads from [sn:%llu]\n",
         squashedLoads, seqNum);
 }
 
@@ -104,7 +104,7 @@ DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
         ++domStats.entriesSquashed;
         sbTail[tid] = (std::get<1>(sbList[tid]->back()) + 1) %maxNumSbEntries;
         sbHead[tid] = (std::get<1>(sbList[tid]->front()) + 1)%maxNumSbEntries;
-        DPRINTF(DebugDOM, "Squashed single ctrl inst [sn:%d]. "
+        DPRINTF(DebugDOM, "Squashed single ctrl inst [sn:%llu]. "
             "Restoring from index\n", inst->seqNum);
         restoreFromIndex(tid);
 
@@ -114,7 +114,8 @@ DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
         std::get<1>(rqList[tid]->at(spot))->cShadow = false;
         rqList[tid]->erase(rqList[tid]->begin() + spot);
         ++domStats.loadsSquashed;
-        DPRINTF(DebugDOM, "Squashed single load [sn:%d]. No need to restore\n",
+        DPRINTF(DebugDOM, "Squashed single load [sn:%llu]. "
+                "No need to restore\n",
             inst->seqNum);
     }
 }
@@ -132,7 +133,7 @@ DefaultDOM<Impl>::insertBranch(const DynInstPtr &inst, ThreadID tid)
         std::make_tuple(inst, sbTail[tid], true);
     sbTail[tid] = (sbTail[tid] + 1) % maxNumSbEntries;
     sbList[tid]->push_back(tup);
-    DPRINTF(DOM, "[tid:%i] Inserted Branch [sn:%d] into ShadowBuffer,"
+    DPRINTF(DOM, "[tid:%i] Inserted Branch [sn:%llu] into ShadowBuffer,"
     "size now: %d .\n", tid, inst->seqNum, sbList[tid]->size());
     ++domStats.branchesInserted;
     assert(sbList[tid]->size() < maxNumSbEntries);
@@ -149,7 +150,7 @@ DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
     if (sbHead[tid] != sbTail[tid]) {
         rqList[tid]->push_back({sbTail[tid] - 1, inst});
         inst->cShadow = true;
-        DPRINTF(DOM, "[tid:%i] Inserted Load [sn:%d] into ReleaseQueue,"
+        DPRINTF(DOM, "[tid:%i] Inserted Load [sn:%llu] into ReleaseQueue,"
         "with tag %d, size now: %d. \n",
         tid, inst->seqNum, sbTail[tid] - 1, rqList[tid]->size());
         ++domStats.loadsInserted;
@@ -191,12 +192,12 @@ DefaultDOM<Impl>::safeBranch(const DynInstPtr &inst, ThreadID tid)
     assert(inst);
     int spot = getBranchIndex(inst, tid);
     if (spot == -1) {
-        DPRINTF(DOM, "[tid:%i] Branch [sn:%d] not found to clear\n",
+        DPRINTF(DOM, "[tid:%i] Branch [sn:%llu] not found to clear\n",
         tid, inst->seqNum);
         return;
     }
     std::get<2>(sbList[tid]->at(spot)) = false;
-    DPRINTF(DOM, "[tid:%i] Declared Branch [sn:%d] Safe.\n", tid,
+    DPRINTF(DOM, "[tid:%i] Declared Branch [sn:%llu] Safe.\n", tid,
         inst->seqNum);
     ++domStats.branchesCleared;
 }
@@ -218,7 +219,7 @@ DefaultDOM<Impl>::mispredictBranch(const DynInstPtr &inst, ThreadID tid)
     }
     DPRINTF(DebugDOM, "Done searching, spot is %i\n", spot);
     if (spot == -1) {
-        DPRINTF(DOM, "[tid:%i] Branch [sn:%d] not found after mispredict\n"
+        DPRINTF(DOM, "[tid:%i] Branch [sn:%llu] not found after mispredict\n"
             , tid, inst->seqNum);
         return;
     }
@@ -231,7 +232,7 @@ DefaultDOM<Impl>::mispredictBranch(const DynInstPtr &inst, ThreadID tid)
         squashedEntries);
     sbTail[tid] = (std::get<1>(sbList[tid]->at(spot)) + 1) % maxNumSbEntries;
     DPRINTF(DOM, "[tid:%i] Restored ShadowBuffer to "
-    "mispredicted instruction [sn:%d].\n", tid, inst->seqNum);
+    "mispredicted instruction [sn:%llu].\n", tid, inst->seqNum);
     ++domStats.timesMispredicted;
     restoreFromIndex(tid);
 }
@@ -253,7 +254,7 @@ DefaultDOM<Impl>::restoreFromIndex(ThreadID tid)
         squashed++;
     }
     DPRINTF(DOM, "[tid:%i] Restored ReleaseQueue to index: %d"
-        " with inst [sn:%d] and squashing %d loads.\n", tid,
+        " with inst [sn:%llu] and squashing %d loads.\n", tid,
         rqList[tid]->empty() ? 0 : std::get<0>(rqList[tid]->front()),
         rqList[tid]->empty() ? 0 : std::get<1>(rqList[tid]->front())->seqNum,
         squashed);
@@ -268,8 +269,8 @@ DefaultDOM<Impl>::stepSb(ThreadID tid)
         sbHead[tid] = (sbHead[tid] + 1) % maxNumSbEntries;
         auto seqNum = std::get<0>(sbList[tid]->front())->seqNum;
         sbList[tid]->erase(sbList[tid]->begin());
-        DPRINTF(DOM, "[tid:%i] Stepped ShadowBuffer. Freed [sn:%d],"
-                " New inst [sn:%d].\n",
+        DPRINTF(DOM, "[tid:%i] Stepped ShadowBuffer. Freed [sn:%llu],"
+                " New inst [sn:%llu].\n",
                 tid,
                 seqNum,
                 sbList[tid]->empty() ? 0 :
@@ -297,7 +298,7 @@ DefaultDOM<Impl>::stepRq(ThreadID tid)
     if (!(tagCheck(std::get<0>(rqList[tid]->front()), tid))) {
         std::get<1>(rqList[tid]->front())->cShadow = false;
         DPRINTF(DOM, "[tid:%i] Stepped ReleaseQueue, freeing"
-                "[sn:%d].\n",
+                "[sn:%llu].\n",
                 tid,
                 (std::get<1>(rqList[tid]->front())->seqNum));
         rqList[tid]->erase(rqList[tid]->begin());
@@ -363,11 +364,17 @@ DefaultDOM<Impl>::tick()
         }
         if (rqList[i]->size() > 0) {
             DPRINTF(DebugDOM, "Current State for thread %i: \n"
-        "Entries in SB: %i\n"
-        "Entries in RQ: %i\n"
+        "Entries in SB: %i, [sn:%llu] at head\n"
+        "Entries in RQ: %i, [sn:%llu] at head\n"
         "sbTag for head of RQ: %i\n"
         "SBHead: %i, SBTail: %i\n",
-        i, sbList[i]->size(), rqList[i]->size(),
+        i,
+        sbList[i]->size(),
+        sbList[i]->size() > 0 ?
+            std::get<0>(sbList[i]->front())->seqNum : 0,
+        rqList[i]->size(),
+        rqList[i]->size() > 0 ?
+            std::get<1>(rqList[i]->front())->seqNum : 0,
         std::get<0>(rqList[i]->front()), sbHead[i], sbTail[i]);
 
         } else {
@@ -393,6 +400,20 @@ DefaultDOM<Impl>::tick()
         //assert(!(sbList[i]->size() == 0 && sbHead[i] != sbTail[i]));
         assert(!((sbHead[i] == sbTail[i]) && (sbList[i]->size() > 0)));
         assert(!(stallCycles > 10000));
+
+        if (sbList[i]->size() > 0) {
+            DynInstPtr inst = std::get<0>(sbList[i]->front());
+            for (int j = 0; j < inst->numSrcRegs(); j++) {
+                if (_cpu->taintTracker
+                    .isTainted(inst->regs.renamedSrcIdx(j))) {
+                    assert((!_cpu->taintTracker
+                        .getTaintInstruction(inst->regs
+                            .renamedSrcIdx(j))->cShadow)
+                        || inst->seqNum >
+                            (std::get<1>(rqList[i]->front()))->seqNum);
+                }
+            }
+        }
     }
 
     DPRINTF(DebugDOM, "Ticked DOM.\n");

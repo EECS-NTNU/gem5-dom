@@ -37,6 +37,16 @@ class DefaultTaintTracker
 
         DefaultTaintTracker(O3CPU *_cpu, const DerivO3CPUParams &params);
 
+    private:
+
+        struct TaintTrackerStats : public Stats::Group
+        {
+            TaintTrackerStats(O3CPU *cpu);
+
+            Stats::Scalar taintsInserted;
+            Stats::Scalar taintsFreed;
+        } stats;
+
 };
 
 #endif //_CPU_O3_TAINT_TRACKER_HH__

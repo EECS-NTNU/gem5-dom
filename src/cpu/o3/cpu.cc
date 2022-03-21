@@ -539,6 +539,8 @@ FullO3CPU<Impl>::tick()
 
     dom.tick();
 
+    taintTracker.pruneTaints();
+
     // Now advance the time buffers
     timeBuffer.advance();
 

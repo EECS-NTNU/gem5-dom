@@ -871,7 +871,7 @@ template<class Impl>
 void
 LSQUnit<Impl>::walkDShadows(const DynInstPtr &store_inst)
 {
-    if (!(cpu->DOM || cpu->MP)) return;
+    if (!(cpu->safeMode)) return;
     auto load_it = store_inst->lqIt;
     DPRINTF(DebugDOM, "Walking younger loads for [sn:%llu]\n",
             store_inst->seqNum);
@@ -1035,8 +1035,10 @@ LSQUnit<Impl>::commitLoad()
 
     auto inst = loadQueue.front().instruction();
 
-    updatePredictor(inst);
-    updateRunAhead(inst->instAddr(), -1);
+    if (cpu->AP) {
+        updatePredictor(inst);
+        updateRunAhead(inst->instAddr(), -1);
+    }
 
     loadQueue.front().clear();
     loadQueue.pop_front();
@@ -1275,7 +1277,8 @@ LSQUnit<Impl>::squash(const InstSeqNum &squashed_num)
             DPRINTF(HtmCpu, ">> htmStarts (%d) : htmStops-- (%d)\n",
               htmStarts, htmStops);
         }
-        if (loadQueue.back().instruction()->isRanAhead())
+        if (cpu ->AP &&
+            loadQueue.back().instruction()->isRanAhead())
             updateRunAhead(loadQueue.back().instruction()->instAddr(), -1);
 
         // Clear the smart pointer to make sure it is decremented.
