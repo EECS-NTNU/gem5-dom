@@ -14,6 +14,12 @@ DefaultTaintTracker<Impl>::DefaultTaintTracker(
 
 }
 
+template<class Impl>
+void
+DefaultTaintTracker<Impl>::resetState()
+{
+    taints.clear();
+}
 
 template<class Impl>
 void

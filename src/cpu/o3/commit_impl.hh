@@ -549,6 +549,7 @@ DefaultCommit<Impl>::generateTrapEvent(ThreadID tid, Fault inst_fault)
     }
 
     cpu->schedule(trap, cpu->clockEdge(latency));
+    cpu->trapCleanup(tid);
     trapInFlight[tid] = true;
     thread[tid]->trapPending = true;
 }
@@ -686,6 +687,8 @@ DefaultCommit<Impl>::tick()
         // Clear the bit saying if the thread has committed stores
         // this cycle.
         committedStores[tid] = false;
+
+        if (trapInFlight[tid]) cpu->trapCleanup(tid);
 
         if (commitStatus[tid] == ROBSquashing) {
 

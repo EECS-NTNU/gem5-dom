@@ -10,7 +10,7 @@ DefaultDOM<Impl>::DefaultDOM(O3CPU *_cpu, const DerivO3CPUParams &params)
     : _cpu(_cpu),
     maxNumSbEntries(params.numSbEntries),
     maxNumRqEntries(params.numRqEntries),
-    width(params.decodeWidth),
+    width(params.commitWidth),
     numThreads(params.numThreads),
     sbList {},
     rqList {},

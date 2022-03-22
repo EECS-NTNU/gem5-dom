@@ -614,15 +614,7 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
     assert(!(new_inst->isMemRef() && new_inst->isControl()));
 
     if (new_inst->isMemRef()) {
-        if (new_inst->isLoad()) {
-            cpu->dom.insertLoad(new_inst,new_inst->threadNumber);
-            if (cpu->STT)
-                propagateTaints(new_inst, new_inst->threadNumber);
-        }
         memDepUnit[new_inst->threadNumber].insert(new_inst);
-    } else if (new_inst->isControl()) {
-        cpu->dom.insertBranch(new_inst, new_inst->threadNumber);
-        addIfReady(new_inst);
     } else {
         addIfReady(new_inst);
     }

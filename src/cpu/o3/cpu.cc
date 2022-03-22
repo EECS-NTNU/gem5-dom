@@ -202,6 +202,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
     commit.setDOM(&dom);
     rename.setIEWStage(&iew);
     rename.setCommitStage(&commit);
+    rename.setDomStage(&dom);
 
     ThreadID active_threads;
     if (FullSystem) {
@@ -1690,6 +1691,14 @@ void
 FullO3CPU<Impl>::freeTaints()
 {
     iew.freeTaints();
+}
+
+template<class Impl>
+void
+FullO3CPU<Impl>::trapCleanup(ThreadID tid)
+{
+    dom.squashThread(tid);
+    taintTracker.resetState();
 }
 /*
 template <class Impl>

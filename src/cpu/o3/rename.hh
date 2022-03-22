@@ -82,6 +82,7 @@ class DefaultRename
     // These are used only for initialization.
     typedef typename CPUPol::IEW IEW;
     typedef typename CPUPol::Commit Commit;
+    typedef typename CPUPol::DOM DOM;
 
     // A deque is used to queue the instructions. Barrier insts must
     // be added to the front of the queue, which is the only reason for
@@ -153,12 +154,17 @@ class DefaultRename
     void setCommitStage(Commit *commit_stage)
     { commit_ptr = commit_stage; }
 
+    void setDomStage(DOM *dom_stage)
+    { dom_ptr = dom_stage; }
+
   private:
     /** Pointer to IEW stage. Used only for initialization. */
     IEW *iew_ptr;
 
     /** Pointer to commit stage. Used only for initialization. */
     Commit *commit_ptr;
+
+    DOM *dom_ptr;
 
   public:
     /** Initializes variables for the stage. */

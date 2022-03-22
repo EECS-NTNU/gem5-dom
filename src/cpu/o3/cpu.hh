@@ -511,6 +511,8 @@ class FullO3CPU : public BaseO3CPU
 
     void freeTaints();
 
+    void trapCleanup(ThreadID tid);
+
   public:
 #ifndef NDEBUG
     /** Count of total number of dynamic instructions in flight. */

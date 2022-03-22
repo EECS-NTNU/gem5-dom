@@ -27,6 +27,8 @@ class DefaultTaintTracker
         std::map<PhysRegIdPtr, DynInstPtr> taints;
 
     public:
+        void resetState();
+
         void insertTaint(PhysRegIdPtr &regId, DynInstPtr &load_inst);
 
         bool isTainted(PhysRegIdPtr regId);

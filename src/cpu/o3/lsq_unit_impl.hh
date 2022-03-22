@@ -448,6 +448,10 @@ LSQUnit<Impl>::insertLoad(const DynInstPtr &load_inst)
 
     ++loads;
 
+    updateDShadow(load_inst->lqIt->instPtr());
+    iewStage->instQueue.propagateTaints(load_inst,
+                                        load_inst->threadNumber);
+
     // hardware transactional memory
     // transactional state and nesting depth must be tracked
     // in the in-order part of the core.
@@ -844,6 +848,8 @@ template<class Impl>
 void
 LSQUnit<Impl>::updateDShadow(DynInstPtr &load_inst)
 {
+    DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]\n",
+            load_inst->seqNum);
     auto store_it = load_inst->sqIt;
     assert (store_it >= storeWBIt);
     while (store_it != storeWBIt) {
