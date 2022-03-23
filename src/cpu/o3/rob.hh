@@ -62,6 +62,7 @@ class ROB
     //Typedefs from the Impl.
     typedef typename Impl::O3CPU O3CPU;
     typedef typename Impl::DynInstPtr DynInstPtr;
+    typedef typename Impl::CPUPol CPUPolicy;
 
     typedef std::pair<RegIndex, PhysRegIndex> UnmapInfo;
     typedef typename std::list<DynInstPtr>::iterator InstIt;
@@ -263,6 +264,8 @@ class ROB
 
     /** Pointer to the CPU. */
     O3CPU *cpu;
+
+    typename CPUPolicy::TaintTracker *taintTracker;
 
     /** Active Threads in CPU */
     std::list<ThreadID> *activeThreads;

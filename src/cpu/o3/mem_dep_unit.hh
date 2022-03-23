@@ -154,6 +154,8 @@ class MemDepUnit
      */
     void squash(const InstSeqNum &squashed_num, ThreadID tid);
 
+    void squashTainted(const InstSeqNum &squashed_num, ThreadID tid);
+
     /** Indicates an ordering violation between a store and a younger load. */
     void violation(const DynInstPtr &store_inst,
                    const DynInstPtr &violating_load);

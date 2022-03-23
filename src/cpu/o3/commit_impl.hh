@@ -79,6 +79,7 @@ template <class Impl>
 DefaultCommit<Impl>::DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params)
     : commitPolicy(params.smtCommitPolicy),
       cpu(_cpu),
+      taintTracker(&_cpu->taintTracker),
       iewToCommitDelay(params.iewToCommitDelay),
       commitToIEWDelay(params.commitToIEWDelay),
       renameToROBDelay(params.renameToROBDelay),
@@ -582,6 +583,7 @@ DefaultCommit<Impl>::squashAll(ThreadID tid)
 
     rob->squash(squashed_inst, tid);
     dom->squashFromInstSeqNum(squashed_inst, tid);
+    taintTracker->squashFromInstSeqNum(squashed_inst, tid);
     changedROBNumEntries[tid] = true;
 
     // Send back the sequence number of the squashed instruction.
@@ -909,6 +911,7 @@ DefaultCommit<Impl>::commit()
 
             rob->squash(squashed_inst, tid);
             dom->squashFromInstSeqNum(squashed_inst, tid);
+            taintTracker->squashFromInstSeqNum(squashed_inst, tid);
             changedROBNumEntries[tid] = true;
 
             toIEW->commitInfo[tid].doneSeqNum = squashed_inst;

@@ -666,6 +666,26 @@ MemDepUnit<MemDepPred, Impl>::squash(const InstSeqNum &squashed_num,
 
     // Tell the dependency predictor to squash as well.
     depPred.squash(squashed_num, tid);
+
+    squashTainted(squashed_num, tid);
+}
+
+template <class MemDepPred, class Impl>
+void
+MemDepUnit<MemDepPred, Impl>::squashTainted(const InstSeqNum &squashed_num,
+                                            ThreadID tid)
+{
+    for (int i = 0; i < taintedQueue.size(); i++) {
+        DynInstPtr inst = taintedQueue.at(i);
+        if (inst->seqNum > squashed_num) {
+            ++stats.taintedMemsSquashed;
+            DPRINTF(MemDepUnit, "Removing load from "
+            "taintedQueue: [sn:%llu] due to num squash\n",
+            inst->seqNum);
+            taintedQueue.erase(taintedQueue.begin() + i);
+            i--;
+        }
+    }
 }
 
 template <class MemDepPred, class Impl>

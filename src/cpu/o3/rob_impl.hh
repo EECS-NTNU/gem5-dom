@@ -53,6 +53,7 @@ template <class Impl>
 ROB<Impl>::ROB(O3CPU *_cpu, const DerivO3CPUParams &params)
     : robPolicy(params.smtROBPolicy),
       cpu(_cpu),
+      taintTracker(&_cpu->taintTracker),
       numEntries(params.numROBEntries),
       squashWidth(params.squashWidth),
       numInstsInROB(0),

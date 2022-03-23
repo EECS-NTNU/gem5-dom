@@ -98,6 +98,38 @@ DefaultTaintTracker<Impl>::pruneTaints()
 }
 
 template<class Impl>
+void
+DefaultTaintTracker<Impl>::squashFromInstSeqNum(InstSeqNum seqNum,
+                                                ThreadID tid)
+{
+    if (taints.size() == 0) return;
+    auto it = taints.begin();
+    std::queue<PhysRegIdPtr> toDelete;
+    std::list<int> orderedRegs;
+    DPRINTF(TaintTrackerDebug, "Squashing taints, currTaints: %d\n",
+            taints.size());
+    while (it != taints.end()) {
+        if ( it->second->seqNum > seqNum ) {
+            toDelete.push(it->first);
+        }
+        orderedRegs.push_back(it->first->flatIndex());
+        it++;
+    }
+
+    int clearedTaints = toDelete.size();
+    while (toDelete.size() != 0) {
+        PhysRegIdPtr elem = toDelete.front();
+        taints.erase(elem);
+        toDelete.pop();
+        ++stats.taintsFreed;
+    }
+    DPRINTF(TaintTrackerDebug, "SquashedTaints: %d, "
+            "currTaints: %d, [sn:%llu]\n",
+            clearedTaints, taints.size(),
+            seqNum);
+}
+
+template<class Impl>
 DefaultTaintTracker<Impl>::
 TaintTrackerStats::TaintTrackerStats(O3CPU *_cpu)
     : Stats::Group(_cpu),

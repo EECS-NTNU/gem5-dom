@@ -37,6 +37,8 @@ class DefaultTaintTracker
 
         void pruneTaints();
 
+        void squashFromInstSeqNum(InstSeqNum seqNum, ThreadID tid);
+
         DefaultTaintTracker(O3CPU *_cpu, const DerivO3CPUParams &params);
 
     private:
