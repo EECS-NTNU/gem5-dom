@@ -19,9 +19,11 @@ struct AddrHistory {
                 Addr instPC,
                 Addr lastAddr,
                 int history_size,
-                int packetSize)
+                int packetSize,
+                Tick lastTick)
         : seqNum(seq_num), pc(instPC),
           lastAddr(lastAddr),
+          lastAccess(lastTick),
           packetSize(packetSize),
           confidence(0),
           historySize(history_size),
@@ -33,6 +35,8 @@ struct AddrHistory {
     Addr pc;
 
     Addr lastAddr;
+
+    Tick lastAccess;
 
     int packetSize;
 
@@ -65,6 +69,10 @@ class SimplePred
 
     int confidenceDownStep;
 
+    AddrHistory* getMatchingEntry(Addr pc);
+
+    void insertNewEntry(AddrHistory *entry);
+
     Addr predictFromPC(Addr pc, int runAhead);
 
     void updatePredictor(Addr realAddr, Addr pc,
@@ -72,9 +80,11 @@ class SimplePred
 
     int getPacketSize(Addr pc);
 
-    int numEntries = 1024;
+    const static int numEntries = 256;
 
-    struct AddrHistory* entries[1024] = {};
+    const static int associativity = 4;
+
+    struct AddrHistory* entries[numEntries][associativity] = {};
 
     const std::string name() const;
 

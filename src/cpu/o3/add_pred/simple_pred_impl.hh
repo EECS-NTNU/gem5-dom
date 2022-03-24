@@ -24,13 +24,49 @@ SimplePred<Impl>::SimplePred(O3CPU *_cpu, const DerivO3CPUParams &params)
 }
 
 template<class Impl>
+AddrHistory*
+SimplePred<Impl>::getMatchingEntry(Addr pc)
+{
+    //pc is unique down to LSB due to x86, no right-shift
+    int index = pc % numEntries;
+    auto possibleEntries = entries[index];
+    for (int i = 0; i < associativity; i++) {
+        if (possibleEntries[i] &&
+            possibleEntries[i]->pc == pc)
+            return possibleEntries[i];
+    }
+    return nullptr;
+}
+
+template<class Impl>
+void
+SimplePred<Impl>::insertNewEntry(AddrHistory *entry)
+{
+    int index = entry->pc % numEntries;
+    auto possibleEntries = entries[index];
+    int oldestIndex = 0;
+    Tick oldestTick = MaxTick;
+    for (int i = 0; i < associativity; i++) {
+        if (!possibleEntries[i]) {
+            possibleEntries[i] = entry;
+            return;
+        }
+        if (possibleEntries[i]->lastAccess < oldestTick) {
+            oldestTick = possibleEntries[i]->lastAccess;
+            oldestIndex = i;
+        }
+    }
+    delete(possibleEntries[oldestIndex]);
+    possibleEntries[oldestIndex] = entry;
+}
+
+template<class Impl>
 Addr
 SimplePred<Impl>::predictFromPC(Addr pc, int runAhead)
 {
     DPRINTF(AddrPrediction, "Attempting to predict for pc "
         "%llx with runahead %d\n", pc, runAhead);
-    int index = pc % numEntries;
-    struct AddrHistory* entry = entries[index];
+    struct AddrHistory* entry = getMatchingEntry(pc);
     if (entry && entry->confidence >= this->confidenceThreshold) {
         return entry->lastAddr + (entry->strideHistory.front()*runAhead);
     }
@@ -46,24 +82,26 @@ SimplePred<Impl>::updatePredictor(Addr realAddr, Addr pc,
     DPRINTF(AddrPrediction, "Updating predictor for [sn:%llu], "
             "with pc %llx and realAddr %#x\n",
             seqNum, pc, realAddr);
-    int index = pc % numEntries;
-    struct AddrHistory* entry = entries[index];
+    struct AddrHistory* entry = getMatchingEntry(pc);
     if (!entry) {
         AddrHistory* new_entry =
-            new AddrHistory(seqNum, pc, realAddr, 1, packetSize);
-        entries[index] = new_entry;
+            new AddrHistory(seqNum, pc, realAddr, 1,
+                            packetSize, curTick());
+        insertNewEntry(new_entry);
         DPRINTF(AddrPredDebug, "New entry created, returning\n");
         return;
     }
     if (pc != entry->pc) {
         delete(entry);
         AddrHistory* new_entry =
-            new AddrHistory(seqNum, pc, realAddr, 1, packetSize);
-        entries[index] = new_entry;
+            new AddrHistory(seqNum, pc, realAddr, 1,
+                            packetSize, curTick());
+        insertNewEntry(new_entry);
         DPRINTF(AddrPredDebug, "New tag for old entry, returning\n");
         return;
     }
     assert(pc == entry->pc);
+    entry->lastAccess = curTick();
 
     if (entry->strideHistory.empty()) {
         entry->strideHistory.push_back(realAddr - entry->lastAddr);
@@ -93,8 +131,7 @@ template<class Impl>
 int
 SimplePred<Impl>::getPacketSize(Addr pc)
 {
-    int index = pc % numEntries;
-    struct AddrHistory* entry = entries[index];
+    struct AddrHistory* entry = getMatchingEntry(pc);
     if (!entry) return 0;
     return entry->packetSize;
 }
