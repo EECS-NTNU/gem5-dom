@@ -354,7 +354,13 @@ IQIOStats::IQIOStats(Stats::Group *parent)
     ADD_STAT(intAluAccesses, UNIT_COUNT, "Number of integer alu accesses"),
     ADD_STAT(fpAluAccesses, UNIT_COUNT,
              "Number of floating point alu accesses"),
-    ADD_STAT(vecAluAccesses, UNIT_COUNT, "Number of vector alu accesses")
+    ADD_STAT(vecAluAccesses, UNIT_COUNT, "Number of vector alu accesses"),
+    ADD_STAT(taintedBranchesInserted, UNIT_COUNT,
+             "Number of branches delayed due to implicit taint protection"),
+    ADD_STAT(taintedBranchesFreed, UNIT_COUNT,
+             "Number of tainted Branches freed to resolve"),
+    ADD_STAT(taintedBranchesSquashed, UNIT_COUNT,
+             "Number of tainted Branches squashed before being freed")
 {
     using namespace Stats;
     intInstQueueReads
@@ -1330,6 +1336,7 @@ template<class Impl>
 void
 InstructionQueue<Impl>::freeTaints()
 {
+    freeTaintedBranches();
     memDepUnit[0].freeTaints();
 }
 
@@ -1586,6 +1593,13 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
             return;
         }
 
+        if (cpu->STT && inst->isControl()) {
+            if (cpu->taintTracker.hasTaintedSrc(inst)) {
+                addToTaintedBranches(inst);
+                return;
+            }
+        }
+
         OpClass op_class = inst->opClass();
 
         DPRINTF(IQ, "Instruction is ready to issue, putting it onto "
@@ -1602,6 +1616,86 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
                    (*readyIt[op_class]).oldestInst) {
             listOrder.erase(readyIt[op_class]);
             addToOrderList(op_class);
+        }
+    }
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::addToTaintedBranches(const DynInstPtr &inst)
+{
+    assert(inst->isControl());
+    ++iqIOStats.taintedBranchesInserted;
+    taintedBranches.push_back(inst);
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::freeTaintedBranches()
+{
+    DPRINTF(IQ, "Freeing tainted branches, current size: %d\n",
+            taintedBranches.size());
+    for (int i = 0; i < taintedBranches.size(); i++) {
+        DynInstPtr inst = taintedBranches.at(i);
+        bool tainted = false;
+        for (int j = 0; j < inst->numSrcRegs(); j++) {
+            PhysRegIdPtr src_reg = inst->regs.renamedSrcIdx(j);
+            if (cpu->taintTracker.isTainted(src_reg)) {
+                tainted = true;
+            }
+        }
+        if (tainted && !inst->isSquashed())  {
+            continue;
+        }
+
+        DPRINTF(IQ, "Freeing untainted branch "
+                "[sn:%llu] from taintedBranches, squashed: %d\n",
+                inst->seqNum,
+                inst->isSquashed());
+
+        taintedBranches.erase(taintedBranches.begin() + i);
+        i--;
+
+        if (inst->isSquashed()) {
+            ++iqIOStats.taintedBranchesSquashed;
+            continue;
+        }
+
+        assert(!inst->isCommitted());
+
+        ++iqIOStats.taintedBranchesFreed;
+        OpClass op_class = inst->opClass();
+
+        DPRINTF(IQ, "Instruction is ready to issue, putting it onto "
+                "the ready list, PC %s opclass:%i [sn:%llu].\n",
+                inst->pcState(), op_class, inst->seqNum);
+
+        readyInsts[op_class].push(inst);
+
+        // Will need to reorder the list if either a queue is not on the list,
+        // or it has an older instruction than last time.
+        if (!queueOnList[op_class]) {
+            addToOrderList(op_class);
+        } else if (readyInsts[op_class].top()->seqNum  <
+                   (*readyIt[op_class]).oldestInst) {
+            listOrder.erase(readyIt[op_class]);
+            addToOrderList(op_class);
+        }
+    }
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::pruneTaintedBranches()
+{
+    for (int i = 0; i < taintedBranches.size(); i++) {
+        DynInstPtr inst = taintedBranches.at(i);
+        if (inst->isSquashed()) {
+            ++iqIOStats.taintedBranchesSquashed;
+            DPRINTF(IQ, "Removing squashed branch from "
+            "taintedBranches: [sn:%llu]\n", inst->seqNum);
+            taintedBranches.erase(taintedBranches.begin() + i);
+            i--;
         }
     }
 }
@@ -1776,6 +1870,7 @@ void
 InstructionQueue<Impl>::tick()
 {
     memDepUnit[0].pruneTaints();
+    pruneTaintedBranches();
 }
 
 

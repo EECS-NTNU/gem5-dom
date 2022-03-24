@@ -33,6 +33,8 @@ class DefaultTaintTracker
 
         bool isTainted(PhysRegIdPtr regId);
 
+        bool hasTaintedSrc(const DynInstPtr &inst);
+
         DynInstPtr getTaintInstruction(PhysRegIdPtr regId);
 
         void pruneTaints();

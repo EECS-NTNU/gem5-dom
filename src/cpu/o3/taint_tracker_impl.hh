@@ -42,6 +42,28 @@ DefaultTaintTracker<Impl>::isTainted(PhysRegIdPtr regId)
     return it != taints.end();
 }
 
+
+template <class Impl>
+bool
+DefaultTaintTracker<Impl>::hasTaintedSrc(const DynInstPtr &inst)
+{
+    DPRINTF(TaintTrackerDebug,
+            "Checking for tainted source for [sn:%llu]\n",
+            inst->seqNum);
+    if (!_cpu->STT) return false;
+    assert(inst->isControl() || inst->isLoad());
+    for (int src_reg_idx = 0;
+            src_reg_idx < inst->numSrcRegs();
+            src_reg_idx++)
+    {
+        PhysRegIdPtr regId = inst->regs.renamedSrcIdx(src_reg_idx);
+        if (isTainted(regId)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 template<class Impl>
 typename Impl::DynInstPtr
 DefaultTaintTracker<Impl>::getTaintInstruction(PhysRegIdPtr regId)

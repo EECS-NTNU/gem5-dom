@@ -272,7 +272,8 @@ MemDepUnit<MemDepPred, Impl>::insert(const DynInstPtr &inst)
         if (inst->readyToIssue()) {
             inst_entry->regsReady = true;
 
-            if (inst->isLoad() && hasTaintedSrc(inst)) {
+            if (inst->isLoad() &&
+                _cpu->taintTracker.hasTaintedSrc(inst)) {
                 moveToTainted(inst_entry);
             } else {
                 moveToReady(inst_entry);
@@ -383,7 +384,8 @@ MemDepUnit<MemDepPred, Impl>::regsReady(const DynInstPtr &inst)
         DPRINTF(MemDepUnit, "Instruction has its memory "
                 "dependencies resolved, adding it to the ready list.\n");
 
-        if (inst->isLoad() && hasTaintedSrc(inst)) {
+        if (inst->isLoad() &&
+            _cpu->taintTracker.hasTaintedSrc(inst)) {
             moveToTainted(inst_entry);
         } else {
             moveToReady(inst_entry);
@@ -392,28 +394,6 @@ MemDepUnit<MemDepPred, Impl>::regsReady(const DynInstPtr &inst)
         DPRINTF(MemDepUnit, "Instruction still waiting on "
                 "memory dependency.\n");
     }
-}
-
-template <class MemDepPred, class Impl>
-bool
-MemDepUnit<MemDepPred, Impl>::hasTaintedSrc(const DynInstPtr &inst)
-{
-    DPRINTF(TaintTrackerDebug,
-            "Checking for tainted source for [sn:%llu]\n",
-            inst->seqNum);
-    if (!_cpu->STT) return false;
-    assert(inst->isLoad());
-    bool isTainted = false;
-    for (int src_reg_idx = 0;
-            src_reg_idx < inst->numSrcRegs();
-            src_reg_idx++)
-    {
-        PhysRegIdPtr regId = inst->regs.renamedSrcIdx(src_reg_idx);
-        if (_cpu->taintTracker.isTainted(regId)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 template <class MemDepPred, class Impl>
@@ -451,7 +431,8 @@ MemDepUnit<MemDepPred, Impl>::replay()
         DPRINTF(MemDepUnit, "Replaying mem instruction PC %s [sn:%lli].\n",
                 temp_inst->pcState(), temp_inst->seqNum);
 
-        if (temp_inst->isLoad() && hasTaintedSrc(temp_inst)) {
+        if (temp_inst->isLoad() &&
+            _cpu->taintTracker.hasTaintedSrc(temp_inst)) {
             moveToTainted(inst_entry);
         } else {
             moveToReady(inst_entry);
@@ -547,7 +528,8 @@ MemDepUnit<MemDepPred, Impl>::wakeDependents(const DynInstPtr &inst)
         if ((woken_inst->memDeps == 0) &&
             woken_inst->regsReady &&
             !woken_inst->squashed) {
-            if (inst->isLoad() && hasTaintedSrc(inst)) {
+            if (inst->isLoad() &&
+                _cpu->taintTracker.hasTaintedSrc(inst)) {
                 moveToTainted(woken_inst);
             } else {
                 moveToReady(woken_inst);

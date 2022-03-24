@@ -129,8 +129,6 @@ class MemDepUnit
     /** Indicate that an instruction has its registers ready. */
     void regsReady(const DynInstPtr &inst);
 
-    bool hasTaintedSrc(const DynInstPtr &inst);
-
     /** Indicate that a non-speculative instruction is ready. */
     void nonSpecInstReady(const DynInstPtr &inst);
 

@@ -330,6 +330,8 @@ class InstructionQueue
 
     std::vector<DynInstPtr> instsPredictable;
 
+    std::vector<DynInstPtr> taintedBranches;
+
     /** List of instructions waiting for their DTB translation to
      *  complete (hw page table walk in progress).
      */
@@ -475,6 +477,12 @@ class InstructionQueue
     /** Moves an instruction to the ready queue if it is ready. */
     void addIfReady(const DynInstPtr &inst);
 
+    void addToTaintedBranches(const DynInstPtr &inst);
+
+    void freeTaintedBranches();
+
+    void pruneTaintedBranches();
+
     /** Debugging function to count how many entries are in the IQ.  It does
      *  a linear walk through the instructions, so do not call this function
      *  during normal execution.
@@ -584,6 +592,10 @@ class InstructionQueue
         Stats::Scalar intAluAccesses;
         Stats::Scalar fpAluAccesses;
         Stats::Scalar vecAluAccesses;
+
+        Stats::Scalar taintedBranchesInserted;
+        Stats::Scalar taintedBranchesFreed;
+        Stats::Scalar taintedBranchesSquashed;
     } iqIOStats;
 };
 
