@@ -18,7 +18,7 @@
 "gcc scilab.in -o scilab.s"
 "bwaves < bwaves.in"
 "mcf inp.in"
-"mile inp.in"
+"milc inp.in"
 "zeusmp < zmp_inp"
 "gromacs -silent -deffnm gromacs -nice 0"
 "cactusADM benchADM.par"
