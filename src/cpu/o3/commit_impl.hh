@@ -1414,7 +1414,7 @@ DefaultCommit<Impl>::getInsts()
 
             rob->insertInst(inst);
             //TODO: This has been moved to inst
-            if (inst->isControl()) {
+            if (inst->isCondControl()) {
                 //dom->insertBranch(inst, tid);
             }
             if (inst->isLoad()) {
@@ -1449,7 +1449,7 @@ DefaultCommit<Impl>::markCompletedInsts()
 
             // Mark the instruction as ready to commit.
             fromIEW->insts[inst_num]->setCanCommit();
-            if (fromIEW->insts[inst_num]->isControl()) {
+            if (fromIEW->insts[inst_num]->isCondControl()) {
                 dom->safeBranch(fromIEW->insts[inst_num],
                     fromIEW->insts[inst_num]->threadNumber);
             }

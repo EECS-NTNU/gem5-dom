@@ -722,7 +722,7 @@ DefaultRename<Impl>::renameInsts(ThreadID tid)
 
         renameDestRegs(inst, inst->threadNumber);
 
-        if (inst->isControl()) {
+        if (inst->isCondControl()) {
             dom_ptr->insertBranch(inst, inst->threadNumber);
         } else if (inst->isLoad()) {
             dom_ptr->insertLoad(inst, inst->threadNumber);
