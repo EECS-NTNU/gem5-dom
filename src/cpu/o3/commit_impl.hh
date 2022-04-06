@@ -1413,14 +1413,6 @@ DefaultCommit<Impl>::getInsts()
                     tid, inst->seqNum, inst->pcState());
 
             rob->insertInst(inst);
-            //TODO: This has been moved to inst
-            if (inst->isCondCtrl()) {
-                //dom->insertBranch(inst, tid);
-            }
-            if (inst->isLoad()) {
-                //dom->insertLoad(inst, tid);
-            }
-
             assert(rob->getThreadEntries(tid) <= rob->getMaxEntries(tid));
 
             youngestSeqNum[tid] = inst->seqNum;
