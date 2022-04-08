@@ -96,7 +96,7 @@ template<class Impl>
 void
 DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
 {
-    if (inst->isCondCtrl()) {
+    if (inst->isControl()) {
         int spot = getBranchIndex(inst, tid);
         // If not in our buffer, just leave
         if (spot == -1) return;

@@ -51,7 +51,7 @@ DefaultTaintTracker<Impl>::hasTaintedSrc(const DynInstPtr &inst)
             "Checking for tainted source for [sn:%llu]\n",
             inst->seqNum);
     if (!_cpu->STT) return false;
-    assert(inst->isCondCtrl() || inst->isLoad());
+    assert(inst->isControl() || inst->isLoad());
     for (int src_reg_idx = 0;
             src_reg_idx < inst->numSrcRegs();
             src_reg_idx++)

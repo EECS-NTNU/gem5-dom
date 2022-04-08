@@ -1441,7 +1441,7 @@ DefaultCommit<Impl>::markCompletedInsts()
 
             // Mark the instruction as ready to commit.
             fromIEW->insts[inst_num]->setCanCommit();
-            if (fromIEW->insts[inst_num]->isCondCtrl()) {
+            if (fromIEW->insts[inst_num]->isControl()) {
                 dom->safeBranch(fromIEW->insts[inst_num],
                     fromIEW->insts[inst_num]->threadNumber);
             }

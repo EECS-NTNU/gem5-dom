@@ -1593,7 +1593,7 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
             return;
         }
 
-        if (cpu->STT && inst->isCondCtrl()) {
+        if (cpu->STT && inst->isControl()) {
             if (cpu->taintTracker.hasTaintedSrc(inst) &&
                 inst->staticInst->getName() != "wrip") {
                 addToTaintedBranches(inst);
@@ -1625,7 +1625,7 @@ template <class Impl>
 void
 InstructionQueue<Impl>::addToTaintedBranches(const DynInstPtr &inst)
 {
-    assert(inst->isCondCtrl());
+    assert(inst->isControl());
     ++iqIOStats.taintedBranchesInserted;
     taintedBranches.push_back(inst);
 }
