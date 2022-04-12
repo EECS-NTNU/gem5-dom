@@ -2,7 +2,7 @@
 
 #SBATCH --partition=CPUQ
 #SBATCH --account=share-ie-idi
-#SBATCH --time=10:00:00
+#SBATCH --time=16:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --array=1-49
