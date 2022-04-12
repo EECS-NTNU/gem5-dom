@@ -39,14 +39,14 @@ runCPU="--cpu-type=DerivO3CPU"
 memory="--mem-size=8GB"
 prefetcher="--l1d-hwp-type=StridePrefetcher --l2-hwp-type=StridePrefetcher"
 caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
-"--l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
-"--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
+"--l2cache --l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
+"--l3cache --l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
 mp_args="--confidence_saturation=10 "\
 "--confidence_threshold=8 --confidence_up_step=1 "\
 "--confidence_down_step=4"
 
-fast_forward="--fast-forward 1000000000"
+fast_forward="--fast-forward 3000000000"
 runtime="--maxinsts=1000000000"
 
 print(sys.argv)
