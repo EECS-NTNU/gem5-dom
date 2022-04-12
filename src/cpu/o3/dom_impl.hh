@@ -126,9 +126,6 @@ DefaultDOM<Impl>::insertBranch(const DynInstPtr &inst, ThreadID tid)
 {
     if (!(_cpu->safeMode)) return;
 
-    // Annoying hack to avoid wrip in x86 for gem5
-    if (inst->staticInst->getName() == "wrip") return;
-
     DPRINTF(DebugDOM, "Trying to insert branch\n");
     assert(inst);
 
@@ -190,9 +187,6 @@ void
 DefaultDOM<Impl>::safeBranch(const DynInstPtr &inst, ThreadID tid)
 {
     if (!(_cpu->safeMode)) return;
-
-    // Wrip are not inserted in, they are unconditional
-    if (inst->staticInst->getName() == "wrip") return;
 
     DPRINTF(DebugDOM, "Trying to safe branch\n");
     assert(inst);
