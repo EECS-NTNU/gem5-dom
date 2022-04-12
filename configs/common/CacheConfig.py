@@ -115,7 +115,7 @@ def config_cache(options, system):
     if options.l2cache and options.elastic_trace_en:
         fatal("When elastic trace is enabled, do not configure L2 caches.")
 
-    if options.l2cache:
+    if options.l2cache and not options.l3cache:
         # Provide a clock for the L2 and the L1-to-L2 bus here as they
         # are not connected using addTwoLevelCacheHierarchy. Use the
         # same clock as the CPUs.
@@ -127,6 +127,10 @@ def config_cache(options, system):
         system.l2.mem_side = system.membus.slave
 
     if options.l2cache and options.l3cache:
+        system.l2 = l2_cache_class(clk_domain=system.cpu_clk_domain,
+                                   **_get_cache_opts('l2', options))
+
+
         system.l3 = l3_cache_class(clk_domain=system.cpu_clk_domain,
         size=options.l3_size,
         assoc=options.l3_assoc)
