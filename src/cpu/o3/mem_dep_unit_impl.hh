@@ -709,7 +709,7 @@ MemDepUnit<MemDepPred, Impl>::moveToTainted(
             MemDepEntryPtr &woken_tainted_entry)
 {
     assert(!woken_tainted_entry->squashed);
-    assert(cpu->STT);
+    assert(_cpu->STT);
     assert(std::find(taintedQueue.begin(),
                      taintedQueue.end(),
                      woken_tainted_entry->inst) == taintedQueue.end());

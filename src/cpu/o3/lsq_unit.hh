@@ -420,6 +420,8 @@ class LSQUnit
 
     bool fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst);
 
+    bool inL1Cache(DynInstPtr load_inst, LSQRequest *req);
+
   public:
     /** Attempts to send a packet to the cache.
      * Check if there are ports available. Return true if
@@ -1149,7 +1151,15 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     }
     req->buildPackets();
 
-    if (cpu->DOM) panic("needs to be reimplemented");
+    if (cpu->DOM && load_inst->underShadow()) {
+        req->setSpeculative(true);
+        if (!inL1Cache(load_inst, req)) {
+            iewStage->delayMemInst(load_inst);
+            ++stats.loadsDelayedOnMiss;
+            load_inst->clearIssued();
+            return std::make_shared<ShadowFault>();;
+        }
+    }
 
     // [MP-SPEM] Handle speculative loads separately
     assert(req->isSpeculative() == req->_inst->underShadow());

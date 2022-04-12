@@ -1678,6 +1678,27 @@ LSQUnit<Impl>::fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst)
 
 template <class Impl>
 bool
+LSQUnit<Impl>::inL1Cache(DynInstPtr load_inst, LSQRequest *req)
+{
+    assert(load_inst->underShadow());
+    PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
+    ex_snoop->dataStatic(load_inst->memData);
+    ex_snoop->setExpressSnoop();
+    ex_snoop->domSpeculativeMode();
+    LSQSenderState *state = new LQSnoopState(req);
+    ex_snoop->senderState = state;
+    dcachePort->sendFunctional(ex_snoop);
+    ++stats.issuedSnoops;
+    DPRINTF(DOM, "Issued snoop to cache"
+        "Missed: %d\n", ex_snoop->isCacheMiss());
+    bool missInCache = ex_snoop->isCacheMiss();
+    delete(ex_snoop);
+    delete(state);
+    return !missInCache;
+}
+
+template <class Impl>
+bool
 LSQUnit<Impl>::trySendPacket(bool isLoad, PacketPtr data_pkt)
 {
     assert(data_pkt);
