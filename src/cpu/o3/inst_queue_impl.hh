@@ -1597,8 +1597,7 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
         }
 
         if (cpu->STT && inst->isControl()) {
-            if (cpu->taintTracker.hasTaintedSrc(inst) &&
-                inst->staticInst->getName() != "wrip") {
+            if (cpu->taintTracker.hasTaintedSrc(inst)) {
                 addToTaintedBranches(inst);
                 return;
             }
