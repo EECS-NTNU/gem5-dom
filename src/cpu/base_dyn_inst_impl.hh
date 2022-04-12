@@ -111,6 +111,7 @@ BaseDynInst<Impl>::initVars()
     shouldForward = false;
     hasRanAhead = false;
     partialStoreConflict = false;
+    addedToPredTick = 0;
     recvPredTick = 0;
     readyRegs = 0;
     memReqFlags = 0;

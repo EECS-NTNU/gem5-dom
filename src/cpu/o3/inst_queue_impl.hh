@@ -744,7 +744,10 @@ template <class Impl>
 bool
 InstructionQueue<Impl>::hasPredictable()
 {
-    return !instsPredictable.empty();
+    return ((!instsPredictable.empty()) &&
+           //This blocks too fast predicts
+           (((curTick() - instsPredictable.front()->addedToPredTick)
+                / 500) >= 4));
 }
 
 template <class Impl>

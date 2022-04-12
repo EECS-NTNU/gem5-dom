@@ -1853,6 +1853,7 @@ template<class Impl>
 void
 LSQUnit<Impl>::addToPredInsts(const DynInstPtr& load_inst)
 {
+    load_inst->addedToPredTick = curTick();
     predInsts.push_back(load_inst);
 }
 
