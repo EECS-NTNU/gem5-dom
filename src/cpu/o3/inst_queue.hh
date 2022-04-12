@@ -209,6 +209,8 @@ class InstructionQueue
      */
     DynInstPtr getBlockedMemInstToExecute();
 
+    DynInstPtr getDelayedMemInstToExecute();
+
     void completeSafeLoads();
 
     /**

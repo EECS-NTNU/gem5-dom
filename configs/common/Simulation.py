@@ -490,6 +490,7 @@ def run(options, root, testsys, cpu_class):
                     IndirectBPClass()
 
             if type(switch_cpus[i]) is DerivO3CPU:
+                switch_cpus[i].domMode = options.dom_mode
                 switch_cpus[i].mpMode = options.mp_mode
                 switch_cpus[i].apMode = options.ap_mode
                 switch_cpus[i].sttMode = options.stt_mode

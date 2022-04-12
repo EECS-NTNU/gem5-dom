@@ -273,6 +273,7 @@ if options.wait_gdb:
 
 for i in range(len(system.cpu)):
     if type(system.cpu[i]) is DerivO3CPU:
+        system.cpu[i].domMode = options.dom_mode
         system.cpu[i].mpMode = options.mp_mode
         system.cpu[i].apMode = options.ap_mode
         system.cpu[i].sttMode = options.stt_mode

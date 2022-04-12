@@ -837,6 +837,12 @@ InstructionQueue<Impl>::scheduleReadyInsts()
     DPRINTF(DebugDOM, "num delayed mems: %d\n",
         delayedMemInsts.size());
 
+    if (cpu->DOM) {
+        while ((mem_inst = std::move(getDelayedMemInstToExecute()))) {
+            addReadyMemInst(mem_inst);
+        }
+    }
+
     while ((mem_inst = std::move(getDeferredMemInstToExecute()))) {
         addReadyMemInst(mem_inst);
     }
@@ -1250,6 +1256,32 @@ InstructionQueue<Impl>::getBlockedMemInstToExecute()
 }
 
 template <class Impl>
+typename Impl::DynInstPtr
+InstructionQueue<Impl>::getDelayedMemInstToExecute()
+{
+    for (int i = 0; i < delayedMemInsts.size(); i++) {
+        if (delayedMemInsts.at(i)->isCommitted()) {
+            panic("We committed a delayed load?\n");
+        } else if (delayedMemInsts.at(i)->isSquashed()) {
+            DPRINTF(DOM, "Squashed a load in delay queue\n");
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            i--;
+            ++iqStats.squashedDelayedLoads;
+        } else if (!delayedMemInsts.at(i)->underShadow()) {
+            DPRINTF(DebugDOM, "Acquired a non-speculative load\n");
+            DynInstPtr mem_inst = std::move(
+                delayedMemInsts.at(i));
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            mem_inst->savedReq->setStateToRequest();
+            mem_inst->getFault() = NoFault;
+            ++iqStats.reissuedDelayedLoads;
+            return mem_inst;
+        }
+    }
+    return nullptr;
+}
+
+template <class Impl>
 void
 InstructionQueue<Impl>::completeSafeLoads()
 {
@@ -1297,7 +1329,7 @@ InstructionQueue<Impl>::completeSafeLoads()
                     inst->savedReq->isSplit()) inst->delResp();
                 i--;
             } else if (inst->shouldForward &&
-                          (inst->hasStoreData || inst->hasPredData)) {
+                    (inst->hasStoreData || inst->hasPredData)) {
                 iewStage->ldstQueue.completeInst(inst);
                 delayedMemInsts.erase(delayedMemInsts.begin() + i);
                 i--;

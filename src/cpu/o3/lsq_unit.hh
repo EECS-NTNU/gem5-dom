@@ -420,8 +420,6 @@ class LSQUnit
 
     bool fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst);
 
-    bool inL1Cache(DynInstPtr load_inst, LSQRequest *req);
-
   public:
     /** Attempts to send a packet to the cache.
      * Check if there are ports available. Return true if
@@ -1153,7 +1151,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 
     if (cpu->DOM && load_inst->underShadow()) {
         req->setSpeculative(true);
-        if (!inL1Cache(load_inst, req)) {
+        if (snoopCache(req, load_inst)) {
             iewStage->delayMemInst(load_inst);
             ++stats.loadsDelayedOnMiss;
             load_inst->clearIssued();

@@ -658,8 +658,7 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
 
     pkt->pushLabel(name());
 
-    if (pkt->isSpeculative() &&
-        (pkt->isDomMode() || pkt->isMpspemMode())) {
+    if (pkt->isSpeculative() && pkt->isDomMode()) {
         pkt->setCacheMiss(!(blk || mshr));
         DPRINTF(CacheDOM, "Handled express snoop for pkt addr: %d"
             "miss: %d, domMode:%d, mpspemMode: %d\n",

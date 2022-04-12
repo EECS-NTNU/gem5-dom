@@ -424,6 +424,7 @@ def addSEOptions(parser):
                       help="Wait for remote GDB to connect.")
 
 def addMPOptions(parser):
+    parser.add_option("--dom_mode", action="store_true", default=False)
     parser.add_option("--mp_mode", action="store_true", default=False)
     parser.add_option("--ap_mode", action="store_true", default=False)
     parser.add_option("--stt_mode", action="store_true", default=False)
