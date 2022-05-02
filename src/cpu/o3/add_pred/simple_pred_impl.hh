@@ -68,6 +68,12 @@ SimplePred<Impl>::predictFromPC(Addr pc, int runAhead)
         "%llx with runahead %d\n", pc, runAhead);
     struct AddrHistory* entry = getMatchingEntry(pc);
     if (entry && entry->confidence >= this->confidenceThreshold) {
+        int stride = entry->strideHistory.front();
+        if (stride > 256)
+            return 0;
+        if (((entry->lastAddr + stride) >> 12) != (entry->lastAddr >> 12))
+            return 0;
+
         return entry->lastAddr + (entry->strideHistory.front()*runAhead);
     }
     return 0;
