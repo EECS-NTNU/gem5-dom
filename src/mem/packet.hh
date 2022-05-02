@@ -329,6 +329,15 @@ class Packet : public Printable
 
     Flags flags;
 
+    // Modes for speculative handling
+    enum SpeculativeMode
+    {
+        None,
+        DelayOnMiss,
+        MP,
+        Verification
+    };
+
   public:
     typedef MemCmd::Command Command;
 
@@ -359,7 +368,6 @@ class Packet : public Printable
 
     /// The size of the request or transfer.
     unsigned size;
-
 
     /**
      * Track the bytes found that satisfy a functional read.
@@ -529,12 +537,6 @@ class Packet : public Printable
      */
     SenderState *popSenderState();
 
-
-    /// Whether or not the packet is under a shadow
-
-    bool underShadow;
-
-    bool missedInCache = false;
 
     /**
      * Go through the sender state stack and return the first instance
@@ -825,6 +827,64 @@ class Packet : public Printable
         cmd = MemCmd::ReadReq;
     }
 
+    /** [MP-SPEM] Whether or not the packet is speculative */
+    bool speculative;
+
+    /** Whether to delay-on-miss, preload or do nothing */
+    Packet::SpeculativeMode
+        speculativeMode = SpeculativeMode::None;
+
+    /** Whether this packet is allowed to have its value predicted */
+    bool predictable = false;
+
+    void noSpeculativeMode() {
+        speculativeMode = SpeculativeMode::None;
+    }
+
+    void domSpeculativeMode() {
+        speculativeMode = SpeculativeMode::DelayOnMiss;
+    }
+
+    void mpspemSpeculativeMode() {
+        speculativeMode = SpeculativeMode::MP;
+    }
+
+    void verificationSpeculativeMode() {
+        speculativeMode = SpeculativeMode::Verification;
+    }
+
+    bool isDomMode() {
+        return speculativeMode == SpeculativeMode::DelayOnMiss;
+    }
+
+    bool isMpspemMode() {
+        return speculativeMode == SpeculativeMode::MP;
+    }
+
+    bool isVerification() {
+        return speculativeMode == SpeculativeMode::Verification;
+    }
+
+    void setPredictable(bool setPredictable) {
+        predictable = setPredictable;
+    }
+
+    bool isPredictable() {
+        return predictable;
+    }
+
+    bool isPredictedAddress = false;
+
+    bool cacheMiss = false;
+
+    void setCacheMiss(bool missed) {
+        cacheMiss = missed;
+    }
+
+    bool isCacheMiss() {
+        return cacheMiss;
+    }
+
     /**
      * Constructor. Note that a Request object must be constructed
      * first, but the Requests's physical address and size fields need
@@ -838,8 +898,8 @@ class Packet : public Printable
            htmTransactionUid(0),
            headerDelay(0), snoopDelay(0),
            payloadDelay(0), senderState(NULL),
-           underShadow(req->isUnderShadow())
-    {
+           speculative(req->isSpeculative())
+        {
         flags.clear();
         if (req->hasPaddr()) {
             addr = req->getPaddr();
@@ -880,7 +940,7 @@ class Packet : public Printable
            htmTransactionUid(0),
            headerDelay(0),
            snoopDelay(0), payloadDelay(0), senderState(NULL),
-           underShadow(req->isUnderShadow())
+           speculative(req->isSpeculative())
     {
         flags.clear();
         if (req->hasPaddr()) {
@@ -911,7 +971,7 @@ class Packet : public Printable
            snoopDelay(0),
            payloadDelay(pkt->payloadDelay),
            senderState(pkt->senderState),
-           underShadow(pkt->underShadow)
+           speculative(req->isSpeculative())
     {
         if (!clear_flags)
             flags.set(pkt->flags & COPY_FLAGS);
@@ -1373,21 +1433,9 @@ class Packet : public Printable
     }
 
     bool
-    isUnderShadow() const
+    isSpeculative() const
     {
-        return underShadow;
-    }
-
-    bool
-    didMissInCache() const
-    {
-        return missedInCache;
-    }
-
-    void
-    setMissInCache(bool miss)
-    {
-        missedInCache = miss;
+        return speculative;
     }
 
     /**

@@ -54,6 +54,7 @@
 
 #include "base/printable.hh"
 #include "base/types.hh"
+#include "debug/SpeculativeCache.hh"
 #include "mem/cache/queue_entry.hh"
 #include "mem/packet.hh"
 #include "mem/request.hh"

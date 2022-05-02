@@ -96,10 +96,18 @@ LSQUnit<Impl>::recvTimingResp(PacketPtr pkt)
     auto senderState = dynamic_cast<LSQSenderState*>(pkt->senderState);
     LSQRequest* req = senderState->request();
     assert(req != nullptr);
+    DPRINTF(DebugDOM, "Received timing resp for pkt %s, with spec %d"
+            ", predictable: %d, domMode: %d, mpspemMode: %d\n",
+            pkt->print(), pkt->isSpeculative(),
+            pkt->isPredictable(), pkt->isDomMode(),
+            pkt->isMpspemMode());
     bool ret = true;
     /* Check that the request is still alive before any further action. */
     if (senderState->alive()) {
         ret = req->recvTimingResp(pkt);
+        if (pkt->isPredictedAddress) {
+            req->discard();
+        }
     } else {
         senderState->outstanding--;
     }
@@ -113,6 +121,14 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
 {
     LSQSenderState *state = dynamic_cast<LSQSenderState *>(pkt->senderState);
     DynInstPtr inst = state->inst;
+
+    DPRINTF(DebugDOM, "Data access completion for [sn:%llu], with "
+            "cShadow: %d, dShadow: %d, pktSpec: %d, specmode: %d\n",
+            inst->seqNum,
+            inst->cShadow,
+            inst->dShadow,
+            pkt->speculative,
+            pkt->speculativeMode);
 
     // hardware transactional memory
     // sanity check
@@ -175,7 +191,14 @@ LSQUnit<Impl>::completeDataAccess(PacketPtr pkt)
 
     assert(!cpu->switchedOut());
     if (!inst->isSquashed()) {
-        if (state->needWB) {
+        if (cpu->MP &&
+            state->needWB && (inst->underShadow() && inst->isLoad()) &&
+            (!pkt->isPredictable())) {
+            DPRINTF(DOM, "Saved complete response for [sn:%llu]\n",
+                    inst->seqNum);
+            assert(!inst->shouldForward);
+            inst->storeResp(pkt);
+        } else if (state->needWB) {
             // Only loads, store conditionals and atomics perform the writeback
             // after receving the response from the memory
             assert(inst->isLoad() || inst->isStoreConditional() ||
@@ -211,12 +234,14 @@ LSQUnit<Impl>::LSQUnit(uint32_t lqEntries, uint32_t sqEntries)
       isStoreBlocked(false), storeInFlight(false), hasPendingRequest(false),
       pendingRequest(nullptr), stats(nullptr)
 {
+    srand(10111997);
 }
 
 template<class Impl>
 void
 LSQUnit<Impl>::init(O3CPU *cpu_ptr, IEW *iew_ptr,
-        const DerivO3CPUParams &params, LSQ *lsq_ptr, unsigned id)
+        const DerivO3CPUParams &params, LSQ *lsq_ptr, unsigned id,
+        SimplePred<Impl> *pred)
 {
     lsqID = id;
 
@@ -232,6 +257,8 @@ LSQUnit<Impl>::init(O3CPU *cpu_ptr, IEW *iew_ptr,
     depCheckShift = params.LSQDepCheckShift;
     checkLoads = params.LSQCheckLoads;
     needsTSO = params.needsTSO;
+
+    add_pred = pred;
 
     resetState();
 }
@@ -287,10 +314,73 @@ LSQUnit<Impl>::LSQUnitStats::LSQUnitStats(Stats::Group *parent)
                "Number of times an access to memory failed due to the cache "
                "being blocked"),
       ADD_STAT(loadsDelayedOnMiss, UNIT_COUNT,
-               "Number of loads delayed because of DoM"),
+               "Number of loads delayed because of missing in L1 Cache (DoM)"),
       ADD_STAT(issuedSnoops, UNIT_COUNT,
-               "Number of snoops issued because of DoM")
+               "Number of snoops issued to check if load in L1 Cache"),
+      ADD_STAT(valuePredictedLoads, UNIT_COUNT,
+               "Number of L1 loads issued where value will be predicted"),
+      ADD_STAT(failedValuePredictions, UNIT_COUNT,
+               "Number of L1 loads where value could not be predicted"),
+      ADD_STAT(preloadedLoads, UNIT_COUNT,
+               "Number of L1 misses which are issued for preloading"),
+      ADD_STAT(normalIssuedLoads, UNIT_COUNT,
+               "Number of loads that are issued normally (no speculation"),
+      ADD_STAT(loadsIssuedOnHit, UNIT_COUNT,
+               "Number of L1 hits issued (DoM)"),
+      ADD_STAT(earlyIssues, UNIT_COUNT,
+               "Loads issued earlier due to address prediction"),
+      ADD_STAT(extraIssues, UNIT_COUNT,
+               "Extra loads issued due to faulty address predictions"),
+      ADD_STAT(blockedPredictedPreloads, UNIT_COUNT,
+               "Predicted address loads not able to issue"),
+      ADD_STAT(predictedPreloads, UNIT_COUNT,
+               "Predicted address loads that preload"),
+      ADD_STAT(predictedHits, UNIT_COUNT,
+               "Predicted address loads that hit in L1 cache"),
+      ADD_STAT(addrPredictions, UNIT_COUNT,
+               "Total number of address predictions made"),
+      ADD_STAT(emptyAddrPredictions, UNIT_COUNT,
+               "Address predictions that are empty (unknown pattern)"),
+      ADD_STAT(nonAddrPredictedLoads, UNIT_COUNT,
+               "Loads that were not address predicted at all"),
+      ADD_STAT(correctlyAddressPredictedLoads, UNIT_COUNT,
+               "Loads that were correctly address predicted (commit)"),
+      ADD_STAT(wronglyAddressPredictedLoads, UNIT_COUNT,
+               "Loads that were incorrectly address predicted (commit)"),
+      ADD_STAT(splitAddressPredictionsDropped, UNIT_COUNT,
+               "Predictions dropped due to being split"),
+      ADD_STAT(failedTranslationsFromPredictions, UNIT_COUNT,
+               "Addr predictions that failed translation"),
+      ADD_STAT(issuedAddressPredictions, UNIT_COUNT,
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(failedToIssuePredictions, UNIT_COUNT,
+               "Final stage predictions that got rejected by cache port"),
+      ADD_STAT(forwardedStoreData, UNIT_COUNT,
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(forwardedPredictedData, UNIT_COUNT,
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(forwardedToPredictions, UNIT_COUNT,
+               "Addr predicted loads issued to memory"),
+      ADD_STAT(wrongSizeRightAddress, UNIT_COUNT,
+               "Addr predictions with right address and wrong size"),
+      ADD_STAT(partialPredStoreConflicts, UNIT_COUNT,
+               "Addr predictions with partially conflicting stores"),
+      ADD_STAT(conflictDroppedPreds, UNIT_COUNT,
+               "Correct addr predictions dropped due to conflicting stores"),
+      ADD_STAT(incorrectPredData, UNIT_COUNT,
+               "Verify accesses with different data than pred"),
+      ADD_STAT(incorrectStoredData, UNIT_COUNT,
+               "Verify accesses with different data than stored"),
+      ADD_STAT(cShadowClearedFirst, UNIT_COUNT,
+               "Insts which for C shadow was cleared first"),
+      ADD_STAT(dShadowClearedFirst, UNIT_COUNT,
+               "Insts which for D shadow was cleared first"),
+      ADD_STAT(predResolutionTime, UNIT_TICK,
+               "Resolution (physical) time for predicted addresses")
 {
+    predResolutionTime
+        .init(0, 98, 3)
+        .flags(Stats::total);
 }
 
 template<class Impl>
@@ -357,6 +447,10 @@ LSQUnit<Impl>::insertLoad(const DynInstPtr &load_inst)
     load_inst->lqIt = loadQueue.getIterator(load_inst->lqIdx);
 
     ++loads;
+
+    updateDShadow(load_inst->lqIt->instPtr());
+    iewStage->instQueue.propagateTaints(load_inst,
+                                        load_inst->threadNumber);
 
     // hardware transactional memory
     // transactional state and nesting depth must be tracked
@@ -629,15 +723,21 @@ LSQUnit<Impl>::executeLoad(const DynInstPtr &inst)
     assert(!inst->isSquashed());
 
     load_fault = inst->initiateAcc();
-    DPRINTF(DebugDOM, "Finished load acces,"
+    DPRINTF(DebugDOM, "Finished load execution,"
     "fault is : %s\n", load_fault != NoFault ? load_fault->name() :
     "none");
 
-    if (load_fault == NoFault && !inst->readMemAccPredicate()) {
+    if (load_fault == NoFault && !inst->readMemAccPredicate()
+        && !inst->shouldForward) {
         assert(inst->readPredicate());
         inst->setExecuted();
         inst->completeAcc(nullptr);
         iewStage->instToCommit(inst);
+        iewStage->activityThisCycle();
+        return NoFault;
+    }
+
+    if (load_fault == NoFault && inst->shouldForward) {
         iewStage->activityThisCycle();
         return NoFault;
     }
@@ -744,6 +844,192 @@ LSQUnit<Impl>::executeStore(const DynInstPtr &store_inst)
 
 }
 
+template<class Impl>
+void
+LSQUnit<Impl>::updateDShadow(DynInstPtr &load_inst)
+{
+    DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]\n",
+            load_inst->seqNum);
+    auto store_it = load_inst->sqIt;
+    assert (store_it >= storeWBIt);
+    while (store_it != storeWBIt) {
+        store_it--;
+        assert(store_it->valid());
+        assert(store_it->instruction()->seqNum < load_inst->seqNum);
+        if (!store_it->instruction()->effAddrValid()) {
+            load_inst->dShadow = true;
+            return;
+        }
+    }
+    DPRINTF(DOM, "Cleared dShadow for [sn:%llu]\n",
+            load_inst->seqNum);
+    if (load_inst->dShadow) {
+        if (load_inst->cShadow) {
+            ++stats.dShadowClearedFirst;
+        } else {
+            ++stats.cShadowClearedFirst;
+        }
+    }
+    load_inst->dShadow = false;
+}
+
+template<class Impl>
+void
+LSQUnit<Impl>::walkDShadows(const DynInstPtr &store_inst)
+{
+    if (!(cpu->safeMode)) return;
+    auto load_it = store_inst->lqIt;
+    DPRINTF(DebugDOM, "Walking younger loads for [sn:%llu]\n",
+            store_inst->seqNum);
+    while (load_it != loadQueue.end()) {
+        updateDShadow(load_it->instPtr());
+        DPRINTF(DebugDOM, "D Shadow for [sn:%llu] now %d\n",
+                load_it->instPtr()->seqNum,
+                load_it->instPtr()->dShadow);
+        load_it++;
+    }
+}
+
+template <class Impl>
+void
+LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
+{
+    assert(!inst->isRanAhead());
+    updateRunAhead(inst->instAddr(), 1);
+    inst->setRanAhead(true);
+    // Get a predicted virtual address
+    Addr prediction = add_pred->predictFromPC(inst->instAddr(),
+        runAhead[inst->instAddr()]);
+
+    DPRINTF(AddrPrediction, "Making prediction on inst [sn:%llu]"
+            " for PC [%llx] with vaddr %#x and runahead: %d\n",
+            inst->seqNum,
+            inst->instAddr(),
+            prediction,
+            runAhead[inst->instAddr()]);
+    ++stats.addrPredictions;
+
+    if (prediction == 0) {
+        DPRINTF(AddrPrediction, "Tried to predict on load"
+        " with no history, returning\n");
+
+        ++stats.emptyAddrPredictions;
+        return;
+    }
+
+    int packetSize = add_pred->getPacketSize(inst->instAddr());
+    if (!inst->predData){
+        inst->predData = new uint8_t[packetSize];
+        memset(inst->predData, 0, packetSize);
+
+    }
+
+    // Try to translate address. Drop it if deferred
+    Request::Flags _flags = 0x0000;
+    LSQRequest *req = new PredictDataRequest(this, inst, prediction,
+                                            packetSize, _flags);
+
+    bool needs_burst = transferNeedsBurst(prediction, packetSize, 64);
+
+    if (needs_burst) {
+        DPRINTF(AddrPrediction, "Dropping prediction as it is split\n");
+        assert(!req->isAnyOutstandingRequest());
+        ++stats.splitAddressPredictionsDropped;
+        req->discard();
+        return;
+    }
+    req->initiateTranslation();
+
+    if (!req->isMemAccessRequired()) {
+        DPRINTF(AddrPrediction, "Addr prediction faulted\n");
+        assert(!req->isAnyOutstandingRequest());
+        req->discard();
+        ++stats.failedTranslationsFromPredictions;
+        return;
+    }
+    req->buildPackets();
+
+    LSQSenderState *state = new LQSnoopState(req);
+    state->inst = inst;
+
+    req->senderState(state);
+
+    req->sendPacketToCache();
+
+    if (req->isSent()) {
+        inst->setPredAddr(prediction, packetSize);
+        inst->recvPredTick = curTick();
+        addToPredInsts(inst);
+        ++stats.issuedAddressPredictions;
+        debugPredLoad(inst, req);
+    } else {
+        assert(!req->isAnyOutstandingRequest());
+        req->discard();
+        ++stats.failedToIssuePredictions;
+    }
+}
+
+template <class Impl>
+void
+LSQUnit<Impl>::debugPredLoad(const DynInstPtr &load_inst, LSQRequest *req)
+{
+    auto request = std::make_shared<Request>(
+        req->mainRequest()->getPaddr(), load_inst->getPredSize(),
+        0x0000, load_inst->requestorId(),
+        load_inst->instAddr(), load_inst->contextId(),
+        nullptr
+    );
+    request->setPaddr(req->mainRequest()->getPaddr());
+    assert(request->hasPaddr());
+    PacketPtr snoop = Packet::createRead(request);
+    if (!load_inst->verifyData){
+        load_inst->verifyData = new uint8_t[load_inst->getPredSize()];
+        memset(load_inst->verifyData, 0, load_inst->getPredSize());
+    }
+    snoop->dataStatic(load_inst->verifyData);
+    snoop->verificationSpeculativeMode();
+    LSQSenderState *state = new LQSnoopState(req);
+    snoop->senderState = state;
+    dcachePort->sendFunctional(snoop);
+    delete(snoop);
+    delete(state);
+
+    DPRINTF(AddrPredDebug, "Issuing Predicted Address load "
+            "instant cache response:\n"
+            "%#x:%#x:%#x:%#x:%#x:%#x:%#x:%#x\n",
+            load_inst->verifyData[0],
+            load_inst->verifyData[1],
+            load_inst->verifyData[2],
+            load_inst->verifyData[3],
+            load_inst->verifyData[4],
+            load_inst->verifyData[5],
+            load_inst->verifyData[6],
+            load_inst->verifyData[7]);
+}
+
+template <class Impl>
+void
+LSQUnit<Impl>::updatePredictor(const DynInstPtr &inst)
+{
+    add_pred->updatePredictor(inst->effAddr,
+                              inst->instAddr(),
+                              inst->seqNum,
+                              inst->effSize);
+    if (inst->predAddr == 0) {
+        ++stats.nonAddrPredictedLoads;
+    } else if (inst->predAddr == inst->effAddr) {
+        ++stats.correctlyAddressPredictedLoads;
+    } else {
+        ++stats.wronglyAddressPredictedLoads;
+    }
+    DPRINTF(AddrPrediction, "Updating predictor with [sn:%llu],"
+            "PC [%llx], pred_addr %#x, real_addr: %#x\n",
+            inst->seqNum,
+            inst->instAddr(),
+            inst->predAddr,
+            inst->effAddr);
+}
+
 template <class Impl>
 void
 LSQUnit<Impl>::commitLoad()
@@ -752,6 +1038,13 @@ LSQUnit<Impl>::commitLoad()
 
     DPRINTF(LSQUnit, "Committing head load instruction, PC %s\n",
             loadQueue.front().instruction()->pcState());
+
+    auto inst = loadQueue.front().instruction();
+
+    if (cpu->AP) {
+        updatePredictor(inst);
+        updateRunAhead(inst->instAddr(), -1);
+    }
 
     loadQueue.front().clear();
     loadQueue.pop_front();
@@ -990,6 +1283,10 @@ LSQUnit<Impl>::squash(const InstSeqNum &squashed_num)
             DPRINTF(HtmCpu, ">> htmStarts (%d) : htmStops-- (%d)\n",
               htmStarts, htmStops);
         }
+        if (cpu ->AP &&
+            loadQueue.back().instruction()->isRanAhead())
+            updateRunAhead(loadQueue.back().instruction()->instAddr(), -1);
+
         // Clear the smart pointer to make sure it is decremented.
         loadQueue.back().instruction()->setSquashed();
         loadQueue.back().clear();
@@ -1102,7 +1399,117 @@ LSQUnit<Impl>::storePostSend()
         storeInFlight = true;
     }
 
+    forwardToPredicted();
+
     storeWBIt++;
+}
+
+template <class Impl>
+void
+LSQUnit<Impl>::forwardToPredicted()
+{
+    DynInstPtr store_inst = storeWBIt->instruction();
+    DPRINTF(AddrPredDebug, "Attempting to forward sent store to predInsts "
+            "for [sn:%llu] with addr %#x, paddr %#x and size %d. "
+            "Number of predInsts: %d\n",
+            store_inst->seqNum, store_inst->effAddr,
+            store_inst->physEffAddr, storeWBIt->size(),
+            predInsts.size());
+    for (int i = 0; i < predInsts.size(); i++) {
+        DynInstPtr load_inst = predInsts.at(i);
+        if (load_inst->isCommitted() || load_inst->isSquashed()) {
+            predInsts.erase(predInsts.begin() + i);
+            i--;
+            continue;
+        }
+        if (load_inst->seqNum < store_inst->seqNum) {
+            continue;
+        }
+
+        int store_size = storeWBIt->size();
+
+        // Cache maintenance instructions go down via the store
+        // path but they carry no data and they shouldn't be
+        // considered for forwarding
+        if (store_size != 0 && !storeWBIt->instruction()->strictlyOrdered() &&
+            !(storeWBIt->request()->mainRequest() &&
+              storeWBIt->request()->mainRequest()->isCacheMaintenance())) {
+            assert(storeWBIt->instruction()->effAddrValid());
+
+            // Check if the store data is within the lower and upper bounds of
+            // addresses that the request needs.
+            auto req_s = load_inst->getPredAddr();
+            auto req_e = req_s + load_inst->getPredSize();
+            auto st_s = store_inst->effAddr;
+            auto st_e = st_s + store_size;
+
+            bool store_has_lower_limit = req_s >= st_s;
+            bool store_has_upper_limit = req_e <= st_e;
+            bool lower_load_has_store_part = req_s < st_e;
+            bool upper_load_has_store_part = req_e > st_s;
+
+            auto coverage = AddrRangeCoverage::NoAddrRangeCoverage;
+
+            // If the store entry is not atomic (atomic does not have valid
+            // data), the store has all of the data needed, and
+            // the load is not LLSC, then
+            // we can forward data from the store to the load
+            if (!storeWBIt->instruction()->isAtomic() &&
+                store_has_lower_limit && store_has_upper_limit) {
+
+                const auto& store_req = storeWBIt->request()->mainRequest();
+                coverage = store_req->isMasked() ?
+                    AddrRangeCoverage::PartialAddrRangeCoverage :
+                    AddrRangeCoverage::FullAddrRangeCoverage;
+            } else if (
+                (storeWBIt->instruction()->isAtomic() &&
+                 ((store_has_lower_limit || upper_load_has_store_part) &&
+                  (store_has_upper_limit || lower_load_has_store_part)))) {
+
+                panic("LLSC/atomic stores should never be linked here");
+            } else if (
+                // This is the partial store-load forwarding case where a store
+                // has only part of the load's data and the load isn't LLSC
+                ((store_has_lower_limit && lower_load_has_store_part) ||
+                  (store_has_upper_limit && upper_load_has_store_part) ||
+                  (lower_load_has_store_part && upper_load_has_store_part))) {
+
+                coverage = AddrRangeCoverage::PartialAddrRangeCoverage;
+            }
+
+            if (coverage == AddrRangeCoverage::FullAddrRangeCoverage) {
+                // Get shift amount for offset into the store's data.
+                int shift_amt = req_s - st_s;
+
+                // Allocate memory if this is the first time a load is issued.
+                if (!load_inst->storeData) {
+                    load_inst->storeData =
+                        new uint8_t[load_inst->getPredSize()];
+                    memset(load_inst->storeData, 0, load_inst->getPredSize());
+
+                }
+                if (storeWBIt->isAllZeros())
+                    memset(load_inst->storeData, 0,
+                            load_inst->getPredSize());
+                else
+                    memcpy(load_inst->storeData,
+                        storeWBIt->data() + shift_amt,
+                        load_inst->getPredSize());
+
+                DPRINTF(LSQUnit, "Forwarding from store idx %i to pred load "
+                        "for addr %#x for load_inst [sn:%llu]\n",
+                        storeWBIt._idx,
+                        req_s,
+                        load_inst->seqNum);
+                ++stats.forwardedToPredictions;
+                load_inst->hasStoreData = true;
+            } else if (coverage ==
+                        AddrRangeCoverage::PartialAddrRangeCoverage) {
+                load_inst->partialStoreConflict = true;
+                ++stats.partialPredStoreConflicts;
+            }
+        }
+    }
 }
 
 template <class Impl>
@@ -1233,9 +1640,47 @@ LSQUnit<Impl>::completeStore(typename StoreQueue::iterator store_idx)
 }
 
 template <class Impl>
+void
+LSQUnit<Impl>::updateRunAhead(Addr addr, int update)
+{
+    if (runAhead.find(addr) != runAhead.end()) {
+        runAhead[addr] = runAhead[addr] + update;
+    } else {
+        assert(update > 0);
+        runAhead[addr] = 1;
+    }
+}
+
+
+template <class Impl>
+bool
+LSQUnit<Impl>::fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst)
+{
+    assert(data_pkt->isRead());
+    if (lsq->cacheBlocked() || (!lsq->cachePortAvailable(true))) {
+        ++stats.blockedPredictedPreloads;
+        delete(data_pkt);
+        return false;
+    }
+    lsq->cachePortBusy(true);
+    auto missed = snoopCache(data_pkt->getAddr(), load_inst);
+    DPRINTF(DOM, "Firing and forgetting, with miss %d\n", missed);
+    if (missed) {
+        ++stats.predictedPreloads;
+        auto ret = dcachePort->sendTimingReq(data_pkt);
+        return ret;
+    } else {
+        ++stats.predictedHits;
+        delete(data_pkt);
+        return true;
+    }
+}
+
+template <class Impl>
 bool
 LSQUnit<Impl>::trySendPacket(bool isLoad, PacketPtr data_pkt)
 {
+    assert(data_pkt);
     bool ret = true;
     bool cache_got_blocked = false;
 
@@ -1313,5 +1758,234 @@ LSQUnit<Impl>::cacheLineSize()
 {
     return cpu->cacheLineSize();
 }
+
+
+template<class Impl>
+bool
+LSQUnit<Impl>::forwardPredictedData(const DynInstPtr& load_inst)
+{
+    DPRINTF(AddrPredDebug, "Forwarding predicted data for "
+            "load_inst [sn:%llu]\n", load_inst->seqNum);
+
+    // Allocate memory if this is the first time a load is issued.
+    assert(!load_inst->isSquashed());
+    assert(!load_inst->hasStoreData);
+    ++stats.forwardedPredictedData;
+
+    LSQRequest *req = load_inst->savedReq;
+
+    if (!load_inst->memData) {
+        load_inst->memData =
+            new uint8_t[req->mainRequest()->getSize()];
+    }
+    if (!verifyLoadDataIntegrity(load_inst))
+        ++stats.incorrectPredData;
+
+    memcpy(load_inst->memData,
+           load_inst->verifyData,
+           req->mainRequest()->getSize());
+
+    DPRINTF(LSQUnit, "Forwarding from predAddr to load for "
+            "inst [sn:%llu], addr: %#x, size: %d\n",
+            load_inst->seqNum,
+            req->mainRequest()->getVaddr(),
+            req->mainRequest()->getSize());
+
+    PacketPtr data_pkt = new Packet(req->mainRequest(),
+            MemCmd::ReadReq);
+    data_pkt->dataStatic(load_inst->memData);
+
+    WritebackEvent *wb = new WritebackEvent(load_inst, data_pkt,
+            this);
+
+    // We'll say this has a 1 cycle load-store forwarding latency
+    // for now.
+    // @todo: Need to make this a parameter.
+    cpu->schedule(wb, curTick());
+
+    return true;
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::forwardStoredData(const DynInstPtr& load_inst)
+{
+    DPRINTF(AddrPredDebug, "Forwarding store data for "
+            "load_inst [sn:%llu]\n", load_inst->seqNum);
+
+    assert(!load_inst->isSquashed());
+    ++stats.forwardedStoreData;
+
+    LSQRequest *req = load_inst->savedReq;
+
+    if (!load_inst->memData) {
+        load_inst->memData =
+            new uint8_t[req->mainRequest()->getSize()];
+        memset(load_inst->memData, 0, req->mainRequest()->getSize());
+    }
+
+    if (!verifyLoadDataIntegrity(load_inst))
+        ++stats.incorrectStoredData;
+
+    memcpy(load_inst->memData,
+           load_inst->verifyData,
+           req->mainRequest()->getSize());
+
+    DPRINTF(LSQUnit, "Forwarding from predAddr store"
+            " to load for inst [sn:%llu], addr %#x, size: %d\n",
+            load_inst->seqNum,
+            req->mainRequest()->getVaddr(),
+            req->mainRequest()->getSize());
+
+    PacketPtr data_pkt = new Packet(req->mainRequest(),
+                                    MemCmd::ReadReq);
+
+    data_pkt->dataStatic(load_inst->memData);
+
+    WritebackEvent *wb = new WritebackEvent(load_inst, data_pkt, this);
+
+    cpu->schedule(wb, curTick());
+
+    return true;
+}
+
+template<class Impl>
+void
+LSQUnit<Impl>::addToPredInsts(const DynInstPtr& load_inst)
+{
+    predInsts.push_back(load_inst);
+}
+
+template<class Impl>
+void
+LSQUnit<Impl>::cleanPredInsts()
+{
+    for (int i = 0; i < predInsts.size(); i++) {
+        DynInstPtr load_inst = predInsts.at(i);
+        if (load_inst->isCommitted() || load_inst->isSquashed()) {
+            predInsts.erase(predInsts.begin() + i);
+            i--;
+            continue;
+        }
+    }
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::verifyLoadDataIntegrity(const DynInstPtr& load_inst)
+{
+    assert(load_inst->hasStoreData || load_inst->hasPredData);
+
+    int size = load_inst->savedReq->mainRequest()->getSize();
+
+    if (!load_inst->verifyData){
+        load_inst->verifyData = new uint8_t[size];
+        memset(load_inst->verifyData, 0, size);
+    }
+
+    LSQRequest *req = load_inst->savedReq;
+    PacketPtr snoop = Packet::createRead(req->mainRequest());
+
+    snoop->dataStatic(load_inst->verifyData);
+    snoop->verificationSpeculativeMode();
+    LSQSenderState *state = new LQSnoopState(req);
+    snoop->senderState = state;
+    dcachePort->sendFunctional(snoop);
+
+
+
+    DPRINTF(AddrPredDebug, "Verifying load data integrity for "
+            "inst [sn:%llu] with paddr %llx and size: %d. \n"
+            "pred: %#x:%#x:%#x:%#x:%#x:%#x:%#x:%#x\n"
+            "real: %#x:%#x:%#x:%#x:%#x:%#x:%#x:%#x\n",
+            load_inst->seqNum,
+            load_inst->physEffAddr,
+            size,
+            load_inst->predData[0],
+            load_inst->predData[1],
+            load_inst->predData[2],
+            load_inst->predData[3],
+            load_inst->predData[4],
+            load_inst->predData[5],
+            load_inst->predData[6],
+            load_inst->predData[7],
+            load_inst->verifyData[0],
+            load_inst->verifyData[1],
+            load_inst->verifyData[2],
+            load_inst->verifyData[3],
+            load_inst->verifyData[4],
+            load_inst->verifyData[5],
+            load_inst->verifyData[6],
+            load_inst->verifyData[7]);
+    if (load_inst->hasStoreData)
+        DPRINTF(AddrPredDebug,
+            "stor: %#x:%#x:%#x:%#x:%#x:%#x:%#x:%#x\n",
+            load_inst->storeData[0],
+            load_inst->storeData[1],
+            load_inst->storeData[2],
+            load_inst->storeData[3],
+            load_inst->storeData[4],
+            load_inst->storeData[5],
+            load_inst->storeData[6],
+            load_inst->storeData[7]);
+
+    bool equal = true;
+
+    for (int i = 0; i < size; i++) {
+        equal = equal && (load_inst->verifyData[i] ==
+            (load_inst->hasStoreData ?
+                load_inst->storeData[i] : load_inst->predData[i]));
+    }
+
+    delete(snoop);
+    delete(state);
+
+    return equal;
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::snoopCache(LSQRequest *req, const DynInstPtr& load_inst)
+{
+    PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
+    ex_snoop->dataStatic(load_inst->memData);
+    ex_snoop->setExpressSnoop();
+    ex_snoop->speculative = req->speculative;
+    ex_snoop->domSpeculativeMode();
+    LSQSenderState *state = new LQSnoopState(req);
+    ex_snoop->senderState = state;
+    dcachePort->sendFunctional(ex_snoop);
+    ++stats.issuedSnoops;
+
+    auto missed = ex_snoop->isCacheMiss();
+    delete(ex_snoop);
+    delete(state);
+    DPRINTF(DOM, "Issued snoop to cache"
+        "Missed: %d for [sn:%llu] \n", missed, load_inst->seqNum);
+    return missed;
+}
+
+template<class Impl>
+bool
+LSQUnit<Impl>::snoopCache(Addr target, const DynInstPtr& load_inst)
+{
+    Request::Flags _flags = Request::PHYSICAL;
+    auto request = std::make_shared<Request>(
+                        target,
+                        8,//inst->effSize,
+                        _flags,
+                        load_inst->requestorId());
+    PacketPtr snoop = new Packet(request, MemCmd::ReadReq);
+    snoop->dataStatic(load_inst->memData);
+    snoop->mpspemSpeculativeMode();
+    snoop->speculative = true;
+    dcachePort->sendFunctional(snoop);
+    ++stats.issuedSnoops;
+
+    auto missed = snoop->isCacheMiss();
+    delete(snoop);
+    return missed;
+}
+
 
 #endif//__CPU_O3_LSQ_UNIT_IMPL_HH__

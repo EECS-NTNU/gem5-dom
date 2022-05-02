@@ -53,6 +53,7 @@
 #include "debug/CachePort.hh"
 #include "debug/CacheRepl.hh"
 #include "debug/CacheVerbose.hh"
+#include "debug/SpeculativeCache.hh"
 #include "mem/cache/compressors/base.hh"
 #include "mem/cache/mshr.hh"
 #include "mem/cache/prefetch/base.hh"
@@ -351,6 +352,7 @@ BaseCache::recvTimingReq(PacketPtr pkt)
     Cycles lat;
     CacheBlk *blk = nullptr;
     bool satisfied = false;
+
     {
         PacketList writebacks;
         // Note that lat is passed by reference here. The function
@@ -393,6 +395,20 @@ BaseCache::recvTimingReq(PacketPtr pkt)
         Tick next_pf_time = prefetcher->nextPrefetchReadyTime();
         if (next_pf_time != MaxTick) {
             schedMemSideSendEvent(next_pf_time);
+        }
+    }
+
+    if (pkt->isPredictedAddress) {
+        DPRINTF(SpeculativeCache, "Received prediction packet for "
+            "addr %#x, satisfied: %d\n",
+            pkt->getAddr(), satisfied);
+        if (satisfied) {
+            int offset = (pkt->getAddr() & 0x3F);
+            DPRINTF(SpeculativeCache, "data: %#x:%#x:%#x:%#x\n",
+                blk->data[0 + offset],
+                blk->data[1 + offset],
+                blk->data[2 + offset],
+                blk->data[3 + offset]);
         }
     }
 }
@@ -472,6 +488,10 @@ BaseCache::recvTimingResp(PacketPtr pkt)
     assert(!mshr->wasWholeLineWrite || pkt->isInvalidate());
 
     CacheBlk *blk = tags->findBlock(pkt->getAddr(), pkt->isSecure());
+
+    DPRINTF(SpeculativeCache, "Resp received with pkt %s, with "
+        "mshr: %s, blk: %s, addr: %#llx\n",
+        pkt->print(), mshr->print(), blk, pkt->getAddr());
 
     if (is_fill && !is_error) {
         DPRINTF(Cache, "Block for addr %#llx being updated in Cache\n",
@@ -636,21 +656,40 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
     CacheBlk *blk = tags->findBlock(pkt->getAddr(), is_secure);
     MSHR *mshr = mshrQueue.findMatch(blk_addr, is_secure);
 
-    // This indicates a DoM check
-    if (pkt->underShadow && pkt->isExpressSnoop()) {
-        if (blk || mshr) {
-            pkt->setMissInCache(false);
-        } else {
-            pkt->setMissInCache(true);
-        }
-        DPRINTF(CacheDOM, "Handled express snoop: Miss: %d \n",
-        pkt->didMissInCache());
-        return ;
-    }
-
     pkt->pushLabel(name());
 
+    if (pkt->isSpeculative() && pkt->isDomMode()) {
+        pkt->setCacheMiss(!(blk || mshr));
+        DPRINTF(CacheDOM, "Handled express snoop for pkt addr: %d"
+            "miss: %d, domMode:%d, mpspemMode: %d\n",
+            pkt->getAddr(), pkt->isCacheMiss(),
+            pkt->isDomMode(), pkt->isMpspemMode());
+        return;
+    }
+
     CacheBlkPrintWrapper cbpw(blk);
+
+/*
+    if (pkt->isVerification()) {
+        //This doesnt hold when it misses in L1 cache
+        //If deep debugging, comment this out
+        //assert(from_cpu_side);
+        bool have_data = blk && blk->isValid()
+            && pkt->trySatisfyFunctional(&cbpw, blk_addr, is_secure,
+                                         blkSize, blk->data);
+        DPRINTF(CacheVerbose, "Functional verification access for "
+                "addr %#2x, have_data: %d\n",
+                pkt->getAddr(),
+                have_data);
+        if (!have_data) {
+            bool success =  mshrQueue.trySatisfyFunctional(pkt) ||
+                mshrQueue.trySatisfyFunctional(pkt) ||
+                writeBuffer.trySatisfyFunctional(pkt) ||
+                memSidePort.trySatisfyFunctional(pkt);
+            assert(success);
+        }
+        return;
+    } */
 
     // Note that just because an L2/L3 has valid data doesn't mean an
     // L1 doesn't have a more up-to-date modified copy that still
@@ -677,6 +716,30 @@ BaseCache::functionalAccess(PacketPtr pkt, bool from_cpu_side)
     DPRINTF(CacheVerbose, "%s: %s %s%s%s\n", __func__,  pkt->print(),
             (blk && blk->isValid()) ? "valid " : "",
             have_data ? "data " : "", done ? "done " : "");
+
+
+    if (pkt->isVerification()) {
+        int offset = pkt->getAddr() & 0x3F;
+        if (have_data) {
+            DPRINTF(CacheVerbose, "Functional verification access for "
+                "addr %#2x, have_data: %d, size: %d, data:\n"
+                "%#x:%#x:%#x:%#x\n",
+                pkt->getAddr(),
+                have_data,
+                pkt->getSize(),
+                blk->data[0 + offset],
+                blk->data[1 + offset],
+                blk->data[2 + offset],
+                blk->data[3 + offset]);
+        } else {
+            DPRINTF(CacheVerbose, "Functional verification access for "
+                "addr %#2x, have_data: %d, size: %d\n",
+                pkt->getAddr(),
+                have_data,
+                pkt->getSize());
+        };
+
+    }
 
     // We're leaving the cache, so pop cache->name() label
     pkt->popLabel();
@@ -1003,6 +1066,9 @@ BaseCache::updateCompressionData(CacheBlk *&blk, const uint64_t* data,
 void
 BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
 {
+    DPRINTF(SpeculativeCache, "Attempting to satisfy pkt %s "
+    "speculative: %d, request: %d, pktSize: %d\n", pkt->print(),
+    pkt->isSpeculative(), pkt->isRequest(), pkt->getSize());
     assert(pkt->isRequest());
 
     assert(blk && blk->isValid());
@@ -1032,7 +1098,6 @@ BaseCache::satisfyRequest(PacketPtr pkt, CacheBlk *blk, bool, bool)
             int offset = tags->extractBlkOffset(pkt->getAddr());
             uint8_t *blk_data = blk->data + offset;
             pkt->setData(blk_data);
-
             // execute AMO operation
             (*(pkt->getAtomicOp()))(blk_data);
 
@@ -1154,12 +1219,9 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
 
     // Access block in the tags
     Cycles tag_latency(0);
-    if (pkt->isRead()) {
-        blk = tags->accessBlockShadow(pkt->getAddr(), pkt->isSecure(),
-            tag_latency, pkt->isUnderShadow());
-    } else {
-        blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency);
-    }
+    blk = tags->accessBlock(pkt->getAddr(), pkt->isSecure(), tag_latency,
+                            pkt->isDomMode() ? pkt->isSpeculative() : false);
+
 
     DPRINTF(Cache, "%s for %s %s\n", __func__, pkt->print(),
             blk ? "hit " + blk->print() : "miss");
@@ -1792,8 +1854,9 @@ BaseCache::sendMSHRQueuePacket(MSHR* mshr)
 
     // use request from 1st target
     PacketPtr tgt_pkt = mshr->getTarget()->pkt;
+    assert(tgt_pkt);
 
-    DPRINTF(Cache, "%s: MSHR %s\n", __func__, tgt_pkt->print());
+    DPRINTF(Cache, " MSHR %s\n", tgt_pkt->print());
 
     // if the cache is in write coalescing mode or (additionally) in
     // no allocation mode, and we have a write packet with an MSHR

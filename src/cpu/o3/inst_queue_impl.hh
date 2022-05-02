@@ -51,6 +51,7 @@
 #include "debug/DOM.hh"
 #include "debug/DebugDOM.hh"
 #include "debug/IQ.hh"
+#include "debug/TaintTrackerDebug.hh"
 #include "enums/OpClass.hh"
 #include "params/DerivO3CPU.hh"
 #include "sim/core.hh"
@@ -218,7 +219,9 @@ IQStats::IQStats(O3CPU *cpu, const unsigned &total_width)
     ADD_STAT(squashedDelayedLoads, UNIT_COUNT,
              "Number of delayed loads that were squashed"),
     ADD_STAT(reissuedDelayedLoads, UNIT_COUNT,
-             "Number of delayed loads that were reissued")
+             "Number of delayed loads that were reissued"),
+    ADD_STAT(faultLoads, UNIT_COUNT,
+             "Number of fault loads squashed in delayed queue")
 {
     instsAdded
         .prereq(instsAdded);
@@ -351,7 +354,13 @@ IQIOStats::IQIOStats(Stats::Group *parent)
     ADD_STAT(intAluAccesses, UNIT_COUNT, "Number of integer alu accesses"),
     ADD_STAT(fpAluAccesses, UNIT_COUNT,
              "Number of floating point alu accesses"),
-    ADD_STAT(vecAluAccesses, UNIT_COUNT, "Number of vector alu accesses")
+    ADD_STAT(vecAluAccesses, UNIT_COUNT, "Number of vector alu accesses"),
+    ADD_STAT(taintedBranchesInserted, UNIT_COUNT,
+             "Number of branches delayed due to implicit taint protection"),
+    ADD_STAT(taintedBranchesFreed, UNIT_COUNT,
+             "Number of tainted Branches freed to resolve"),
+    ADD_STAT(taintedBranchesSquashed, UNIT_COUNT,
+             "Number of tainted Branches squashed before being freed")
 {
     using namespace Stats;
     intInstQueueReads
@@ -608,6 +617,8 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
     // register(s).
     addToProducers(new_inst);
 
+    assert(!(new_inst->isMemRef() && new_inst->isControl()));
+
     if (new_inst->isMemRef()) {
         memDepUnit[new_inst->threadNumber].insert(new_inst);
     } else {
@@ -619,6 +630,7 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
     count[new_inst->threadNumber]++;
 
     assert(freeEntries == (numEntries - countInsts()));
+
 }
 
 template <class Impl>
@@ -692,6 +704,47 @@ InstructionQueue<Impl>::getInstToExecute()
         iqIOStats.intInstQueueReads++;
     }
     return inst;
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::cleanPredictables()
+{
+    for (int i = 0; i < instsPredictable.size(); i++) {
+        DynInstPtr inst = instsPredictable.at(i);
+        if (inst->isCommitted()) {
+            instsPredictable.erase(instsPredictable.begin() + i);
+            i--;
+        } else if (inst->isSquashed()) {
+            instsPredictable.erase(instsPredictable.begin() + i);
+            i--;
+        } else if (inst->hasRequest()) {
+            instsPredictable.erase(instsPredictable.begin() + i);
+            i--;
+        }
+    }
+}
+
+
+template <class Impl>
+typename Impl::DynInstPtr
+InstructionQueue<Impl>::getPredictable()
+{
+    assert(!instsPredictable.empty());
+    DynInstPtr inst = std::move(instsPredictable.front());
+    instsPredictable.erase(instsPredictable.begin());
+    assert(!inst->isSquashed());
+    assert(inst->isLoad());
+    DPRINTF(IQ, "Returning [sn:%llu] for prediction\n",
+        inst->seqNum);
+    return inst;
+}
+
+template <class Impl>
+bool
+InstructionQueue<Impl>::hasPredictable()
+{
+    return !instsPredictable.empty();
 }
 
 template <class Impl>
@@ -783,8 +836,11 @@ InstructionQueue<Impl>::scheduleReadyInsts()
     DynInstPtr mem_inst;
     DPRINTF(DebugDOM, "num delayed mems: %d\n",
         delayedMemInsts.size());
-    while ((mem_inst = std::move(getDelayedMemInstToExecute()))) {
-        addReadyMemInst(mem_inst);
+
+    if (cpu->DOM) {
+        while ((mem_inst = std::move(getDelayedMemInstToExecute()))) {
+            addReadyMemInst(mem_inst);
+        }
     }
 
     while ((mem_inst = std::move(getDeferredMemInstToExecute()))) {
@@ -1134,8 +1190,6 @@ void
 InstructionQueue<Impl>::delayMemInst(const DynInstPtr &delayed_inst)
 {
     DPRINTF(DOM, "Delaying mem inst [sn:%llu]\n", delayed_inst->seqNum);
-    delayed_inst->clearIssued();
-    delayed_inst->clearCanIssue();
     delayedMemInsts.push_back(delayed_inst);
     ++iqStats.delayedLoads;
 }
@@ -1205,7 +1259,6 @@ template <class Impl>
 typename Impl::DynInstPtr
 InstructionQueue<Impl>::getDelayedMemInstToExecute()
 {
-
     for (int i = 0; i < delayedMemInsts.size(); i++) {
         if (delayedMemInsts.at(i)->isCommitted()) {
             panic("We committed a delayed load?\n");
@@ -1214,7 +1267,7 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
             delayedMemInsts.erase(delayedMemInsts.begin() + i);
             i--;
             ++iqStats.squashedDelayedLoads;
-        } else if (!delayedMemInsts.at(i)->underShadow) {
+        } else if (!delayedMemInsts.at(i)->underShadow()) {
             DPRINTF(DebugDOM, "Acquired a non-speculative load\n");
             DynInstPtr mem_inst = std::move(
                 delayedMemInsts.at(i));
@@ -1226,6 +1279,63 @@ InstructionQueue<Impl>::getDelayedMemInstToExecute()
         }
     }
     return nullptr;
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::completeSafeLoads()
+{
+    for (int i = 0; i < delayedMemInsts.size(); i++) {
+        DynInstPtr inst = delayedMemInsts.at(i);
+        if (inst->isCommitted()) {
+            assert(!inst->underShadow());
+            DPRINTF(DOM, "Removed committed load in delay queue [sn:%llu]\n",
+                    inst->seqNum);
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            if (inst->hasResp() &&
+                inst->savedReq != nullptr &&
+                inst->savedReq->isSplit())
+                    inst->delResp();
+            i--;
+        } else if (inst->isSquashed()) {
+            DPRINTF(DOM, "Squashed a load in delay queue [sn:%llu]\n",
+                    (*(delayedMemInsts.begin()+i))->seqNum);
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            if (inst->hasResp() &&
+                inst->savedReq != nullptr &&
+                inst->savedReq->isSplit())
+                    inst->delResp();
+            i--;
+        } else if (inst->savedReq->isPartialFault()) {
+            DPRINTF(DOM, "Squashed a partial fault,"
+                    " ROB will handle inst [sn:%llu]\n",
+                    delayedMemInsts.at(i)->seqNum);
+            delayedMemInsts.erase(delayedMemInsts.begin() + i);
+            if (inst->hasResp() &&
+                inst->savedReq != nullptr &&
+                inst->savedReq->isSplit())
+                    inst->delResp();
+            i--;
+            ++iqStats.faultLoads;
+        } else if (!inst->underShadow()) {
+            DPRINTF(DebugDOM, "Checking [sn:%llu] for delayed completion\n",
+                    inst->seqNum);
+            if (inst->hasResp()) {
+                DPRINTF(DOM, "Completing [sn:%llu] delayed\n",
+                        inst->seqNum);
+                iewStage->ldstQueue.completeInst(inst);
+                delayedMemInsts.erase(delayedMemInsts.begin() + i);
+                if (inst->savedReq != nullptr &&
+                    inst->savedReq->isSplit()) inst->delResp();
+                i--;
+            } else if (inst->shouldForward &&
+                    (inst->hasStoreData || inst->hasPredData)) {
+                iewStage->ldstQueue.completeInst(inst);
+                delayedMemInsts.erase(delayedMemInsts.begin() + i);
+                i--;
+            }
+        }
+    }
 }
 
 template <class Impl>
@@ -1252,6 +1362,14 @@ InstructionQueue<Impl>::squash(ThreadID tid)
 
     // Also tell the memory dependence unit to squash.
     memDepUnit[tid].squash(squashedSeqNum[tid], tid);
+}
+
+template<class Impl>
+void
+InstructionQueue<Impl>::freeTaints()
+{
+    freeTaintedBranches();
+    memDepUnit[0].freeTaints();
 }
 
 template <class Impl>
@@ -1392,6 +1510,9 @@ InstructionQueue<Impl>::doSquash(ThreadID tid)
             assert(dependGraph.empty(dest_reg->flatIndex()));
             dependGraph.clearInst(dest_reg->flatIndex());
         }
+        if (cpu->AP &&
+           (*squash_it)->isLoad())
+            removeFromPredictable(*squash_it);
         instList[tid].erase(squash_it--);
         ++iqStats.squashedInstsExamined;
     }
@@ -1489,6 +1610,9 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
     // available, then add it to the list of ready instructions.
     if (inst->readyToIssue()) {
 
+        if (cpu->STT)
+            propagateTaints(inst, inst->threadNumber);
+
         //Add the instruction to the proper ready list.
         if (inst->isMemRef()) {
 
@@ -1499,6 +1623,13 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
             memDepUnit[inst->threadNumber].regsReady(inst);
 
             return;
+        }
+
+        if (cpu->STT && inst->isControl()) {
+            if (cpu->taintTracker.hasTaintedSrc(inst)) {
+                addToTaintedBranches(inst);
+                return;
+            }
         }
 
         OpClass op_class = inst->opClass();
@@ -1517,6 +1648,86 @@ InstructionQueue<Impl>::addIfReady(const DynInstPtr &inst)
                    (*readyIt[op_class]).oldestInst) {
             listOrder.erase(readyIt[op_class]);
             addToOrderList(op_class);
+        }
+    }
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::addToTaintedBranches(const DynInstPtr &inst)
+{
+    assert(inst->isControl());
+    ++iqIOStats.taintedBranchesInserted;
+    taintedBranches.push_back(inst);
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::freeTaintedBranches()
+{
+    DPRINTF(IQ, "Freeing tainted branches, current size: %d\n",
+            taintedBranches.size());
+    for (int i = 0; i < taintedBranches.size(); i++) {
+        DynInstPtr inst = taintedBranches.at(i);
+        bool tainted = false;
+        for (int j = 0; j < inst->numSrcRegs(); j++) {
+            PhysRegIdPtr src_reg = inst->regs.renamedSrcIdx(j);
+            if (cpu->taintTracker.isTainted(src_reg)) {
+                tainted = true;
+            }
+        }
+        if (tainted && !inst->isSquashed())  {
+            continue;
+        }
+
+        DPRINTF(IQ, "Freeing untainted branch "
+                "[sn:%llu] from taintedBranches, squashed: %d\n",
+                inst->seqNum,
+                inst->isSquashed());
+
+        taintedBranches.erase(taintedBranches.begin() + i);
+        i--;
+
+        if (inst->isSquashed()) {
+            ++iqIOStats.taintedBranchesSquashed;
+            continue;
+        }
+
+        assert(!inst->isCommitted());
+
+        ++iqIOStats.taintedBranchesFreed;
+        OpClass op_class = inst->opClass();
+
+        DPRINTF(IQ, "Instruction is ready to issue, putting it onto "
+                "the ready list, PC %s opclass:%i [sn:%llu].\n",
+                inst->pcState(), op_class, inst->seqNum);
+
+        readyInsts[op_class].push(inst);
+
+        // Will need to reorder the list if either a queue is not on the list,
+        // or it has an older instruction than last time.
+        if (!queueOnList[op_class]) {
+            addToOrderList(op_class);
+        } else if (readyInsts[op_class].top()->seqNum  <
+                   (*readyIt[op_class]).oldestInst) {
+            listOrder.erase(readyIt[op_class]);
+            addToOrderList(op_class);
+        }
+    }
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::pruneTaintedBranches()
+{
+    for (int i = 0; i < taintedBranches.size(); i++) {
+        DynInstPtr inst = taintedBranches.at(i);
+        if (inst->isSquashed()) {
+            ++iqIOStats.taintedBranchesSquashed;
+            DPRINTF(IQ, "Removing squashed branch from "
+            "taintedBranches: [sn:%llu]\n", inst->seqNum);
+            taintedBranches.erase(taintedBranches.begin() + i);
+            i--;
         }
     }
 }
@@ -1655,5 +1866,98 @@ InstructionQueue<Impl>::dumpInsts()
         ++num;
     }
 }
+
+template <class Impl>
+void
+InstructionQueue<Impl>::addToPredictable(const DynInstPtr &inst)
+{
+    instsPredictable.push_back(inst);
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::removeFromPredictable(const DynInstPtr &inst)
+{
+    auto pred_it = instsPredictable.begin();
+    DPRINTF(IQ, "Squashing from predictables list, entries: %d,"
+            " leading inst [sn:%llu]",
+            instsPredictable.size(),
+            (*pred_it)->seqNum);
+    while (pred_it != instsPredictable.end())
+    {
+        if (*pred_it == inst) {
+            instsPredictable.erase(pred_it);
+            DPRINTF(IQ, "Removed inst [sn:%llu] from predictables\n",
+                    inst->seqNum);
+            break;
+        }
+        pred_it++;
+    }
+    if (pred_it == instsPredictable.end())
+        DPRINTF(IQ, "Could not find inst in predictables\n");
+}
+
+template <class Impl>
+void
+InstructionQueue<Impl>::tick()
+{
+    memDepUnit[0].pruneTaints();
+    pruneTaintedBranches();
+}
+
+
+template <class Impl>
+void
+InstructionQueue<Impl>::propagateTaints(const DynInstPtr &inst, ThreadID tid)
+{
+    if (!cpu->STT) return;
+    DynInstPtr youngestTaint = nullptr;
+
+    DPRINTF(TaintTrackerDebug, "Propagating taints for [sn:%llu]\n",
+            inst->seqNum);
+
+    //If the inst is a store, it handles being ready other ways
+    if (inst->isStore()) {
+        assert(!inst->underShadow());
+        return;
+    }
+
+    if (inst->isLoad()) {
+        youngestTaint = inst;
+    } else {
+        for (int src_reg_idx = 0;
+            src_reg_idx < inst->numSrcRegs();
+            src_reg_idx++)
+        {
+            PhysRegIdPtr src_reg =
+                inst->regs.renamedSrcIdx(src_reg_idx);
+            if (src_reg->getNumPinnedWritesToComplete() != 0) continue;
+            if (cpu->taintTracker.isTainted(src_reg)) {
+                DynInstPtr taintInst =
+                    cpu->taintTracker.getTaintInstruction(src_reg);
+                if (!youngestTaint) {
+                    youngestTaint = taintInst;
+                } else if (taintInst->seqNum > youngestTaint->seqNum)
+                    youngestTaint = taintInst;
+            }
+        }
+    }
+
+    if (youngestTaint) {
+        assert(youngestTaint->seqNum <= inst->seqNum);
+
+        for (int dest_reg_idx = 0;
+         dest_reg_idx < inst->numDestRegs();
+         dest_reg_idx++)
+        {
+            PhysRegIdPtr dest_reg =
+                inst->regs.renamedDestIdx(dest_reg_idx);
+            //idk why but 16 is always 0?
+            if (dest_reg->flatIndex() == 16) continue;
+            cpu->taintTracker.insertTaint(dest_reg, youngestTaint);
+        }
+    }
+}
+
 
 #endif//__CPU_O3_INST_QUEUE_IMPL_HH__

@@ -49,6 +49,7 @@
 #include "cpu/inst_seq.hh"
 #include "cpu/o3/cpu.hh"
 #include "cpu/o3/isa_specific.hh"
+#include "cpu/o3/lsq.hh"
 #include "cpu/reg_class.hh"
 
 class Packet;
@@ -84,7 +85,27 @@ class BaseO3DynInst : public BaseDynInst<Impl>
     /** Completes the access.  Only valid for memory operations. */
     Fault completeAcc(PacketPtr pkt);
 
-    bool underShadow = false;
+    bool cShadow = false;
+
+    bool dShadow = false;
+
+    bool underShadow() {return cShadow || dShadow;}
+
+    PacketPtr completePackage = nullptr;
+
+    void storeResp(PacketPtr pkt) {completePackage = pkt;}
+
+    bool hasResp() {return completePackage != nullptr;}
+
+    void delResp() {
+        assert(completePackage);
+        delete(completePackage);
+    }
+
+    PacketPtr getResp() {
+        assert(completePackage);
+        return completePackage;
+    }
 
   private:
     /** Initializes variables. */

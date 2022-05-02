@@ -43,21 +43,30 @@
 #define __CPU_O3_LSQ_UNIT_HH__
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <queue>
+#include <vector>
 
 #include "arch/generic/debugfaults.hh"
 #include "arch/generic/vec_reg.hh"
 #include "arch/locked_mem.hh"
 #include "config/the_isa.hh"
 #include "cpu/inst_seq.hh"
+#include "cpu/o3/add_pred/simple_pred.hh"
+#include "cpu/o3/lsq.hh"
 #include "cpu/timebuf.hh"
+#include "cpu/utils.hh"
+#include "debug/AddrPredDebug.hh"
+#include "debug/AddrPrediction.hh"
 #include "debug/DOM.hh"
 #include "debug/DebugDOM.hh"
 #include "debug/HtmCpu.hh"
 #include "debug/LSQUnit.hh"
+#include "debug/ValuePrediction.hh"
 #include "mem/packet.hh"
 #include "mem/port.hh"
 
@@ -87,6 +96,7 @@ class LSQUnit
     typedef typename Impl::CPUPol::IEW IEW;
     typedef typename Impl::CPUPol::LSQ LSQ;
     typedef typename Impl::CPUPol::IssueStruct IssueStruct;
+    typedef typename Impl::CPUPol::LSQ::PredictDataRequest PredictDataRequest;
 
     using LSQSenderState = typename LSQ::LSQSenderState;
     using LSQRequest = typename Impl::CPUPol::LSQ::LSQRequest;
@@ -147,6 +157,7 @@ class LSQUnit
         uint32_t& size() { return _size; }
         const uint32_t& size() const { return _size; }
         const DynInstPtr& instruction() const { return inst; }
+        DynInstPtr& instPtr() {return inst;}
         /** @} */
     };
 
@@ -235,7 +246,7 @@ class LSQUnit
 
     /** Initializes the LSQ unit with the specified number of entries. */
     void init(O3CPU *cpu_ptr, IEW *iew_ptr, const DerivO3CPUParams &params,
-            LSQ *lsq_ptr, unsigned id);
+            LSQ *lsq_ptr, unsigned id, SimplePred<Impl> *pred);
 
     /** Returns the name of the LSQ unit. */
     std::string name() const;
@@ -277,6 +288,16 @@ class LSQUnit
     Fault executeLoad(int lq_idx) { panic("Not implemented"); return NoFault; }
     /** Executes a store instruction. */
     Fault executeStore(const DynInstPtr &inst);
+
+    void updateDShadow(DynInstPtr &load_inst);
+
+    void walkDShadows(const DynInstPtr &store_inst);
+
+    void predictLoad(DynInstPtr &inst);
+
+    void debugPredLoad(const DynInstPtr &load_inst, LSQRequest *req);
+
+    void updatePredictor(const DynInstPtr &inst);
 
     /** Commits the head load. */
     void commitLoad();
@@ -377,8 +398,12 @@ class LSQUnit
     /** Reset the LSQ state */
     void resetState();
 
+    void forwardToPredicted();
+
+  public:
     /** Writes back the instruction, sending it to IEW. */
     void writeback(const DynInstPtr &inst, PacketPtr pkt);
+  private:
 
     /** Try to finish a previously blocked write back attempt */
     void writebackBlockedStore();
@@ -388,6 +413,12 @@ class LSQUnit
 
     /** Handles completing the send of a store to memory. */
     void storePostSend();
+
+    std::map<Addr, int> runAhead;
+
+    void updateRunAhead(Addr addr, int update);
+
+    bool fireAndForget(PacketPtr data_pkt, DynInstPtr load_inst);
 
   public:
     /** Attempts to send a packet to the cache.
@@ -405,10 +436,10 @@ class LSQUnit
 
     BaseMMU* getMMUPtr() { return cpu->mmu; }
 
-  private:
     /** Pointer to the CPU. */
     O3CPU *cpu;
 
+  private:
     /** Pointer to the IEW stage. */
     IEW *iewStage;
 
@@ -417,6 +448,8 @@ class LSQUnit
 
     /** Pointer to the dcache port.  Used only for sending. */
     RequestPort *dcachePort;
+
+    SimplePred<Impl> *add_pred;
 
     /** Particularisation of the LSQSenderState to the LQ. */
     class LQSenderState : public LSQSenderState
@@ -578,6 +611,8 @@ class LSQUnit
     /** Flag for memory model. */
     bool needsTSO;
 
+    std::vector<DynInstPtr> predInsts;
+
   protected:
     // Will also need how many read/write ports the Dcache has.  Or keep track
     // of that in stage that is one level up, and only call executeLoad/Store
@@ -610,11 +645,86 @@ class LSQUnit
         Stats::Scalar loadsDelayedOnMiss;
 
         Stats::Scalar issuedSnoops;
+
+        Stats::Scalar valuePredictedLoads;
+
+        Stats::Scalar failedValuePredictions;
+
+        Stats::Scalar preloadedLoads;
+
+        Stats::Scalar normalIssuedLoads;
+
+        Stats::Scalar loadsIssuedOnHit;
+
+        Stats::Scalar earlyIssues;
+
+        Stats::Scalar extraIssues;
+
+        Stats::Scalar blockedPredictedPreloads;
+
+        Stats::Scalar predictedPreloads;
+
+        Stats::Scalar predictedHits;
+
+        Stats::Scalar addrPredictions;
+
+        Stats::Scalar emptyAddrPredictions;
+
+        Stats::Scalar nonAddrPredictedLoads;
+
+        Stats::Scalar correctlyAddressPredictedLoads;
+
+        Stats::Scalar wronglyAddressPredictedLoads;
+
+        Stats::Scalar splitAddressPredictionsDropped;
+
+        Stats::Scalar failedTranslationsFromPredictions;
+
+        Stats::Scalar issuedAddressPredictions;
+
+        Stats::Scalar failedToIssuePredictions;
+
+        Stats::Scalar forwardedStoreData;
+
+        Stats::Scalar forwardedPredictedData;
+
+        Stats::Scalar forwardedToPredictions;
+
+        Stats::Scalar wrongSizeRightAddress;
+
+        Stats::Scalar partialPredStoreConflicts;
+
+        Stats::Scalar conflictDroppedPreds;
+
+        Stats::Scalar incorrectPredData;
+
+        Stats::Scalar incorrectStoredData;
+
+        Stats::Scalar cShadowClearedFirst;
+
+        Stats::Scalar dShadowClearedFirst;
+
+        Stats::Distribution predResolutionTime;
+
     } stats;
 
   public:
     /** Executes the load at the given index. */
     Fault read(LSQRequest *req, int load_idx);
+
+    bool forwardPredictedData(const DynInstPtr &load_inst);
+
+    bool forwardStoredData(const DynInstPtr &load_inst);
+
+    void addToPredInsts(const DynInstPtr &load_inst);
+
+    void cleanPredInsts();
+
+    bool verifyLoadDataIntegrity(const DynInstPtr &load_inst);
+
+    bool snoopCache(LSQRequest *req, const DynInstPtr& load_inst);
+
+    bool snoopCache(Addr target, const DynInstPtr& load_inst);
 
     /** Executes the store at the given index. */
     Fault write(LSQRequest *req, uint8_t *data, int store_idx);
@@ -657,10 +767,24 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 {
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
+    if (cpu->safeMode) {
+        updateDShadow(load_req.instPtr());
+        DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]"
+            " with shadow value: %d\n",
+            load_inst->seqNum,
+            load_inst->dShadow);
+    }
 
-    //Always update underShadow incase shadow has been cleared
-    req->underShadow = load_inst->underShadow;
     load_req.setRequest(req);
+    req->speculative = load_inst->underShadow();
+
+    if (cpu->AP &&
+        !load_inst->isRanAhead()) {
+        updateRunAhead(load_inst->instAddr(), 1);
+        load_inst->setRanAhead(true);
+        iewStage->instQueue.removeFromPredictable(load_inst);
+    }
+
     assert(load_inst);
 
     assert(!load_inst->isExecuted());
@@ -895,7 +1019,8 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
                 ++stats.forwLoads;
 
                 return NoFault;
-            } else if (coverage == AddrRangeCoverage::PartialAddrRangeCoverage) {
+            } else if (coverage ==
+                       AddrRangeCoverage::PartialAddrRangeCoverage) {
                 // If it's already been written back, then don't worry about
                 // stalling on it.
                 if (store_it->completed()) {
@@ -935,6 +1060,7 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         }
     }
 
+
     // If there's no forwarding case, then go access memory
     DPRINTF(LSQUnit, "Doing memory access for inst [sn:%lli] PC %s\n",
             load_inst->seqNum, load_inst->pcState());
@@ -953,35 +1079,64 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         *load_inst->memData = (uint64_t) 0x1ull;
     }
 
-    if (req->underShadow) {
-        PacketPtr ex_snoop = Packet::createRead(req->mainRequest());
-        ex_snoop->dataStatic(load_inst->memData);
-        ex_snoop->setExpressSnoop();
-        ex_snoop->underShadow = req->underShadow;
-        LSQSenderState *state = new LQSnoopState(req);
-        ex_snoop->senderState = state;
-        dcachePort->sendFunctional(ex_snoop);
-        ++stats.issuedSnoops;
-        DPRINTF(DOM, "Issued snoop to cache"
-            "Missed: %d\n", ex_snoop->didMissInCache());
-        if (ex_snoop->didMissInCache()) {
-            iewStage->delayMemInst(load_inst);
-            ++stats.loadsDelayedOnMiss;
-            load_inst->clearIssued();
-            DPRINTF(DebugDOM, "Returning ShadowFault\n");
-            delete(ex_snoop);
-            delete(state);
-            return std::make_shared<ShadowFault>();
-        }
-        delete(ex_snoop);
-        delete(state);
-    }
-
     // For now, load throughput is constrained by the number of
     // load FUs only, and loads do not consume a cache port (only
     // stores do).
     // @todo We should account for cache port contention
     // and arbitrate between loads and stores.
+
+    if (cpu->AP &&
+        load_inst->isPredicted()) {
+        stats.predResolutionTime.sample((curTick() - load_inst->recvPredTick)
+            / 500);
+        if (load_inst->effAddr == load_inst->predAddr &&
+            req->mainRequest()->getSize() == load_inst->predSize &&
+            !load_inst->partialStoreConflict) {
+            ++stats.earlyIssues;
+            load_inst->setSuccPred(false);
+
+            DPRINTF(AddrPredDebug, "Observed successful pred forwarding "
+            "for load [sn:%llu] with addr %#x and paddr %#x. "
+            "storeData: %d, predData: %d\n",
+            load_inst->seqNum,
+            load_inst->effAddr,
+            load_inst->physEffAddr,
+            load_inst->hasStoreData,
+            load_inst->hasPredData);
+
+            // We don't check for LLSC other places, if this trips
+            // checks have to be rebuilt to avoid it.
+            assert(!req->mainRequest()->isLLSC());
+
+            if (load_inst->hasStoreData) {
+                forwardStoredData(load_inst);
+            } else if (load_inst->hasPredData) {
+                forwardPredictedData(load_inst);
+            } else {
+                load_inst->forwardOnPredData();
+                //TODO: Does this work?
+                iewStage->delayMemInst(load_inst);
+            }
+
+            return NoFault;
+        } else if (load_inst->effAddr == load_inst->predAddr) {
+            DPRINTF(AddrPredDebug, "Observed correct address but "
+            "wrong size, for load [sn:%llu] with addr %#x, "
+            "paddr %#x, size %d, predSize %d\n",
+            load_inst->seqNum,
+            load_inst->effAddr,
+            load_inst->physEffAddr,
+            req->mainRequest()->getSize(),
+            load_inst->predSize);
+            ++stats.wrongSizeRightAddress;
+        } else if (load_inst->effAddr == load_inst->predAddr &&
+            req->mainRequest()->getSize() == load_inst->predSize) {
+                ++stats.conflictDroppedPreds;
+        } else {
+            ++stats.extraIssues;
+            load_inst->setSuccPred(false);
+        }
+    }
 
     // if we the cache is not blocked, do cache access
     if (req->senderState() == nullptr) {
@@ -993,10 +1148,42 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
         req->senderState(state);
     }
     req->buildPackets();
-    req->sendPacketToCache();
-    if (!req->isSent())
-        iewStage->blockMemInst(load_inst);
 
+    if (cpu->DOM && load_inst->underShadow()) {
+        req->setSpeculative(true);
+        if (snoopCache(req, load_inst)) {
+            iewStage->delayMemInst(load_inst);
+            ++stats.loadsDelayedOnMiss;
+            load_inst->clearIssued();
+            return std::make_shared<ShadowFault>();;
+        }
+    }
+
+    // [MP-SPEM] Handle speculative loads separately
+    assert(req->isSpeculative() == req->_inst->underShadow());
+
+    req->setPacketsNonSpeculative();
+
+    if (cpu->VP) {
+        int prediction = rand() % 100;
+        DPRINTF(ValuePrediction, "Making prediction,"
+                " accuracy: %d, roll: %d\n",
+                cpu->accuracy, prediction);
+        if (cpu->accuracy > prediction) {
+            req->setPacketsPredictable();
+        }
+    }
+
+    req->sendPacketToCache();
+    if (!req->isSent()) {
+        iewStage->blockMemInst(load_inst);
+    } else if (cpu->MP &&
+               req->isSpeculative() &&
+               (!req->_packets.front()->isPredictable())) {
+        DPRINTF(DebugDOM, "Adding [sn:%llu] to have delayed broadcast\n",
+                load_inst->seqNum);
+        iewStage->delayMemInst(load_inst);
+    }
     return NoFault;
 }
 

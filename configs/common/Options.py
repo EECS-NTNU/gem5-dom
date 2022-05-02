@@ -124,6 +124,7 @@ def addNoISAOptions(parser):
                       help="use external port for SystemC TLM cosimulation")
     parser.add_option("--caches", action="store_true")
     parser.add_option("--l2cache", action="store_true")
+    parser.add_option("--l3cache", action="store_true")
     parser.add_option("--num-dirs", type="int", default=1)
     parser.add_option("--num-l2caches", type="int", default=1)
     parser.add_option("--num-l3caches", type="int", default=1)
@@ -422,6 +423,19 @@ def addSEOptions(parser):
     parser.add_option("--wait-gdb", default=False,
                       help="Wait for remote GDB to connect.")
 
+def addMPOptions(parser):
+    parser.add_option("--dom_mode", action="store_true", default=False)
+    parser.add_option("--mp_mode", action="store_true", default=False)
+    parser.add_option("--ap_mode", action="store_true", default=False)
+    parser.add_option("--stt_mode", action="store_true", default=False)
+    parser.add_option("--confidence_saturation",
+                        action="store", type="int", default=10)
+    parser.add_option("--confidence_threshold",
+                        action="store", type="int", default=8)
+    parser.add_option("--confidence_up_step",
+                        action="store", type="int", default=1)
+    parser.add_option("--confidence_down_step",
+                        action="store", type="int", default=4)
 
 
 def addFSOptions(parser):

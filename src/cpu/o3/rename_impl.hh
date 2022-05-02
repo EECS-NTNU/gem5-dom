@@ -722,6 +722,12 @@ DefaultRename<Impl>::renameInsts(ThreadID tid)
 
         renameDestRegs(inst, inst->threadNumber);
 
+        if (inst->isControl()) {
+            dom_ptr->insertBranch(inst, inst->threadNumber);
+        } else if (inst->isLoad()) {
+            dom_ptr->insertLoad(inst, inst->threadNumber);
+        }
+
         if (inst->isAtomic() || inst->isStore()) {
             storesInProgress[tid]++;
         } else if (inst->isLoad()) {

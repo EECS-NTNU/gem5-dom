@@ -184,6 +184,8 @@ class DefaultIEW
 
     void delayMemInst(const DynInstPtr &inst);
 
+    void freeTaints();
+
     /** Re-executes all rescheduled memory instructions. */
     void replayMemInst(const DynInstPtr &inst);
 

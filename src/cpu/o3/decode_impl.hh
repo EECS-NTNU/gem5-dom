@@ -44,8 +44,8 @@
 #include "arch/types.hh"
 #include "base/trace.hh"
 #include "config/the_isa.hh"
-#include "cpu/o3/decode.hh"
 #include "cpu/inst_seq.hh"
+#include "cpu/o3/decode.hh"
 #include "debug/Activity.hh"
 #include "debug/Decode.hh"
 #include "debug/O3PipeView.hh"
@@ -687,6 +687,9 @@ DefaultDecode<Impl>::decodeInsts(ThreadID tid)
         if (inst->numSrcRegs() == 0) {
             inst->setCanIssue();
         }
+
+        if (cpu->AP && inst->isLoad())
+            instQueue->addToPredictable(inst);
 
         // This current instruction is valid, so add it into the decode
         // queue.  The next instruction may not be valid, so check to

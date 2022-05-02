@@ -489,6 +489,20 @@ def run(options, root, testsys, cpu_class):
                 switch_cpus[i].branchPred.indirectBranchPred = \
                     IndirectBPClass()
 
+            if type(switch_cpus[i]) is DerivO3CPU:
+                switch_cpus[i].domMode = options.dom_mode
+                switch_cpus[i].mpMode = options.mp_mode
+                switch_cpus[i].apMode = options.ap_mode
+                switch_cpus[i].sttMode = options.stt_mode
+                switch_cpus[i].confidence_saturation \
+                    = options.confidence_saturation
+                switch_cpus[i].confidence_threshold \
+                    = options.confidence_threshold
+                switch_cpus[i].confidence_up_step \
+                    = options.confidence_up_step
+                switch_cpus[i].confidence_down_step \
+                    = options.confidence_down_step
+
         # If elastic tracing is enabled attach the elastic trace probe
         # to the switch CPUs
         if options.elastic_trace_en:

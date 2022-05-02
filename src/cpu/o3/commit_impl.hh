@@ -79,6 +79,7 @@ template <class Impl>
 DefaultCommit<Impl>::DefaultCommit(O3CPU *_cpu, const DerivO3CPUParams &params)
     : commitPolicy(params.smtCommitPolicy),
       cpu(_cpu),
+      taintTracker(&_cpu->taintTracker),
       iewToCommitDelay(params.iewToCommitDelay),
       commitToIEWDelay(params.commitToIEWDelay),
       renameToROBDelay(params.renameToROBDelay),
@@ -549,6 +550,7 @@ DefaultCommit<Impl>::generateTrapEvent(ThreadID tid, Fault inst_fault)
     }
 
     cpu->schedule(trap, cpu->clockEdge(latency));
+    cpu->trapCleanup(tid);
     trapInFlight[tid] = true;
     thread[tid]->trapPending = true;
 }
@@ -581,6 +583,7 @@ DefaultCommit<Impl>::squashAll(ThreadID tid)
 
     rob->squash(squashed_inst, tid);
     dom->squashFromInstSeqNum(squashed_inst, tid);
+    taintTracker->squashFromInstSeqNum(squashed_inst, tid);
     changedROBNumEntries[tid] = true;
 
     // Send back the sequence number of the squashed instruction.
@@ -686,6 +689,8 @@ DefaultCommit<Impl>::tick()
         // Clear the bit saying if the thread has committed stores
         // this cycle.
         committedStores[tid] = false;
+
+        if (trapInFlight[tid]) cpu->trapCleanup(tid);
 
         if (commitStatus[tid] == ROBSquashing) {
 
@@ -906,6 +911,7 @@ DefaultCommit<Impl>::commit()
 
             rob->squash(squashed_inst, tid);
             dom->squashFromInstSeqNum(squashed_inst, tid);
+            taintTracker->squashFromInstSeqNum(squashed_inst, tid);
             changedROBNumEntries[tid] = true;
 
             toIEW->commitInfo[tid].doneSeqNum = squashed_inst;
@@ -1407,13 +1413,6 @@ DefaultCommit<Impl>::getInsts()
                     tid, inst->seqNum, inst->pcState());
 
             rob->insertInst(inst);
-            if (inst->isControl()) {
-                dom->insertBranch(inst, tid);
-            }
-            if (inst->isLoad()) {
-                dom->insertLoad(inst, tid);
-            }
-
             assert(rob->getThreadEntries(tid) <= rob->getMaxEntries(tid));
 
             youngestSeqNum[tid] = inst->seqNum;

@@ -344,7 +344,8 @@ class Request
      */
     Addr _paddr = 0;
 
-    bool underShadow = false;
+    /** [MP-SPEM] Set whether this access is speculative */
+    bool speculative = false;
 
     /**
      * The size of the request. This field must be set when vaddr or
@@ -503,15 +504,15 @@ class Request
     }
 
     void
-    setUnderShadow(bool shadow)
+    setSpeculative(bool speculativeState)
     {
-        underShadow = shadow;
+        speculative = speculativeState;
     }
 
     bool
-    isUnderShadow()
+    isSpeculative()
     {
-        return underShadow;
+        return speculative;
     }
 
     /**

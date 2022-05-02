@@ -67,6 +67,9 @@ BaseDynInst<Impl>::BaseDynInst(const StaticInstPtr &_staticInst,
     regs(staticInst->numSrcRegs(), staticInst->numDestRegs()),
     macroop(_macroop),
     memData(nullptr),
+    predData(nullptr),
+    storeData(nullptr),
+    verifyData(nullptr),
     savedReq(nullptr),
     reqToVerify(nullptr)
 {
@@ -94,8 +97,21 @@ void
 BaseDynInst<Impl>::initVars()
 {
     memData = NULL;
+    predData = NULL;
+    storeData = NULL;
+    verifyData = NULL;
     effAddr = 0;
     physEffAddr = 0;
+    succPred = false;
+    predAddr = 0;
+    predSize = 0;
+    hasPredAddr = false;
+    hasPredData = false;
+    hasStoreData = false;
+    shouldForward = false;
+    hasRanAhead = false;
+    partialStoreConflict = false;
+    recvPredTick = 0;
     readyRegs = 0;
     memReqFlags = 0;
     // hardware transactional memory
@@ -145,6 +161,18 @@ BaseDynInst<Impl>::~BaseDynInst()
 {
     if (memData) {
         delete [] memData;
+    }
+
+    if (predData) {
+        delete [] predData;
+    }
+
+    if (storeData) {
+        delete [] storeData;
+    }
+
+    if (verifyData) {
+        delete [] verifyData;
     }
 
     if (traceData) {
@@ -265,6 +293,69 @@ BaseDynInst<Impl>::setSquashed()
     setPinnedRegsSquashDone();
 }
 
+template <class Impl>
+void
+BaseDynInst<Impl>::setSuccPred(bool succ)
+{
+    succPred = succ;
+}
+
+template <class Impl>
+void
+BaseDynInst<Impl>::setPredAddr(Addr predicted, int size)
+{
+    assert(!hasPredAddr);
+    hasPredAddr = true;
+    predAddr = predicted;
+    predSize = size;
+}
+
+template <class Impl>
+void
+BaseDynInst<Impl>::markPredDataReady()
+{
+    hasPredData = true;
+}
+
+template <class Impl>
+Addr
+BaseDynInst<Impl>::getPredAddr()
+{
+    assert(hasPredAddr);
+    return predAddr;
+}
+
+template <class Impl>
+int
+BaseDynInst<Impl>::getPredSize()
+{
+    assert(hasPredAddr);
+    return predSize;
+}
+
+template <class Impl>
+uint8_t*
+BaseDynInst<Impl>::getPredData()
+{
+    assert(hasPredData);
+    return predData;
+}
+
+template <class Impl>
+uint8_t*
+BaseDynInst<Impl>::getStoreData()
+{
+    assert(hasStoreData);
+    return storeData;
+}
+
+template <class Impl>
+void
+BaseDynInst<Impl>::forwardOnPredData()
+{
+    assert(!hasPredData);
+    shouldForward = true;
+}
 
 
 #endif//__CPU_BASE_DYN_INST_IMPL_HH__

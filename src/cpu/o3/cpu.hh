@@ -509,6 +509,10 @@ class FullO3CPU : public BaseO3CPU
     /** Debug function to print all instructions on the list. */
     void dumpInsts();
 
+    void freeTaints();
+
+    void trapCleanup(ThreadID tid);
+
   public:
 #ifndef NDEBUG
     /** Count of total number of dynamic instructions in flight. */
@@ -548,7 +552,13 @@ class FullO3CPU : public BaseO3CPU
     /** The issue/execute/writeback stages. */
     typename CPUPolicy::IEW iew;
 
+public:
     typename CPUPolicy::DOM dom;
+
+    typename CPUPolicy::TaintTracker taintTracker;
+
+    typename CPUPolicy::AddPred add_pred;
+protected:
 
     /** The commit stage. */
     typename CPUPolicy::Commit commit;
@@ -775,6 +785,21 @@ class FullO3CPU : public BaseO3CPU
         Stats::Scalar miscRegfileReads;
         Stats::Scalar miscRegfileWrites;
     } cpuStats;
+
+    // [MP-SPEM] Whether to apply MP-SPEM
+    bool MP;
+
+    bool DOM;
+
+    bool VP;
+
+    bool AP;
+
+    int accuracy;
+
+    bool STT;
+
+    bool safeMode;
 
   public:
     // hardware transactional memory

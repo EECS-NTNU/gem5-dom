@@ -1,6 +1,7 @@
 from spec2006_commands import benchmarks
 from multiprocessing import Process
 import os
+import time
 
 stats = ["simTicks",
     "simTicks",
@@ -26,21 +27,21 @@ stats = ["simTicks",
     "system.switch_cpus.lsq0.loadsDelayedOnMiss"]
 
 work_root = os.getcwd()
-gem5_root=f"{work_root}/gem5"
+gem5_root=f"{work_root}"
 gem5=f"{gem5_root}/build/X86/gem5.opt"
 se=f"{gem5_root}/configs/example/se.py"
-spec_root=f"{gem5_root}/dom/x86-spec-ref"
+spec_root=f"{gem5_root}/dom/x86-spec-all-ref"
 stats="m5out/stats.txt"
 results=f"{gem5_root}/results"
 
-warmupCPU="--cpu-type=kvmCPU"
 runCPU="--cpu-type=DerivO3CPU"
-caches="--caches --l1d_size=64kB --l1i_size=16kB --l2_size=2MB "\
-"--l3_size=16MB --l1d_assoc=2 --l1i_assoc=2 "\
+memory="--mem-size=8GB"
+caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
+"--l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
 "--l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
 
 fast_forward="--fast-forward 1000000000"
-runtime="--maxinsts=3000000000"
+runtime="--maxinsts=1000000000"
 
 mkdir = f"mkdir {gem5_root}/results"
 print(os.system(mkdir))
@@ -51,13 +52,15 @@ def run_benchmark(benchmark):
     b_name = benchmark.name
     b_fullname = benchmark.fullname
 
+    print(f"Now processing {b_fullname}")
+
     os.chdir(f"{spec_root}/{b_fullname}")
     print(f"Now running {b_fullname}")
     for run in benchmark.get_runs_ref():
         run_file=f"-r --stdout-file={b_name}_{run_num}.out"
         print(f"Executing run {run_num + 1} of "\
         f"{benchmark.num_runs_ref()} for {b_name}")
-        run_ref = f"{gem5} {run_file} {se} {fast_forward} "\
+        run_ref = f"{gem5} {run_file} {se} {fast_forward} {memory} "\
         f"{runtime} {caches} {runCPU} -c {b_name} -o \"{run}\""
         print(run_ref)
         print(f"Run {run_num+1} for {b_name} finished "\
@@ -79,9 +82,25 @@ def move_result(benchmark):
         move = f"mv m5out/{b_name}_{i}.out {work_root}/results/"
         os.system(move)
 
-processes = []
+def get_running(processes):
+    count = 0
+    for x in processes:
+        if x.is_alive():
+            count = count + 1
+    return count
 
-for benchmark in benchmarks:
-    p = Process(target=run_benchmark, args=(benchmark,))
-    p.start()
+def run_managed(num):
+    remaining_processes = []
+    for benchmark in benchmarks:
+        remaining_processes.append(
+            Process(target=run_benchmark, args=(benchmark,)))
+    running_processes = []
+    while len(remaining_processes) > 0:
+        process = remaining_processes.pop(0)
+        while get_running(running_processes) >= num:
+            time.sleep(60)
+            print("Waiting to free processes")
+        process.start()
+        running_processes.append(process)
 
+run_managed(8)

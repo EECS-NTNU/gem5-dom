@@ -758,7 +758,8 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk)
             // either); otherwise we use the packet data.
             if (blk && blk->isValid() &&
                 (!mshr->isForward || !pkt->hasData())) {
-                satisfyRequest(tgt_pkt, blk, true, mshr->hasPostDowngrade());
+                    satisfyRequest(tgt_pkt, blk, true,
+                        mshr->hasPostDowngrade());
 
                 // How many bytes past the first request is this one
                 int transfer_offset =

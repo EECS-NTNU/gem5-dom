@@ -30,6 +30,7 @@
 #ifndef __CPU_O3_CPU_POLICY_HH__
 #define __CPU_O3_CPU_POLICY_HH__
 
+#include "cpu/o3/add_pred/simple_pred.hh"
 #include "cpu/o3/comm.hh"
 #include "cpu/o3/commit.hh"
 #include "cpu/o3/decode.hh"
@@ -46,6 +47,7 @@
 #include "cpu/o3/rename_map.hh"
 #include "cpu/o3/rob.hh"
 #include "cpu/o3/store_set.hh"
+#include "cpu/o3/taint_tracker.hh"
 
 /**
  * Struct that defines the key classes to be used by the CPU.  All
@@ -84,6 +86,10 @@ struct SimpleCPUPolicy
     typedef DefaultIEW<Impl> IEW;
     /** Typedef for Delay-on-Miss */
     typedef DefaultDOM<Impl> DOM;
+
+    typedef SimplePred<Impl> AddPred;
+
+    typedef DefaultTaintTracker<Impl> TaintTracker;
     /** Typedef for commit. */
     typedef DefaultCommit<Impl> Commit;
 

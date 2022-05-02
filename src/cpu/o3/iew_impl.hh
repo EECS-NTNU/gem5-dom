@@ -568,6 +568,13 @@ DefaultIEW<Impl>::delayMemInst(const DynInstPtr& inst)
 
 template<class Impl>
 void
+DefaultIEW<Impl>::freeTaints()
+{
+    instQueue.freeTaints();
+}
+
+template<class Impl>
+void
 DefaultIEW<Impl>::replayMemInst(const DynInstPtr& inst)
 {
     instQueue.replayMemInst(inst);
@@ -609,7 +616,8 @@ DefaultIEW<Impl>::instToCommit(const DynInstPtr& inst)
         }
     }
 
-    DPRINTF(IEW, "Current wb cycle: %i, width: %i, numInst: %i\nwbActual:%i\n",
+    DPRINTF(IEW, "Current wb cycle: %i, width: %i, numInst: %i, "
+            "wbActual:%i\n",
             wbCycle, wbWidth, wbNumInst, wbCycle * wbWidth + wbNumInst);
     // Add finished instruction to queue to commit.
     (*iewQueue)[wbCycle].insts[wbNumInst] = inst;
@@ -1414,6 +1422,17 @@ DefaultIEW<Impl>::executeInsts()
             }
         }
     }
+    int insts_to_predict = instQueue.totalWidth - insts_to_execute;
+    instQueue.cleanPredictables();
+    while (insts_to_predict &&
+           instQueue.hasPredictable() &&
+           ldstQueue.cachePortAvailable(true)) {
+        DynInstPtr predictable = instQueue.getPredictable();
+        DPRINTF(IEW, "Issuing prediction for [sn:%llu]\n",
+        predictable->seqNum);
+        ldstQueue.predictLoad(predictable);
+        insts_to_predict--;
+    }
 
     // Update and record activity if we processed any instructions.
     if (inst_num) {
@@ -1515,6 +1534,9 @@ DefaultIEW<Impl>::tick()
     }
 
     if (exeStatus != Squashing) {
+        if (cpu->MP || cpu->STT)
+            instQueue.completeSafeLoads();
+
         executeInsts();
 
         writebackInsts();
@@ -1612,6 +1634,8 @@ DefaultIEW<Impl>::tick()
         DPRINTF(Activity, "Activity this cycle.\n");
         cpu->activityThisCycle();
     }
+
+    instQueue.tick();
 }
 
 template <class Impl>

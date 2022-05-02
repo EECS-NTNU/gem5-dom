@@ -63,6 +63,7 @@
 #include "cpu/static_inst.hh"
 #include "cpu/translation.hh"
 #include "debug/HtmCpu.hh"
+#include "debug/SpeculativeCache.hh"
 #include "mem/packet.hh"
 #include "mem/request.hh"
 #include "sim/byteswap.hh"
@@ -364,6 +365,26 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** The effective physical address. */
     Addr physEffAddr;
 
+    bool succPred;
+
+    Addr predAddr;
+
+    int predSize;
+
+    bool hasPredAddr;
+
+    bool hasPredData;
+
+    bool hasStoreData;
+
+    bool shouldForward;
+
+    bool hasRanAhead;
+
+    bool partialStoreConflict;
+
+    Tick recvPredTick;
+
     /** The memory request flags (from translation). */
     unsigned memReqFlags;
 
@@ -372,6 +393,12 @@ class BaseDynInst : public ExecContext, public RefCounted
 
     /** Pointer to the data for the memory access. */
     uint8_t *memData;
+
+    uint8_t *predData;
+
+    uint8_t *storeData;
+
+    uint8_t *verifyData;
 
     /** Load queue index. */
     ssize_t lqIdx;
@@ -972,6 +999,27 @@ class BaseDynInst : public ExecContext, public RefCounted
     /** Returns whether or not this instruction is squashed in the LSQ. */
     bool isSquashedInLSQ() const { return status[SquashedInLSQ]; }
 
+    void setSuccPred(bool succ);
+
+    void setPredAddr(Addr predidction, int size);
+
+    bool isPredicted() const {return hasPredAddr;}
+
+    bool isRanAhead() const {return hasRanAhead;}
+
+    void setRanAhead(bool state) {hasRanAhead = state;}
+
+    void markPredDataReady();
+
+    Addr getPredAddr();
+
+    int getPredSize();
+
+    uint8_t* getPredData();
+
+    uint8_t* getStoreData();
+
+    void forwardOnPredData();
 
     //Reorder Buffer Functions
     //-----------------------
@@ -1138,6 +1186,7 @@ BaseDynInst<Impl>::initiateMemRead(Addr addr, unsigned size,
                                    const std::vector<bool> &byte_enable)
 {
     assert(byte_enable.size() == size);
+    DPRINTF(SpeculativeCache, "Reached Mem Read\n");
     return cpu->pushRequest(
         dynamic_cast<typename DynInstPtr::PtrType>(this),
         /* ld */ true, nullptr, size, addr, flags, nullptr, nullptr,

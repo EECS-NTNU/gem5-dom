@@ -315,6 +315,10 @@ MSHR::allocate(Addr blk_addr, unsigned blk_size, PacketPtr target,
         Target::FromPrefetcher : Target::FromCPU;
     targets.add(target, when_ready, _order, source, true, alloc_on_fill);
 
+    DPRINTF(SpeculativeCache, "Allocated for pkt %s in mshr %s, with "
+    "speculative: %d\n", target->print(), print(),
+    target->isSpeculative());
+
     // All targets must refer to the same block
     assert(target->matchBlockAddr(targets.front().pkt, blkSize));
 }

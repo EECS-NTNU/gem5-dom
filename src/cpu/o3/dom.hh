@@ -23,7 +23,7 @@ class DefaultDOM
         typedef typename Impl::DynInstPtr DynInstPtr;
         typedef typename Impl::O3CPU O3CPU;
 
-        O3CPU *cpu;
+        O3CPU *_cpu;
 
         std::list<ThreadID> *activeThreads;
 
@@ -34,6 +34,8 @@ class DefaultDOM
         int sbTail[Impl::MaxThreads];
         int width;
         int stallCycles;
+
+        bool resetSwitch = false;
 
         ThreadID numThreads;
 
@@ -74,8 +76,8 @@ class DefaultDOM
 
 
         std::vector<std::tuple<DynInstPtr, int, bool>>
-            sbList[Impl::MaxThreads];
-        std::vector<std::tuple<int, DynInstPtr>> rqList[Impl::MaxThreads];
+            *sbList[Impl::MaxThreads];
+        std::vector<std::tuple<int, DynInstPtr>> *rqList[Impl::MaxThreads];
 
         struct DOMStats : public Stats::Group
         {

@@ -90,6 +90,10 @@ class InstructionQueue
     typedef typename Impl::CPUPol::MemDepUnit MemDepUnit;
     typedef typename Impl::CPUPol::IssueStruct IssueStruct;
     typedef typename Impl::CPUPol::TimeStruct TimeStruct;
+    typedef typename Impl::CPUPol::LSQ::LSQRequest LSQRequest;
+    typedef typename Impl::CPUPol::LSQ::SingleDataRequest SingleDataRequest;
+    typedef typename Impl::CPUPol::LSQ::PredictDataRequest PredictDataRequest;
+    typedef typename Impl::CPUPol::LSQ::SplitDataRequest SplitDataRequest;
 
     // Typedef of iterator through the list of instructions.
     typedef typename std::list<DynInstPtr>::iterator ListIt;
@@ -189,6 +193,12 @@ class InstructionQueue
      */
     DynInstPtr getInstToExecute();
 
+    void cleanPredictables();
+
+    DynInstPtr getPredictable();
+
+    bool hasPredictable();
+
     /** Gets a memory instruction that was referred due to a delayed DTB
      *  translation if it is now ready to execute.  NULL if none available.
      */
@@ -200,6 +210,8 @@ class InstructionQueue
     DynInstPtr getBlockedMemInstToExecute();
 
     DynInstPtr getDelayedMemInstToExecute();
+
+    void completeSafeLoads();
 
     /**
      * Records the instruction as the producer of a register without
@@ -270,6 +282,8 @@ class InstructionQueue
     /** Debug function to print all instructions. */
     void printInsts();
 
+    void freeTaints();
+
   private:
     /** Does the actual squashing. */
     void doSquash(ThreadID tid);
@@ -315,6 +329,10 @@ class InstructionQueue
 
     /** List of instructions that are ready to be executed. */
     std::list<DynInstPtr> instsToExecute;
+
+    std::vector<DynInstPtr> instsPredictable;
+
+    std::vector<DynInstPtr> taintedBranches;
 
     /** List of instructions waiting for their DTB translation to
      *  complete (hw page table walk in progress).
@@ -425,8 +443,10 @@ class InstructionQueue
     /** The number of entries in the instruction queue. */
     unsigned numEntries;
 
+    public:
     /** The total number of instructions that can be issued in one cycle. */
     unsigned totalWidth;
+    private:
 
     /** The number of physical registers in the CPU. */
     unsigned numPhysRegs;
@@ -459,6 +479,12 @@ class InstructionQueue
     /** Moves an instruction to the ready queue if it is ready. */
     void addIfReady(const DynInstPtr &inst);
 
+    void addToTaintedBranches(const DynInstPtr &inst);
+
+    void freeTaintedBranches();
+
+    void pruneTaintedBranches();
+
     /** Debugging function to count how many entries are in the IQ.  It does
      *  a linear walk through the instructions, so do not call this function
      *  during normal execution.
@@ -476,6 +502,12 @@ class InstructionQueue
      */
     void dumpInsts();
 
+  public:
+    void addToPredictable(const DynInstPtr &inst);
+    void removeFromPredictable(const DynInstPtr &inst);
+    void tick();
+    void propagateTaints(const DynInstPtr &inst, ThreadID tid);
+  private:
     struct IQStats : public Stats::Group
     {
         IQStats(O3CPU *cpu, const unsigned &total_width);
@@ -541,6 +573,8 @@ class InstructionQueue
         Stats::Scalar delayedLoads;
         Stats::Scalar squashedDelayedLoads;
         Stats::Scalar reissuedDelayedLoads;
+
+        Stats::Scalar faultLoads;
     } iqStats;
 
    public:
@@ -560,6 +594,10 @@ class InstructionQueue
         Stats::Scalar intAluAccesses;
         Stats::Scalar fpAluAccesses;
         Stats::Scalar vecAluAccesses;
+
+        Stats::Scalar taintedBranchesInserted;
+        Stats::Scalar taintedBranchesFreed;
+        Stats::Scalar taintedBranchesSquashed;
     } iqIOStats;
 };
 

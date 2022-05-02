@@ -139,9 +139,8 @@ class SectorTags : public BaseTags
      * @param lat The latency of the tag lookup.
      * @return Pointer to the cache block if found.
      */
-    CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat) override;
-    CacheBlk* accessBlockShadow(Addr addr, bool is_secure, Cycles &lat,
-      bool underShadow) override;
+    CacheBlk* accessBlock(Addr addr, bool is_secure, Cycles &lat,
+                          bool is_speculative) override;
 
     /**
      * Insert the new block into the cache and update replacement data.

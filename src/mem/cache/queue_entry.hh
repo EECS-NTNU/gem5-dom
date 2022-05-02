@@ -64,15 +64,19 @@ class QueueEntry : public Packet::SenderState
     template <class Entry>
     friend class Queue;
 
-  protected:
+  public:
 
+    /** [MP-SPEM] makes this public */
     /** Tick when ready to issue */
     Tick readyTime;
+
+  protected:
 
     /** True if the entry is uncacheable */
     bool _isUncacheable;
 
   public:
+
     /**
      * A queue entry is holding packets that will be serviced as soon as
      * resources are available. Since multiple references to the same

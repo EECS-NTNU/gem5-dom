@@ -98,6 +98,7 @@ class DefaultCommit
     typedef typename CPUPol::Fetch Fetch;
     typedef typename CPUPol::IEW IEW;
     typedef typename CPUPol::DOM DOM;
+    typedef typename CPUPol::TaintTracker TaintTracker;
 
     typedef O3ThreadState<Impl> Thread;
 
@@ -175,6 +176,8 @@ class DefaultCommit
     IEW *iewStage;
 
     DOM *dom;
+
+    TaintTracker *taintTracker;
 
     /** Sets pointer to list of active threads. */
     void setActiveThreads(std::list<ThreadID> *at_ptr);

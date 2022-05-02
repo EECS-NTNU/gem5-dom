@@ -41,6 +41,7 @@
 #ifndef __CPU_O3_MEM_DEP_UNIT_HH__
 #define __CPU_O3_MEM_DEP_UNIT_HH__
 
+#include <algorithm>
 #include <list>
 #include <memory>
 #include <set>
@@ -86,6 +87,8 @@ class MemDepUnit
     typedef typename Impl::DynInstPtr DynInstPtr;
     typedef typename Impl::DynInstConstPtr DynInstConstPtr;
     typedef typename Impl::O3CPU O3CPU;
+
+    O3CPU *_cpu;
 
     /** Empty constructor. Must call init() prior to using in this case. */
     MemDepUnit();
@@ -140,10 +143,16 @@ class MemDepUnit
     /** Notifies completion of an instruction. */
     void completeInst(const DynInstPtr &inst);
 
+    void freeTaints();
+
+    void pruneTaints();
+
     /** Squashes all instructions up until a given sequence number for a
      *  specific thread.
      */
     void squash(const InstSeqNum &squashed_num, ThreadID tid);
+
+    void squashTainted(const InstSeqNum &squashed_num, ThreadID tid);
 
     /** Indicates an ordering violation between a store and a younger load. */
     void violation(const DynInstPtr &store_inst,
@@ -234,6 +243,8 @@ class MemDepUnit
     /** Finds the memory dependence entry in the hash map. */
     inline MemDepEntryPtr &findInHash(const DynInstConstPtr& inst);
 
+    void moveToTainted(MemDepEntryPtr &ready_inst_entry);
+
     /** Moves an entry to the ready list. */
     inline void moveToReady(MemDepEntryPtr &ready_inst_entry);
 
@@ -249,6 +260,8 @@ class MemDepUnit
 
     /** A list of all instructions that are going to be replayed. */
     std::list<DynInstPtr> instsToReplay;
+
+    std::vector<DynInstPtr> taintedQueue;
 
     /** The memory dependence predictor.  It is accessed upon new
      *  instructions being added to the IQ, and responds by telling
@@ -290,6 +303,12 @@ class MemDepUnit
         /** Stat for number of conflicting stores that had to wait for a
          *  store. */
         Stats::Scalar conflictingStores;
+
+        Stats::Scalar delayedTaintedMems;
+
+        Stats::Scalar taintedMemsFreed;
+
+        Stats::Scalar taintedMemsSquashed;
     } stats;
 };
 

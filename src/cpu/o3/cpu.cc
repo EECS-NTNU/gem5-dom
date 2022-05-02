@@ -86,6 +86,8 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       rename(this, params),
       iew(this, params),
       dom(this, params),
+      taintTracker(this, params),
+      add_pred(this, params),
       commit(this, params),
 
       /* It is mandatory that all SMT threads use the same renaming mode as
@@ -119,8 +121,22 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       globalSeqNum(1),
       system(params.system),
       lastRunningCycle(curCycle()),
-      cpuStats(this)
+      cpuStats(this),
+      //MP-SPEM
+      MP(params.mpMode),
+      DOM(params.domMode),
+      VP(params.vpMode),
+      AP(params.apMode),
+      accuracy(params.predAccuracy),
+      STT(params.sttMode),
+      safeMode(params.mpMode
+            || params.domMode
+            || params.sttMode)
 {
+    assert(!(MP && DOM));
+    assert(!(AP && VP));
+    assert(!(AP && accuracy !=100));
+    assert((!VP) || MP);
     fatal_if(FullSystem && params.numThreads > 1,
             "SMT is not supported in O3 in full system mode currently.");
 
@@ -172,6 +188,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
     decode.setFetchQueue(&fetchQueue);
     commit.setFetchQueue(&fetchQueue);
     decode.setDecodeQueue(&decodeQueue);
+    decode.setInstQueue(&iew.instQueue);
     rename.setDecodeQueue(&decodeQueue);
     rename.setRenameQueue(&renameQueue);
     iew.setRenameQueue(&renameQueue);
@@ -184,6 +201,7 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
     commit.setDOM(&dom);
     rename.setIEWStage(&iew);
     rename.setCommitStage(&commit);
+    rename.setDomStage(&dom);
 
     ThreadID active_threads;
     if (FullSystem) {
@@ -520,6 +538,8 @@ FullO3CPU<Impl>::tick()
     commit.tick();
 
     dom.tick();
+
+    taintTracker.pruneTaints();
 
     // Now advance the time buffers
     timeBuffer.advance();
@@ -1663,6 +1683,21 @@ FullO3CPU<Impl>::dumpInsts()
         inst_list_it++;
         ++num;
     }
+}
+
+template<class Impl>
+void
+FullO3CPU<Impl>::freeTaints()
+{
+    iew.freeTaints();
+}
+
+template<class Impl>
+void
+FullO3CPU<Impl>::trapCleanup(ThreadID tid)
+{
+    dom.squashThread(tid);
+    taintTracker.resetState();
 }
 /*
 template <class Impl>

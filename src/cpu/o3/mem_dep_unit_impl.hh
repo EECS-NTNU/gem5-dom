@@ -49,6 +49,7 @@
 #include "cpu/o3/inst_queue.hh"
 #include "cpu/o3/mem_dep_unit.hh"
 #include "debug/MemDepUnit.hh"
+#include "debug/TaintTrackerDebug.hh"
 #include "params/DerivO3CPU.hh"
 
 template <class MemDepPred, class Impl>
@@ -109,6 +110,7 @@ MemDepUnit<MemDepPred, Impl>::init(
 
     std::string stats_group_name = csprintf("MemDepUnit__%i", tid);
     cpu->addStatGroup(stats_group_name.c_str(), &stats);
+    _cpu = cpu;
 }
 
 template <class MemDepPred, class Impl>
@@ -120,7 +122,13 @@ MemDepUnitStats::MemDepUnitStats(Stats::Group *parent)
       ADD_STAT(insertedStores, UNIT_COUNT,
                "Number of stores inserted to the mem dependence unit."),
       ADD_STAT(conflictingLoads, UNIT_COUNT, "Number of conflicting loads."),
-      ADD_STAT(conflictingStores, UNIT_COUNT, "Number of conflicting stores.")
+      ADD_STAT(conflictingStores, UNIT_COUNT, "Number of conflicting stores."),
+      ADD_STAT(delayedTaintedMems, UNIT_COUNT,
+               "Number of tainted mems delayed due to taint"),
+      ADD_STAT(taintedMemsFreed, UNIT_COUNT,
+               "Number of delayed tainted mems that are freed to execution"),
+      ADD_STAT(taintedMemsSquashed, UNIT_COUNT,
+               "Number of delayed tainted mems that are squashed from queue")
 {
 }
 
@@ -264,7 +272,12 @@ MemDepUnit<MemDepPred, Impl>::insert(const DynInstPtr &inst)
         if (inst->readyToIssue()) {
             inst_entry->regsReady = true;
 
-            moveToReady(inst_entry);
+            if (inst->isLoad() &&
+                _cpu->taintTracker.hasTaintedSrc(inst)) {
+                moveToTainted(inst_entry);
+            } else {
+                moveToReady(inst_entry);
+            }
         }
     } else {
         // Otherwise make the instruction dependent on the store/barrier.
@@ -371,7 +384,12 @@ MemDepUnit<MemDepPred, Impl>::regsReady(const DynInstPtr &inst)
         DPRINTF(MemDepUnit, "Instruction has its memory "
                 "dependencies resolved, adding it to the ready list.\n");
 
-        moveToReady(inst_entry);
+        if (inst->isLoad() &&
+            _cpu->taintTracker.hasTaintedSrc(inst)) {
+            moveToTainted(inst_entry);
+        } else {
+            moveToReady(inst_entry);
+        }
     } else {
         DPRINTF(MemDepUnit, "Instruction still waiting on "
                 "memory dependency.\n");
@@ -413,7 +431,12 @@ MemDepUnit<MemDepPred, Impl>::replay()
         DPRINTF(MemDepUnit, "Replaying mem instruction PC %s [sn:%lli].\n",
                 temp_inst->pcState(), temp_inst->seqNum);
 
-        moveToReady(inst_entry);
+        if (temp_inst->isLoad() &&
+            _cpu->taintTracker.hasTaintedSrc(temp_inst)) {
+            moveToTainted(inst_entry);
+        } else {
+            moveToReady(inst_entry);
+        }
 
         instsToReplay.pop_front();
     }
@@ -505,11 +528,74 @@ MemDepUnit<MemDepPred, Impl>::wakeDependents(const DynInstPtr &inst)
         if ((woken_inst->memDeps == 0) &&
             woken_inst->regsReady &&
             !woken_inst->squashed) {
-            moveToReady(woken_inst);
+            if (inst->isLoad() &&
+                _cpu->taintTracker.hasTaintedSrc(inst)) {
+                moveToTainted(woken_inst);
+            } else {
+                moveToReady(woken_inst);
+            }
         }
     }
 
     inst_entry->dependInsts.clear();
+}
+
+template <class MemDepPred, class Impl>
+void
+MemDepUnit<MemDepPred, Impl>::freeTaints()
+{
+    DPRINTF(MemDepUnit, "Freeing taints, current size: %d\n",
+            taintedQueue.size());
+    for (int i = 0; i < taintedQueue.size(); i++) {
+        DynInstPtr inst = taintedQueue.at(i);
+        bool tainted = false;
+        for (int j = 0; j < inst->numSrcRegs(); j++) {
+            PhysRegIdPtr src_reg = inst->regs.renamedSrcIdx(j);
+            if (_cpu->taintTracker.isTainted(src_reg)) {
+                tainted = true;
+            }
+        }
+        if (tainted && !inst->isSquashed())  {
+            assert(inst->underShadow());
+            continue;
+        }
+
+        DPRINTF(MemDepUnit, "Freeing untainted inst "
+                "[sn:%llu] from taintedQueue, squashed: %d\n",
+                inst->seqNum,
+                inst->isSquashed());
+
+        taintedQueue.erase(taintedQueue.begin() + i);
+        i--;
+
+        if (inst->isSquashed()) {
+            ++stats.taintedMemsSquashed;
+            continue;
+        }
+
+        assert(!inst->isCommitted());
+
+        MemDepEntryPtr inst_entry = findInHash(inst);
+
+        ++stats.taintedMemsFreed;
+        moveToReady(inst_entry);
+    }
+}
+
+template <class MemDepPred, class Impl>
+void
+MemDepUnit<MemDepPred, Impl>::pruneTaints()
+{
+    for (int i = 0; i < taintedQueue.size(); i++) {
+        DynInstPtr inst = taintedQueue.at(i);
+        if (inst->isSquashed()) {
+            ++stats.taintedMemsSquashed;
+            DPRINTF(MemDepUnit, "Removing squashed load from "
+            "taintedQueue: [sn:%llu]\n", inst->seqNum);
+            taintedQueue.erase(taintedQueue.begin() + i);
+            i--;
+        }
+    }
 }
 
 template <class MemDepPred, class Impl>
@@ -562,6 +648,26 @@ MemDepUnit<MemDepPred, Impl>::squash(const InstSeqNum &squashed_num,
 
     // Tell the dependency predictor to squash as well.
     depPred.squash(squashed_num, tid);
+
+    squashTainted(squashed_num, tid);
+}
+
+template <class MemDepPred, class Impl>
+void
+MemDepUnit<MemDepPred, Impl>::squashTainted(const InstSeqNum &squashed_num,
+                                            ThreadID tid)
+{
+    for (int i = 0; i < taintedQueue.size(); i++) {
+        DynInstPtr inst = taintedQueue.at(i);
+        if (inst->seqNum > squashed_num) {
+            ++stats.taintedMemsSquashed;
+            DPRINTF(MemDepUnit, "Removing load from "
+            "taintedQueue: [sn:%llu] due to num squash\n",
+            inst->seqNum);
+            taintedQueue.erase(taintedQueue.begin() + i);
+            i--;
+        }
+    }
 }
 
 template <class MemDepPred, class Impl>
@@ -595,6 +701,27 @@ MemDepUnit<MemDepPred, Impl>::findInHash(const DynInstConstPtr &inst)
     assert(hash_it != memDepHash.end());
 
     return (*hash_it).second;
+}
+
+template <class MemDepPred, class Impl>
+void
+MemDepUnit<MemDepPred, Impl>::moveToTainted(
+            MemDepEntryPtr &woken_tainted_entry)
+{
+    assert(!woken_tainted_entry->squashed);
+    assert(_cpu->STT);
+    assert(std::find(taintedQueue.begin(),
+                     taintedQueue.end(),
+                     woken_tainted_entry->inst) == taintedQueue.end());
+
+    ++stats.delayedTaintedMems;
+
+    taintedQueue.push_back(woken_tainted_entry->inst);
+
+    DPRINTF(MemDepUnit, "Adding instruction [sn:%lli] "
+            "to the tainted list. Size now %d\n",
+            woken_tainted_entry->inst->seqNum,
+            taintedQueue.size());
 }
 
 template <class MemDepPred, class Impl>

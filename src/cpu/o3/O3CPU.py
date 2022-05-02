@@ -70,6 +70,8 @@ class DerivO3CPU(BaseCPU):
     def support_take_over(cls):
         return True
 
+    #Based on IceLake configuration
+
     activity = Param.Unsigned(0, "Initial count")
 
     cacheStorePorts = Param.Unsigned(200, "Cache Ports. "
@@ -82,8 +84,8 @@ class DerivO3CPU(BaseCPU):
     iewToFetchDelay = Param.Cycles(1, "Issue/Execute/Writeback to fetch "
                                    "delay")
     commitToFetchDelay = Param.Cycles(1, "Commit to fetch delay")
-    fetchWidth = Param.Unsigned(8, "Fetch width")
-    fetchBufferSize = Param.Unsigned(64, "Fetch buffer size in bytes")
+    fetchWidth = Param.Unsigned(5, "Fetch width")
+    fetchBufferSize = Param.Unsigned(16, "Fetch buffer size in bytes")
     fetchQueueSize = Param.Unsigned(32, "Fetch queue size in micro-ops "
                                     "per-thread")
 
@@ -92,39 +94,40 @@ class DerivO3CPU(BaseCPU):
                                     "delay")
     commitToDecodeDelay = Param.Cycles(1, "Commit to decode delay")
     fetchToDecodeDelay = Param.Cycles(1, "Fetch to decode delay")
-    decodeWidth = Param.Unsigned(8, "Decode width")
+    decodeWidth = Param.Unsigned(5, "Decode width")
 
     iewToRenameDelay = Param.Cycles(1, "Issue/Execute/Writeback to rename "
                                     "delay")
     commitToRenameDelay = Param.Cycles(1, "Commit to rename delay")
     decodeToRenameDelay = Param.Cycles(1, "Decode to rename delay")
-    renameWidth = Param.Unsigned(8, "Rename width")
+    renameWidth = Param.Unsigned(5, "Rename width")
 
     commitToIEWDelay = Param.Cycles(1, "Commit to "
                "Issue/Execute/Writeback delay")
-    renameToIEWDelay = Param.Cycles(2, "Rename to "
+    renameToIEWDelay = Param.Cycles(1, "Rename to "
                "Issue/Execute/Writeback delay")
     issueToExecuteDelay = Param.Cycles(1, "Issue to execute delay (internal "
               "to the IEW stage)")
-    dispatchWidth = Param.Unsigned(8, "Dispatch width")
-    issueWidth = Param.Unsigned(8, "Issue width")
-    wbWidth = Param.Unsigned(8, "Writeback width")
+    dispatchWidth = Param.Unsigned(10, "Dispatch width")
+    issueWidth = Param.Unsigned(10, "Issue width")
+    wbWidth = Param.Unsigned(10, "Writeback width")
     fuPool = Param.FUPool(DefaultFUPool(), "Functional Unit pool")
 
     iewToCommitDelay = Param.Cycles(1, "Issue/Execute/Writeback to commit "
                "delay")
     renameToROBDelay = Param.Cycles(1, "Rename to reorder buffer delay")
-    commitWidth = Param.Unsigned(8, "Commit width")
-    squashWidth = Param.Unsigned(8, "Squash width")
+    commitWidth = Param.Unsigned(10, "Commit width")
+    squashWidth = Param.Unsigned(352, "Squash width")
     trapLatency = Param.Cycles(13, "Trap latency")
     fetchTrapLatency = Param.Cycles(1, "Fetch trap latency")
 
     backComSize = Param.Unsigned(5, "Time buffer size for backwards communication")
     forwardComSize = Param.Unsigned(5, "Time buffer size for forward communication")
 
-    LQEntries = Param.Unsigned(32, "Number of load queue entries")
-    SQEntries = Param.Unsigned(32, "Number of store queue entries")
-    LSQDepCheckShift = Param.Unsigned(4, "Number of places to shift addr before check")
+    LQEntries = Param.Unsigned(128, "Number of load queue entries")
+    SQEntries = Param.Unsigned(72, "Number of store queue entries")
+    LSQDepCheckShift = Param.Unsigned(0,
+        "Number of places to shift addr before check")
     LSQCheckLoads = Param.Bool(True,
         "Should dependency violations be checked for loads & stores or just stores")
     store_set_clear_period = Param.Unsigned(250000,
@@ -132,13 +135,14 @@ class DerivO3CPU(BaseCPU):
     LFSTSize = Param.Unsigned(1024, "Last fetched store table size")
     SSITSize = Param.Unsigned(1024, "Store set ID table size")
 
-    numSbEntries = Param.Unsigned(64, "Max number of SB entries")
-    numRqEntries = Param.Unsigned(64, "Max number of RQ entries")
+    numSbEntries = Param.Unsigned(256, "Max number of SB entries")
+    numRqEntries = Param.Unsigned(256, "Max number of RQ entries")
 
     numRobs = Param.Unsigned(1, "Number of Reorder Buffers")
 
-    numPhysIntRegs = Param.Unsigned(256, "Number of physical integer registers")
-    numPhysFloatRegs = Param.Unsigned(256, "Number of physical floating point "
+    numPhysIntRegs = Param.Unsigned(180,
+        "Number of physical integer registers")
+    numPhysFloatRegs = Param.Unsigned(180, "Number of physical floating point "
                                       "registers")
     # most ISAs don't use condition-code regs, so default is 0
     _defaultNumPhysCCRegs = 0
@@ -150,14 +154,14 @@ class DerivO3CPU(BaseCPU):
         # (it's a side effect of int reg renaming), so they should
         # never be the bottleneck here.
         _defaultNumPhysCCRegs = Self.numPhysIntRegs * 5
-    numPhysVecRegs = Param.Unsigned(256, "Number of physical vector "
+    numPhysVecRegs = Param.Unsigned(180, "Number of physical vector "
                                       "registers")
     numPhysVecPredRegs = Param.Unsigned(32, "Number of physical predicate "
                                       "registers")
     numPhysCCRegs = Param.Unsigned(_defaultNumPhysCCRegs,
                                    "Number of physical cc registers")
-    numIQEntries = Param.Unsigned(64, "Number of instruction queue entries")
-    numROBEntries = Param.Unsigned(192, "Number of reorder buffer entries")
+    numIQEntries = Param.Unsigned(160, "Number of instruction queue entries")
+    numROBEntries = Param.Unsigned(352, "Number of reorder buffer entries")
 
     smtNumFetchingThreads = Param.Unsigned(1, "SMT Number of Fetching Threads")
     smtFetchPolicy = Param.SMTFetchPolicy('RoundRobin', "SMT Fetch policy")
@@ -177,6 +181,29 @@ class DerivO3CPU(BaseCPU):
                                        "Branch Predictor")
     needsTSO = Param.Bool(buildEnv['TARGET_ISA'] == 'x86',
                           "Enable TSO Memory model")
+
+    mpMode = Param.Bool(False,
+                        "Toggle MP mode to block side-channel attacks")
+    domMode = Param.Bool(False,
+                        "Toggle DOM mode to block cache side-channel attacks")
+    apMode = Param.Bool(False,
+                        "Toggle address predictor for performance boost")
+    vpMode = Param.Bool(False,
+                        "Toggle value predictor for performance boost")
+    predAccuracy = Param.Int(100, "Accuracy of faked value predictor")
+
+    sttMode = Param.Bool(False,
+                        "Toggle STT mode to block side-channel attacks")
+
+
+    confidence_saturation = Param.Int(
+                            "Maximum confidence achievable for prediction")
+    confidence_threshold = Param.Int(
+                            "Threshold to begin prediction at")
+    confidence_up_step = Param.Int(
+                            "Gain of confidence on correct prediction")
+    confidence_down_step = Param.Int(
+                            "Loss of confidence on wrong prediction")
 
     def addCheckerCpu(self):
         if buildEnv['TARGET_ISA'] in ['arm']:

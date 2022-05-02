@@ -53,8 +53,11 @@
 #include "base/flags.hh"
 #include "base/types.hh"
 #include "cpu/inst_seq.hh"
+#include "cpu/o3/add_pred/simple_pred.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "cpu/utils.hh"
+#include "debug/AddrPrediction.hh"
+#include "debug/LSQ.hh"
 #include "enums/SMTQueuePolicy.hh"
 #include "mem/port.hh"
 #include "sim/sim_object.hh"
@@ -278,8 +281,9 @@ class LSQ
         };
         State _state;
         LSQSenderState* _senderState;
+        public:
         void setState(const State& newState) { _state = newState; }
-
+        protected:
         uint32_t numTranslatedFragments;
         uint32_t numInTranslationFragments;
 
@@ -304,7 +308,7 @@ class LSQ
         std::vector<bool> _byteEnable;
         uint32_t _numOutstandingPackets;
         AtomicOpFunctorPtr _amo_op;
-        bool underShadow;
+        bool speculative;
       protected:
         LSQUnit* lsqUnit() { return &_port; }
         LSQRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad) :
@@ -312,7 +316,7 @@ class LSQ
             _port(*port), _inst(inst), _data(nullptr),
             _res(nullptr), _addr(0), _size(0), _flags(0),
             _numOutstandingPackets(0), _amo_op(nullptr),
-            underShadow(inst->underShadow)
+            speculative(inst->underShadow())
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,
@@ -320,6 +324,17 @@ class LSQ
             flags.set(Flag::IsAtomic, _inst->isAtomic());
             install();
         }
+        LSQRequest(LSQUnit* port, const DynInstPtr& inst,
+                   const Addr& addr, const uint32_t& size) :
+            _state(State::NotIssued), _senderState(nullptr),
+            numInTranslationFragments(0),
+            _port(*port), _inst(inst), _data(nullptr),
+            _res(nullptr), _addr(addr), _size(size), _flags(0),
+            _numOutstandingPackets(0),
+            _amo_op(nullptr), speculative(true)
+            {
+                flags.set(Flag::IsLoad, true);
+            }
         LSQRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad,
                    const Addr& addr, const uint32_t& size,
                    const Request::Flags& flags_,
@@ -333,7 +348,7 @@ class LSQ
             _flags(flags_),
             _numOutstandingPackets(0),
             _amo_op(std::move(amo_op)),
-            underShadow(inst->underShadow)
+            speculative(inst->underShadow())
         {
             flags.set(Flag::IsLoad, isLoad);
             flags.set(Flag::WbStore,
@@ -351,14 +366,40 @@ class LSQ
         _flags(other->_flags),
         _numOutstandingPackets(other->_numOutstandingPackets),
         _amo_op(nullptr),
-        underShadow(other->underShadow)
+        speculative(other->isSpeculative())
         {
             flags.set(Flag::IsLoad, true);
             flags.set(Flag::WbStore,
                       _inst->isStoreConditional() || _inst->isAtomic());
             flags.set(Flag::IsAtomic, _inst->isAtomic());
         }
+        public:
+        LSQRequest(LSQRequest* other, bool copy_packets) :
+        _state(other->_state), _senderState(nullptr),
+        numTranslatedFragments(other->numTranslatedFragments),
+        numInTranslationFragments(other->numInTranslationFragments),
+        _port(other->_port), _inst(other->_inst), _data(nullptr),
+        _res(other->_res), _addr(other->_addr),
+        _size(other->_size),
+        flags(other->_flags),
+        _numOutstandingPackets(copy_packets ?
+            other->_numOutstandingPackets : 0),
+        _amo_op(nullptr),
+        speculative(other->isSpeculative())
+        {
+            flags.set(Flag::IsLoad, true);
+            flags.set(Flag::WbStore,
+                      _inst->isStoreConditional() || _inst->isAtomic());
+            flags.set(Flag::IsAtomic, _inst->isAtomic());
+            flags.set(Flag::TranslationStarted, true);
+            flags.set(Flag::TranslationFinished, true);
+            auto request = std::make_shared<Request>(
+                *(other->_requests.back()));
+            _requests.push_back(request);
+            setState(State::Request);
+        }
 
+        protected:
         bool
         isLoad() const
         {
@@ -428,6 +469,7 @@ class LSQ
          * The request is only added if the mask is empty or if there is at
          * least an active element in it.
          */
+        public:
         void
         addRequest(Addr addr, unsigned size,
                    const std::vector<bool>& byte_enable)
@@ -441,6 +483,7 @@ class LSQ
                 _requests.push_back(request);
             }
         }
+        protected:
 
         /** Destructor.
          * The LSQRequest owns the request. If the packet has already been
@@ -449,7 +492,7 @@ class LSQ
         virtual ~LSQRequest()
         {
             assert(!isAnyOutstandingRequest());
-            _inst->savedReq = nullptr;
+            if (this == _inst->savedReq) _inst->savedReq = nullptr;
             if (_senderState)
                 delete _senderState;
 
@@ -564,6 +607,67 @@ class LSQ
         {
             return flags.isSet(Flag::IsSplit);
         }
+
+        // [MP-SPEM]
+        Addr
+        getPhysAddr() const
+        {
+            return _requests.at(0)->getPaddr();
+        }
+
+        bool
+        isSpeculative() const
+        {
+            return speculative;
+        }
+
+        void
+        setSpeculative(bool newState)
+        {
+            speculative = newState;
+        }
+
+        void
+        setPacketsSpeculative() {
+            for (int i = 0; i<_packets.size(); i++) {
+                _packets.at(i)->speculative = true;
+            }
+        }
+
+        void
+        setPacketsNonSpeculative() {
+            for (int i = 0; i<_packets.size(); i++) {
+                _packets.at(i)->speculative = false;
+                _packets.at(i)->noSpeculativeMode();
+            }
+        }
+
+        void
+        setPacketsPredictable() {
+            for (int i = 0; i<_packets.size(); i++) {
+                _packets.at(i)->setPredictable(true);
+            }
+        }
+
+        void
+        setPacketsNonPredictable() {
+            for (int i = 0; i<_packets.size(); i++) {
+                _packets.at(i)->setPredictable(false);
+            }
+        }
+
+        void
+        dropPackets() {
+            for (auto r: _packets)
+                delete r;
+        }
+
+        void
+        dropData() {
+            delete _data;
+            _data = nullptr;
+        }
+
         /** @} */
         virtual bool recvTimingResp(PacketPtr pkt) = 0;
         virtual void sendPacketToCache() = 0;
@@ -719,6 +823,59 @@ class LSQ
 
         virtual std::string name() const { return "LSQRequest"; }
     };
+  public:
+    class PredictDataRequest : public LSQRequest
+    {
+        protected:
+        /* Given that we are inside templates, children need explicit
+         * declaration of the names in the parent class. */
+        using Flag = typename LSQRequest::Flag;
+        using State = typename LSQRequest::State;
+        using LSQRequest::_addr;
+        using LSQRequest::_fault;
+        using LSQRequest::_flags;
+        using LSQRequest::_size;
+        using LSQRequest::_byteEnable;
+        using LSQRequest::_requests;
+        using LSQRequest::_inst;
+        using LSQRequest::_packets;
+        using LSQRequest::_port;
+        using LSQRequest::_res;
+        using LSQRequest::_taskId;
+        using LSQRequest::_senderState;
+        using LSQRequest::_state;
+        using LSQRequest::flags;
+        using LSQRequest::isLoad;
+        using LSQRequest::isTranslationComplete;
+        using LSQRequest::lsqUnit;
+        using LSQRequest::request;
+        using LSQRequest::sendFragmentToTranslation;
+        using LSQRequest::setState;
+        using LSQRequest::numInTranslationFragments;
+        using LSQRequest::numTranslatedFragments;
+        using LSQRequest::_numOutstandingPackets;
+        using LSQRequest::_amo_op;
+        using LSQRequest::speculative;
+      public:
+        PredictDataRequest(LSQUnit* port, const DynInstPtr& inst,
+                           const Addr& addr, const uint32_t& size,
+                           const Request::Flags& flags_,
+                           PacketDataPtr data = nullptr,
+                           uint64_t* res = nullptr,
+                           AtomicOpFunctorPtr amo_op = nullptr) :
+                           LSQRequest(port, inst, addr, size) {}
+        inline virtual ~PredictDataRequest() {}
+        virtual void initiateTranslation();
+        virtual void finish(const Fault &fault, const RequestPtr &req,
+                            ThreadContext* tc, BaseTLB::Mode mode);
+        virtual bool recvTimingResp(PacketPtr pkt);
+        virtual void sendPacketToCache();
+        virtual void buildPackets();
+        virtual Cycles handleLocalAccess(ThreadContext *thread, PacketPtr pkt);
+        virtual bool isCacheBlockHit(Addr blockAddr, Addr cacheBlockMask);
+        virtual std::string name() const { return "PredictDataRequest"; }
+
+    };
 
     class SingleDataRequest : public LSQRequest
     {
@@ -751,7 +908,7 @@ class LSQ
         using LSQRequest::numTranslatedFragments;
         using LSQRequest::_numOutstandingPackets;
         using LSQRequest::_amo_op;
-        using LSQRequest::underShadow;
+        using LSQRequest::speculative;
       public:
         SingleDataRequest(LSQUnit* port, const DynInstPtr& inst, bool isLoad,
                           const Addr& addr, const uint32_t& size,
@@ -763,6 +920,8 @@ class LSQ
                        std::move(amo_op)) {}
         SingleDataRequest(SingleDataRequest* other) :
             LSQRequest(other) {}
+        SingleDataRequest(SingleDataRequest* other, bool copyPackets) :
+            LSQRequest(other, copyPackets) {}
 
         inline virtual ~SingleDataRequest() {}
         virtual void initiateTranslation();
@@ -856,6 +1015,19 @@ class LSQ
         {
             flags.set(Flag::IsSplit);
         }
+
+        SplitDataRequest(SplitDataRequest* other, bool copyPackets) :
+            LSQRequest(other, copyPackets),
+            numFragments(0),
+            numReceivedPackets(0),
+            mainReq(other->mainReq),
+            _mainPacket(nullptr)
+        {
+            flags.set(Flag::IsSplit);
+            _requests = other->_requests;
+            _fault = other->_fault;
+        }
+
         virtual ~SplitDataRequest()
         {
             if (mainReq) {
@@ -914,6 +1086,8 @@ class LSQ
 
     /** Executes a store. */
     Fault executeStore(const DynInstPtr &inst);
+
+    void predictLoad(DynInstPtr &inst);
 
     /**
      * Commits loads up until the given sequence number for a specific thread.
@@ -1116,6 +1290,8 @@ class LSQ
      */
     Fault write(LSQRequest* req, uint8_t *data, int store_idx);
 
+    void completeInst(DynInstPtr inst);
+
     /**
      * Retry the previous send that failed.
      */
@@ -1215,6 +1391,8 @@ class LSQ
 
     /** Number of Threads. */
     ThreadID numThreads;
+
+    SimplePred<Impl> *add_pred;
 };
 
 template <class Impl>
@@ -1233,6 +1411,21 @@ LSQ<Impl>::write(LSQRequest* req, uint8_t *data, int store_idx)
     ThreadID tid = cpu->contextToThread(req->request()->contextId());
 
     return thread.at(tid).write(req, data, store_idx);
+}
+
+template <class Impl>
+void
+LSQ<Impl>::completeInst(DynInstPtr inst)
+{
+    if (inst->shouldForward) {
+        if (inst->hasStoreData) {
+            thread.at(inst->threadNumber).forwardStoredData(inst);
+        } else {
+            thread.at(inst->threadNumber).forwardPredictedData(inst);
+        }
+    } else {
+        thread.at(inst->threadNumber).writeback(inst, inst->getResp());
+    }
 }
 
 #endif // __CPU_O3_LSQ_HH__
