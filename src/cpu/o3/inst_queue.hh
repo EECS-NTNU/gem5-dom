@@ -575,6 +575,8 @@ class InstructionQueue
         Stats::Scalar reissuedDelayedLoads;
 
         Stats::Scalar faultLoads;
+
+        Stats::Scalar removedFromPredictables;
     } iqStats;
 
    public:

@@ -187,4 +187,21 @@ BaseO3DynInst<Impl>::trap(const Fault &fault)
     this->cpu->trap(fault, this->threadNumber, this->staticInst);
 }
 
+
+template <class Impl>
+void
+BaseO3DynInst<Impl>::setPredCycle()
+{
+    predCycle = cpu->curCycle();
+}
+
+template <class Impl>
+Cycles
+BaseO3DynInst<Impl>::getPredCycle()
+{
+    assert(predCycle != Cycles());
+    return predCycle;
+}
+
+
 #endif//__CPU_O3_DYN_INST_IMPL_HH__

@@ -89,6 +89,8 @@ class BaseO3DynInst : public BaseDynInst<Impl>
 
     bool dShadow = false;
 
+    Cycles predCycle = Cycles();
+
     bool underShadow() {return cShadow || dShadow;}
 
     PacketPtr completePackage = nullptr;
@@ -430,6 +432,10 @@ class BaseO3DynInst : public BaseDynInst<Impl>
         this->cpu->setCCReg(this->regs.renamedDestIdx(idx), val);
         BaseDynInst<Impl>::setCCRegOperand(si, idx, val);
     }
+
+    void setPredCycle();
+
+    Cycles getPredCycle();
 };
 
 #endif // __CPU_O3_ALPHA_DYN_INST_HH__
