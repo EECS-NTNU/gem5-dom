@@ -459,6 +459,10 @@ class InstructionQueue
      */
     Cycles commitToIEWDelay;
 
+    int predDelay;
+
+    bool pruneReady;
+
     /** The sequence number of the squashed instruction. */
     InstSeqNum squashedSeqNum[Impl::MaxThreads];
 

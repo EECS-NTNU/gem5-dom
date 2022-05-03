@@ -436,6 +436,10 @@ def addMPOptions(parser):
                         action="store", type="int", default=1)
     parser.add_option("--confidence_down_step",
                         action="store", type="int", default=4)
+    parser.add_option("--pred_delay",
+                        action="store", type="int", default=4)
+    parser.add_option("--prune_ready",
+                        action="store_true", default=False)
 
 
 def addFSOptions(parser):

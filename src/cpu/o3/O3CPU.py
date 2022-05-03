@@ -205,6 +205,10 @@ class DerivO3CPU(BaseCPU):
     confidence_down_step = Param.Int(
                             "Loss of confidence on wrong prediction")
 
+    predDelay = Param.Int(4, "Cycles delayed for predictions")
+    pruneReady = Param.Bool(False,
+                            "Whether to block ready loads from predictions")
+
     def addCheckerCpu(self):
         if buildEnv['TARGET_ISA'] in ['arm']:
             from m5.objects.ArmTLB import ArmMMU

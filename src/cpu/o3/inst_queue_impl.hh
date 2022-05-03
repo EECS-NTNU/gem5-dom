@@ -96,7 +96,9 @@ InstructionQueue<Impl>::InstructionQueue(O3CPU *cpu_ptr, IEW *iew_ptr,
       totalWidth(params.issueWidth),
       commitToIEWDelay(params.commitToIEWDelay),
       iqStats(cpu, totalWidth),
-      iqIOStats(cpu)
+      iqIOStats(cpu),
+      predDelay(params.predDelay),
+      pruneReady(params.pruneReady)
 {
     assert(fuPool);
 
@@ -614,6 +616,9 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
     // Look through its source registers (physical regs), and mark any
     // dependencies.
     addToDependents(new_inst);
+
+    if (pruneReady && new_inst->readyToIssue())
+        removeFromPredictable(new_inst);
 
     // Have this instruction set itself as the producer of its destination
     // register(s).
