@@ -281,6 +281,8 @@ for i in range(len(system.cpu)):
         system.cpu[i].confidence_threshold = options.confidence_threshold
         system.cpu[i].confidence_up_step = options.confidence_up_step
         system.cpu[i].confidence_down_step = options.confidence_down_step
+        system.cpu[i].predDelay = options.pred_delay
+        system.cpu[i].pruneReady = options.prune_ready
 
 root = Root(full_system = False, system = system)
 
