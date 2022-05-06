@@ -739,7 +739,7 @@ InstructionQueue<Impl>::getPredictable()
 {
     assert(!instsPredictable.empty());
     DynInstPtr inst = std::move(instsPredictable.front());
-    assert(cpu->curCycle() > inst->getPredCycle() + 4);
+    assert(cpu->curCycle() > inst->getPredCycle() + predDelay);
     instsPredictable.erase(instsPredictable.begin());
     assert(!inst->isSquashed());
     assert(inst->isLoad());
@@ -753,7 +753,8 @@ bool
 InstructionQueue<Impl>::hasPredictable()
 {
     return !instsPredictable.empty() &&
-            (cpu->curCycle() > (instsPredictable.front()->getPredCycle() + 4));
+            (cpu->curCycle() > (instsPredictable.front()->getPredCycle()
+                                + predDelay));
 }
 
 template <class Impl>
