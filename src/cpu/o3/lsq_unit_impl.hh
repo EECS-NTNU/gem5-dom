@@ -448,7 +448,7 @@ LSQUnit<Impl>::insertLoad(const DynInstPtr &load_inst)
 
     ++loads;
 
-    updateDShadow(load_inst->lqIt->instPtr());
+    if (cpu->safeMode) updateDShadow(load_inst->lqIt->instPtr());
     iewStage->instQueue.propagateTaints(load_inst,
                                         load_inst->threadNumber);
 

@@ -1534,7 +1534,7 @@ DefaultIEW<Impl>::tick()
     }
 
     if (exeStatus != Squashing) {
-        if (cpu->MP || cpu->STT)
+        if (cpu->MP || cpu->STT || cpu->AP)
             instQueue.completeSafeLoads();
 
         executeInsts();
