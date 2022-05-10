@@ -504,6 +504,7 @@ def run(options, root, testsys, cpu_class):
                     = options.confidence_down_step
                 switch_cpus[i].predDelay = options.pred_delay
                 switch_cpus[i].pruneReady = options.prune_ready
+                switch_cpus[i].predShadowsOnly = options.pred_shadows_only
 
         # If elastic tracing is enabled attach the elastic trace probe
         # to the switch CPUs

@@ -131,12 +131,14 @@ FullO3CPU<Impl>::FullO3CPU(const DerivO3CPUParams &params)
       STT(params.sttMode),
       safeMode(params.mpMode
             || params.domMode
-            || params.sttMode)
+            || params.sttMode),
+      predShadowsOnly(params.predShadowsOnly)
 {
     assert(!(MP && DOM));
     assert(!(AP && VP));
     assert(!(AP && accuracy !=100));
     assert((!VP) || MP);
+    assert(!predShadowsOnly || (predShadowsOnly && (params.predDelay > 0)));
     fatal_if(FullSystem && params.numThreads > 1,
             "SMT is not supported in O3 in full system mode currently.");
 

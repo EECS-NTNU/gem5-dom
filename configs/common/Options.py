@@ -440,6 +440,8 @@ def addMPOptions(parser):
                         action="store", type="int", default=4)
     parser.add_option("--prune_ready",
                         action="store_true", default=False)
+    parser.add_option("--pred_shadows_only", default=False,
+                        action="store_true")
 
 
 def addFSOptions(parser):

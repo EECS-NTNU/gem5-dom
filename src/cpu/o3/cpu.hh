@@ -801,6 +801,8 @@ protected:
 
     bool safeMode;
 
+    bool predShadowsOnly;
+
   public:
     // hardware transactional memory
     void htmSendAbortSignal(ThreadID tid, uint64_t htm_uid,

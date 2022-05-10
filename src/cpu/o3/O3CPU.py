@@ -209,6 +209,9 @@ class DerivO3CPU(BaseCPU):
     pruneReady = Param.Bool(False,
                             "Whether to block ready loads from predictions")
 
+    predShadowsOnly = Param.Bool(False,
+                            "Whether to only predict shadowed loads")
+
     def addCheckerCpu(self):
         if buildEnv['TARGET_ISA'] in ['arm']:
             from m5.objects.ArmTLB import ArmMMU

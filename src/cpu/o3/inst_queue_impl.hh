@@ -225,7 +225,9 @@ IQStats::IQStats(O3CPU *cpu, const unsigned &total_width)
     ADD_STAT(faultLoads, UNIT_COUNT,
              "Number of fault loads squashed in delayed queue"),
     ADD_STAT(removedFromPredictables, UNIT_COUNT,
-             "Number of predictable entries rmeoved due to resolution")
+             "Number of predictable entries rmeoved due to resolution"),
+    ADD_STAT(unshadowedPredsRemoved, UNIT_COUNT,
+             "Number of predictable entries removed due to no shadow")
 {
     instsAdded
         .prereq(instsAdded);
@@ -729,6 +731,14 @@ InstructionQueue<Impl>::cleanPredictables()
             instsPredictable.erase(instsPredictable.begin() + i);
             i--;
         }
+        if (cpu->predShadowsOnly &&
+           (cpu->curCycle() > inst->getPredCycle() + predDelay)) {
+            if (!inst->underShadow()) {
+                instsPredictable.erase(instsPredictable.begin() + i);
+                ++iqStats.unshadowedPredsRemoved;
+                i--;
+            }
+        }
     }
 }
 
@@ -740,6 +750,8 @@ InstructionQueue<Impl>::getPredictable()
     assert(!instsPredictable.empty());
     DynInstPtr inst = std::move(instsPredictable.front());
     assert(cpu->curCycle() > inst->getPredCycle() + predDelay);
+    if (cpu->predShadowsOnly)
+        assert(inst->underShadow());
     instsPredictable.erase(instsPredictable.begin());
     assert(!inst->isSquashed());
     assert(inst->isLoad());
@@ -753,8 +765,10 @@ bool
 InstructionQueue<Impl>::hasPredictable()
 {
     return !instsPredictable.empty() &&
-            (cpu->curCycle() > (instsPredictable.front()->getPredCycle()
-                                + predDelay));
+           (cpu->curCycle() >
+               (instsPredictable.front()->getPredCycle() + predDelay)) &&
+           (!cpu->predShadowsOnly ||
+            (cpu->predShadowsOnly && instsPredictable.front()->underShadow()));
 }
 
 template <class Impl>

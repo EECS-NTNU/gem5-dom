@@ -283,6 +283,7 @@ for i in range(len(system.cpu)):
         system.cpu[i].confidence_down_step = options.confidence_down_step
         system.cpu[i].predDelay = options.pred_delay
         system.cpu[i].pruneReady = options.prune_ready
+        system.cpu[i].predShadowsOnly = options.pred_shadows_only
 
 root = Root(full_system = False, system = system)
 
