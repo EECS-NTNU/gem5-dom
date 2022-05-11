@@ -730,8 +730,7 @@ InstructionQueue<Impl>::cleanPredictables()
         } else if (inst->hasRequest()) {
             instsPredictable.erase(instsPredictable.begin() + i);
             i--;
-        }
-        if (cpu->predShadowsOnly &&
+        } else if (cpu->predShadowsOnly &&
            (cpu->curCycle() > inst->getPredCycle() + predDelay)) {
             if (!inst->underShadow()) {
                 instsPredictable.erase(instsPredictable.begin() + i);
