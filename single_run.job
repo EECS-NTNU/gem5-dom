@@ -1,0 +1,23 @@
+#!/bin/sh
+
+#SBATCH --partition=CPUQ
+#SBATCH --account=share-ie-idi
+#SBATCH --time=16:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=8000
+#SBATCH --job-name="gem5_spec2006"
+#SBATCH --mail-user=amund.kvalsvik@ntnu.no
+#SBATCH --mail-type=ALL
+#SBATCH --output=slurm/%A.slurm
+
+WORKDIR=${SLURM_SUBMIT_DIR}
+cd ${WORKDIR}
+
+cmd=mem_access.o
+option=
+
+module load SCons/4.0.1-GCCcore-10.2.0
+module load Python/3.8.6-GCCcore-10.2.0
+
+python test_run.py "$cmd" "$option"
