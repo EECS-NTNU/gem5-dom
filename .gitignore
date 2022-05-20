@@ -35,6 +35,8 @@ configs/dram/lowp_sweep.cfg
 /dom/429.mcf/*
 /dom/x86-spec-ref
 /dom/x86-spec-all-ref
+/dom/x86-static-ref
+/dom/static-17
 /results/*
 core
 /old_simpoints/*
