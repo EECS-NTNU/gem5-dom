@@ -51,11 +51,11 @@ with open(f"{spec_root}/fullnames.txt") as names, \
     all_names = names.readlines()
     fullname = all_names[index][:-1]
     bname = all_names[index].split(".")[1][:-1]
-    iterations = it.readlines()[index][:-1]
+    iteration = it.readlines()[index][:-1]
 
 fs=f"--checkpoint-dir {bname}-cpt --disk-image " \
    f"{gem5_root}/../fs/spec17.img --kernel {gem5_root}/../fs/plinux "\
-   f"--script run_scripts/{bname}_{iteration}.rcS"
+   f"--script {gem5_root}/run_scripts/{bname}_{iteration}.rcS"
 ckpt = "--fast-forward 9500000000 --at-instruction "\
        "--take-checkpoint 10000000000 --cpu-type DerivO3CPU"
 
@@ -95,6 +95,9 @@ def move_result():
     src = f'{name}/{bname}_{iteration}/m5out/config.ini'
     dst = f'{name}/results/{bname}_{iteration}.config'
     shutil.copy(src, dst)
+    src = f'{name}/{bname}_{iteration}/m5out/cpt*'
+    dst = f'{name}/results/cpt_1'
+    shutil.copytree(src, dst)
 
 def run_benchmark():
     copy_dir()

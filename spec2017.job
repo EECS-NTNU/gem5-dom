@@ -24,6 +24,9 @@ name=$2
 echo "$jobid"
 
 if [ $index -eq 0 ]; then
+	if [[ -f "$name" ]]; then
+		rm -rf "$name"
+	fi
 	echo "IM HERE"
 	mkdir "$name"
 	mkdir "$name"/results

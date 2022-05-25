@@ -50,3 +50,4 @@ dom/spectre-attacks/spectre-dom
 !/run_configs/default_config.cfg
 !/run_configs/spec2017.cfg
 !/dom/static-17/*.py
+run_scripts/*
