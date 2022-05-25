@@ -30,49 +30,39 @@ stats = ["simTicks",
 work_root = os.getcwd()
 gem5_root=f"{work_root}"
 gem5=f"{gem5_root}/build/X86/gem5.fast"
-se=f"{gem5_root}/configs/example/se.py"
-spec_root=f"{gem5_root}/dom/x86-spec-static-ref"
+se=f"{gem5_root}/configs/example/fs.py"
+spec_root=f"{gem5_root}/dom/static-17"
 stats="m5out/stats.txt"
 results=f"{gem5_root}/results"
 
-runCPU="--cpu-type=DerivO3CPU"
-memory="--mem-size=8GB"
-prefetcher="--l1d-hwp-type=StridePrefetcher --l2-hwp-type=StridePrefetcher"
-caches="--caches --l1d_size=32768 --l1i_size=32768 --l2_size=2097152 "\
-"--l2cache --l3_size=16MB --l1d_assoc=4 --l1i_assoc=4 "\
-"--l3cache --l2_assoc=8 --l3_assoc=16 --cacheline_size=64"
-
-mp_args="--mp_mode --ap_mode --confidence_saturation=10 "\
-"--confidence_threshold=8 --confidence_up_step=1 "\
-"--confidence_down_step=3"
-
-pred_args="--pred_delay=8 --prune_ready --pred_shadows_only"
-
-
-fast_forward="--fast-forward 3000000000"
-runtime="--maxinsts=1000000000"
-
-failed_benchmarks= [
-"gobmk_0",
-"gobmk_1",
-"gobmk_2",
-"gobmk_3",
-"gobmk_4",
-"gobmk_5",
-"leslie3d_0",
-"tonto_0"
-]
-
 print(sys.argv)
 
-cmd = sys.argv[1]
-bname = sys.argv[2]
-options = sys.argv[3]
-fullname = sys.argv[4]
-iteration = sys.argv[5]
-jobid = sys.argv[6]
-config_file = sys.argv[7]
-name = sys.argv[8]
+index = int(sys.argv[1])
+config_file = sys.argv[2]
+name = sys.argv[3]
+
+bname = ""
+fullname = ""
+iteration = ""
+
+
+with open(f"{spec_root}/fullnames.txt") as names, \
+    open(f"{spec_root}/iterations.txt") as it:
+    all_names = names.readlines()
+    fullname = all_names[index][:-1]
+    bname = all_names[index].split(".")[1][:-1]
+    iterations = it.readlines()[index][:-1]
+
+fs=f"--checkpoint-dir {bname}-cpt --disk-image " \
+   f"{gem5_root}/../fs/spec17.img --kernel {gem5_root}/../fs/plinux "\
+   f"--script run_scripts/{bname}_{iteration}.rcS"
+ckpt = "--fast-forward 9500000000 --at-instruction "\
+       "--take-checkpoint 10000000000 --cpu-type DerivO3CPU"
+
+options = ""
+
+with open(f"{spec_root}/commands.txt") as commands:
+    options = commands.readlines()[index].split(" ", 1)[1][:-1]
 
 redirect=f"-r --stdout-file={bname}_{iteration}.simout"
 
@@ -107,13 +97,10 @@ def move_result():
     shutil.copy(src, dst)
 
 def run_benchmark():
-    if f"{bname}_{iteration}" in failed_benchmarks:
-        return
     copy_dir()
     os.chdir(f"{name}/{bname}_{iteration}")
     config = get_config()
-    run_ref = f"{gem5} {redirect} {se} {runCPU} {config} "\
-              f"-c {bname} -o \"{options}\""
+    run_ref = f"{gem5} {redirect} {se} {fs} {config} {ckpt}"
     print(run_ref)
     print(f"Finished with code {os.system(run_ref)}")
     os.chdir(f'{gem5_root}')

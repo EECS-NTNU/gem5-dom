@@ -46,3 +46,6 @@ mcf.sim
 dom/spectre-attacks.tar.gz
 dom/spectre-attacks/spectre-dom
 .vscode/*
+/run_configs/*
+!/run_configs/default_config.cfg
+!/run_configs/spec2017.cfg
