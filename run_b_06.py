@@ -30,8 +30,8 @@ stats = ["simTicks",
 work_root = os.getcwd()
 gem5_root=f"{work_root}"
 gem5=f"{gem5_root}/build/X86/gem5.fast"
-se=f"{gem5_root}/configs/example/fs.py"
-spec_root=f"{gem5_root}/dom/static-17"
+se=f"{gem5_root}/configs/example/se.py"
+spec_root=f"{gem5_root}/dom/arm-static"
 stats="m5out/stats.txt"
 results=f"{gem5_root}/results"
 
@@ -52,12 +52,6 @@ with open(f"{spec_root}/fullnames.txt") as names, \
     fullname = all_names[index][:-1]
     bname = all_names[index].split(".")[1][:-1]
     iteration = it.readlines()[index][:-1]
-
-fs=f"--checkpoint-dir {bname}_{iteration}-cpt --disk-image " \
-   f"{gem5_root}/../fs/spec17.img --kernel {gem5_root}/../fs/plinux "\
-   f"--script {gem5_root}/run_scripts/{bname}_{iteration}.rcS"
-#ckpt = "--fast-forward 9950000000 --at-instruction "\
-ckpt = "-r 1 --cpu-type DerivO3CPU --restore-with-cpu DerivO3CPU"
 
 options = ""
 
@@ -85,33 +79,6 @@ def cleanup():
     tgt = f'{name}/{bname}_{iteration}'
     shutil.rmtree(tgt)
 
-def save_cpt():
-    src = f"{gem5_root}/full_cpts/{bname}_{iteration}/{bname}_{iteration}-cpt"
-    dst = f"{gem5_root}/cpts/{bname}_{iteration}-cpt"
-    shutil.copytree(src, dst)
-
-def copy_cpt():
-    if (os.path.isdir(f"{bname}_{iteration}-cpt")):
-        shutil.rmtree(f"{bname}_{iteration}-cpt")
-    src = f"{gem5_root}/cpts/{bname}_{iteration}-cpt"
-    dst = f"{bname}_{iteration}-cpt"
-    shutil.copytree(src, dst)
-    src_2 = f"{dst}/cpt.None.10000000000"
-    dst_2 = f"{dst}/cpt.1"
-    shutil.copytree(src_2, dst_2)
-
-def scrub_switch_cpu():
-    with open(f"{bname}_{iteration}-cpt/cpt.1/m5.cpt", "r+") as cpt:
-        data = cpt.read().replace("switch_cpus", "cpu")
-        cpt.seek(0)
-        cpt.write(data)
-        cpt.truncate()
-
-def setup_cpt():
-    if (os.path.isdir(f"{bname}_{iteration}-cpt")):
-        shutil.rmtree(f"{bname}_{iteration}-cpt")
-    os.mkdir(f"{bname}_{iteration}-cpt")
-
 def move_result():
     src = f'{name}/{bname}_{iteration}/m5out/stats.txt'
     dst = f'{name}/results/{bname}_{iteration}.txt'
@@ -119,25 +86,19 @@ def move_result():
     src = f'{name}/{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
     dst = f'{name}/results/{bname}_{iteration}.simout'
     shutil.copy(src, dst)
-    src = f'{name}/{bname}_{iteration}/m5out/system.pc.com_1.device'
+    src = f'{name}/{bname}_{iteration}/m5out/{bname}.stdout'
     dst = f'{name}/results/{bname}_{iteration}.stdout'
     shutil.copy(src, dst)
     src = f'{name}/{bname}_{iteration}/m5out/config.ini'
     dst = f'{name}/results/{bname}_{iteration}.config'
     shutil.copy(src, dst)
-    #src = f'{name}/{bname}_{iteration}/{bname}_{iteration}-cpt'
-    #dst = f'{name}/results/{bname}_{iteration}-cpt'
-    #shutil.copytree(src, dst)
 
 def run_benchmark():
     copy_dir()
     os.chdir(f"{name}/{bname}_{iteration}")
     config = get_config()
-    #setup_cpt()
-    #save_cpt()
     copy_cpt()
-    scrub_switch_cpu()
-    run_ref = f"{gem5} {redirect} {se} {fs} {config} {ckpt}"
+    run_ref = f"{gem5} {redirect} {se} {config}"
     print(run_ref)
     print(f"Finished with code {os.system(run_ref)}")
     os.chdir(f'{gem5_root}')
