@@ -4,29 +4,6 @@ import time
 import shutil
 import sys
 
-stats = ["simTicks",
-    "simTicks",
-    "simOps",
-    "system.switch_cpus.numCycles",
-    "system.switch_cpus.numLoadInsts",
-    "system.switch_cpus.emptyCycles",
-    "system.switch_cpus.activeCycles",
-    "system.switch_cpus.branchesInserted",
-    "system.switch_cpus.branchesCleared",
-    "system.switch_cpus.timesMispredicted",
-    "system.switch_cpus.entriesSquashed",
-    "system.switch_cpus.loadsSquashed",
-    "system.switch_cpus.loadsInserted",
-    "system.switch_cpus.loadsCleared",
-    "system.switch_cpus.abnormalBranches",
-    "system.switch_cpus.abnormalLoads",
-    "system.switch_cpus.timesIdled",
-    "system.switch_cpus.idleCycles",
-    "system.switch_cpus.delayedLoads",
-    "system.switch_cpus.squashedDelayedLoads",
-    "system.switch_cpus.reissuedDelayedLoads",
-    "system.switch_cpus.lsq0.loadsDelayedOnMiss"]
-
 work_root = os.getcwd()
 gem5_root=f"{work_root}"
 gem5=f"{gem5_root}/build/X86/gem5.fast"
@@ -45,9 +22,20 @@ bname = ""
 fullname = ""
 iteration = ""
 
+failed_benchmarks= [
+"gobmk_0",
+"gobmk_1",
+"gobmk_2",
+"gobmk_3",
+"gobmk_4",
+"gobmk_5",
+"leslie3d_0",
+"tonto_0"
+]
 
-with open(f"{spec_root}/fullnames.txt") as names, \
-    open(f"{spec_root}/iterations.txt") as it:
+
+with open(f"{spec_root}/fullnames_06.txt") as names, \
+    open(f"{spec_root}/iterations_06.txt") as it:
     all_names = names.readlines()
     fullname = all_names[index][:-1]
     bname = all_names[index].split(".")[1][:-1]
@@ -55,7 +43,7 @@ with open(f"{spec_root}/fullnames.txt") as names, \
 
 options = ""
 
-with open(f"{spec_root}/commands_s17.txt") as commands:
+with open(f"{spec_root}/commands_06.txt") as commands:
     options = commands.readlines()[index].split(" ", 1)[1][:-1]
 
 redirect=f"-r --stdout-file={bname}_{iteration}.simout"
@@ -86,19 +74,18 @@ def move_result():
     src = f'{name}/{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
     dst = f'{name}/results/{bname}_{iteration}.simout'
     shutil.copy(src, dst)
-    src = f'{name}/{bname}_{iteration}/m5out/{bname}.stdout'
-    dst = f'{name}/results/{bname}_{iteration}.stdout'
-    shutil.copy(src, dst)
     src = f'{name}/{bname}_{iteration}/m5out/config.ini'
     dst = f'{name}/results/{bname}_{iteration}.config'
     shutil.copy(src, dst)
 
 def run_benchmark():
+    if f"{bname}_{iteration}" in failed_benchmarks:
+        return
     copy_dir()
     os.chdir(f"{name}/{bname}_{iteration}")
     config = get_config()
-    copy_cpt()
-    run_ref = f"{gem5} {redirect} {se} {config}"
+    run_ref = f"{gem5} {redirect} {se} {config} "\
+              f"-c {bname} -o \"{options}\""
     print(run_ref)
     print(f"Finished with code {os.system(run_ref)}")
     os.chdir(f'{gem5_root}')

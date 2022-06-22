@@ -7,7 +7,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --array=1-28
 #SBATCH --mem=8000
-#SBATCH --job-name="gem5_spec2006"
+#SBATCH --job-name="gem5_spec2017"
 #SBATCH --mail-user=amund.kvalsvik@ntnu.no
 #SBATCH --mail-type=ALL
 #SBATCH --output=slurm/%A_%a.slurm
