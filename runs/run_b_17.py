@@ -78,11 +78,11 @@ def get_config():
 
 def copy_dir():
     src = f'{spec_root}/{fullname}'
-    dst = f'{name}/{bname}_{iteration}'
+    dst = f'{results}/{name}/{bname}_{iteration}'
     shutil.copytree(src, dst)
 
 def cleanup():
-    tgt = f'{name}/{bname}_{iteration}'
+    tgt = f'{results}/{name}/{bname}_{iteration}'
     shutil.rmtree(tgt)
 
 def save_cpt():
@@ -114,16 +114,16 @@ def setup_cpt():
 
 def move_result():
     src = f'{name}/{bname}_{iteration}/m5out/stats.txt'
-    dst = f'{name}/results/{bname}_{iteration}.txt'
+    dst = f'{results}/{name}/results/{bname}_{iteration}.txt'
     shutil.copy(src, dst)
     src = f'{name}/{bname}_{iteration}/m5out/{bname}_{iteration}.simout'
-    dst = f'{name}/results/{bname}_{iteration}.simout'
+    dst = f'{results}/{name}/results/{bname}_{iteration}.simout'
     shutil.copy(src, dst)
     src = f'{name}/{bname}_{iteration}/m5out/system.pc.com_1.device'
-    dst = f'{name}/results/{bname}_{iteration}.stdout'
+    dst = f'{results}/{name}/results/{bname}_{iteration}.stdout'
     shutil.copy(src, dst)
     src = f'{name}/{bname}_{iteration}/m5out/config.ini'
-    dst = f'{name}/results/{bname}_{iteration}.config'
+    dst = f'{results}/{name}/results/{bname}_{iteration}.config'
     shutil.copy(src, dst)
     #src = f'{name}/{bname}_{iteration}/{bname}_{iteration}-cpt'
     #dst = f'{name}/results/{bname}_{iteration}-cpt'
@@ -131,7 +131,7 @@ def move_result():
 
 def run_benchmark():
     copy_dir()
-    os.chdir(f"{name}/{bname}_{iteration}")
+    os.chdir(f"{results}/{name}/{bname}_{iteration}")
     config = get_config()
     #setup_cpt()
     #save_cpt()

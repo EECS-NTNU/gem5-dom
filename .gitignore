@@ -51,3 +51,6 @@ dom/spectre-attacks/spectre-dom
 !/run_configs/spec2017.cfg
 !/dom/static-17/*.py
 run_scripts/*
+/dom/x86-spec-static-ref
+/dom/arm-static
+/runs/cpts/*

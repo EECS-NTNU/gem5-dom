@@ -5,14 +5,14 @@
 #SBATCH --time=16:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --array=1-49
+#SBATCH --array=1-28
 #SBATCH --mem=8000
-#SBATCH --job-name="gem5_spec2006"
+#SBATCH --job-name="gem5_spec2017"
 #SBATCH --mail-user=amund.kvalsvik@ntnu.no
 #SBATCH --mail-type=ALL
 #SBATCH --output=slurm/%A_%a.slurm
 
-WORKDIR=${SLURM_SUBMIT_DIR}
+WORKDIR=/cluster/home/amundbk/DoM/gem5
 cd ${WORKDIR}
 
 config_file=$1
@@ -24,12 +24,12 @@ name=$2
 echo "$jobid"
 
 if [ $index -eq 0 ]; then
-	if [ -d "$name" ]; then
-		rm -rf "$name"
+	if [ -d "results/$name" ]; then
+		rm -rf "results/$name"
 	fi
 	echo "IM HERE"
-	mkdir "$name"
-	mkdir "$name"/results
+	mkdir "results/$name"
+	mkdir "results/$name"/results
 else
 	sleep 5
 fi
@@ -37,4 +37,4 @@ fi
 module load SCons/4.0.1-GCCcore-10.2.0
 module load Python/3.8.6-GCCcore-10.2.0
 
-python run_b_06.py $index $config_file $name
+python runs/run_b_17.py $index $config_file $name
