@@ -399,9 +399,9 @@ DefaultDOM<Impl>::clearDeadEntries()
             }
         }
         for (int j = 0; j < unresolvedStores.size(); j++) {
-            DynInstPtr inst = unresolvedStores.at(i);
+            DynInstPtr inst = unresolvedStores.at(j);
             if (inst->isSquashed() || inst->isCommitted()) {
-                unresolvedStores.erase(unresolvedStores.begin() + i);
+                unresolvedStores.erase(unresolvedStores.begin() + j);
                 j--;
                 killed = true;
             }
