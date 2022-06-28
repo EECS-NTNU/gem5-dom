@@ -688,7 +688,9 @@ DefaultDecode<Impl>::decodeInsts(ThreadID tid)
             inst->setCanIssue();
         }
 
-        if (cpu->AP && inst->isLoad())
+        if (cpu->AP && inst->isLoad() &&
+            // ARM nonsense
+                (!inst->isControl()))
             instQueue->addToPredictable(inst);
 
         // This current instruction is valid, so add it into the decode

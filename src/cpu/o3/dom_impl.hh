@@ -106,7 +106,7 @@ DefaultDOM<Impl>::squashInstruction(const DynInstPtr &inst, ThreadID tid)
         sbHead[tid] = (std::get<1>(sbList[tid]->front()) + 1)%maxNumSbEntries;
         DPRINTF(DebugDOM, "Squashed single ctrl inst [sn:%llu]. "
             "Restoring from index\n", inst->seqNum);
-        restoreFromIndex(tid);
+        //restoreFromIndex(tid);
 
     } else if (inst->isLoad()) {
         int spot = getLoadIndex(inst, tid);
@@ -141,15 +141,28 @@ DefaultDOM<Impl>::insertBranch(const DynInstPtr &inst, ThreadID tid)
 
 template <class Impl>
 void
+DefaultDOM<Impl>::insertStore(const DynInstPtr &inst)
+{
+    if (!(_cpu->safeMode)) return;
+    assert (inst);
+
+    unresolvedStores.push_back(inst);
+}
+
+template <class Impl>
+void
 DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
 {
     if (!(_cpu->safeMode)) return;
 
     DPRINTF(DebugDOM, "Trying to insert load\n");
     assert(inst);
-    if (sbHead[tid] != sbTail[tid]) {
+    if ((!unresolvedStores.empty() &&
+        getOldestStore()->seqNum < inst->seqNum) ||
+        sbHead[tid] != sbTail[tid]) {
         rqList[tid]->push_back({sbTail[tid] - 1, inst});
         inst->cShadow = true;
+        inst->dShadow = true;
         DPRINTF(DOM, "[tid:%i] Inserted Load [sn:%llu] into ReleaseQueue,"
         "with tag %d, size now: %d. \n",
         tid, inst->seqNum, sbTail[tid] - 1, rqList[tid]->size());
@@ -234,7 +247,28 @@ DefaultDOM<Impl>::mispredictBranch(const DynInstPtr &inst, ThreadID tid)
     DPRINTF(DOM, "[tid:%i] Restored ShadowBuffer to "
     "mispredicted instruction [sn:%llu].\n", tid, inst->seqNum);
     ++domStats.timesMispredicted;
-    restoreFromIndex(tid);
+    //restoreFromIndex(tid);
+}
+
+template <class Impl>
+void
+DefaultDOM<Impl>::handleSpecialArmCase()
+{
+    if (sbList[0]->empty()) return;
+    DynInstPtr inst = std::get<0>(sbList[0]->front());
+    if (inst->isLoad() &&
+        unresolvedStores.front()->seqNum > inst->seqNum) {
+        inst->cShadow = false;
+        inst->dShadow = false;
+    }
+}
+
+template <class Impl>
+typename Impl::DynInstPtr
+DefaultDOM<Impl>::getOldestStore()
+{
+    assert(!unresolvedStores.front()->effAddrValid());
+    return unresolvedStores.front();
 }
 
 template <class Impl>
@@ -243,15 +277,31 @@ DefaultDOM<Impl>::restoreFromIndex(ThreadID tid)
 {
     DPRINTF(DebugDOM, "Trying to restore rq from index\n");
     int squashed = 0;
-    if (rqList[tid]->empty()) return;
     while (!rqList[tid]->empty() &&
-        !tagCheck(((std::get<0>(rqList[tid]->back())+1)%maxNumSbEntries),
-        tid)) {
-        if ((std::get<0>(sbList[tid]->back()))->seqNum >
-            (std::get<1>(rqList[tid]->back()))->seqNum) break;
-        rqList[tid]->erase(rqList[tid]->end() -1);
-        ++domStats.loadsSquashed;
-        squashed++;
+            !(sbList[tid]->empty() && unresolvedStores.empty())) {
+        DynInstPtr inst = std::get<1>(rqList[tid]->back());
+        if ((sbList[tid]->empty()
+            || std::get<0>(sbList[tid]->back())->seqNum > inst->seqNum)
+            &&
+            (unresolvedStores.empty()
+            || unresolvedStores.back()->seqNum > inst->seqNum)) {
+            break;
+        } else {
+            //assert(std::get<1>(rqList[tid]->back())->isSquashed());
+            rqList[tid]->erase(rqList[tid]->end() - 1);
+            ++domStats.loadsSquashed;
+            squashed++;
+        }
+    }
+    if (sbList[tid]->empty() && unresolvedStores.empty()) {
+        while (!rqList[tid]->empty())
+        {
+            //assert(std::get<1>(rqList[tid]->back())->isSquashed());
+            rqList[tid]->erase(rqList[tid]->end() - 1);
+            ++domStats.loadsSquashed;
+            squashed++;
+        }
+
     }
     DPRINTF(DOM, "[tid:%i] Restored ReleaseQueue to index: %d"
         " with inst [sn:%llu] and squashing %d loads.\n", tid,
@@ -280,6 +330,18 @@ DefaultDOM<Impl>::stepSb(ThreadID tid)
 }
 
 template <class Impl>
+void
+DefaultDOM<Impl>::stepStores()
+{
+    for (int i = 0; i < unresolvedStores.size(); i++) {
+        if (unresolvedStores.at(i)->effAddrValid()) {
+            unresolvedStores.erase(unresolvedStores.begin() + i);
+            i--;
+        }
+    }
+}
+
+template <class Impl>
 bool
 DefaultDOM<Impl>::tagCheck(int sbTag, ThreadID tid)
 {
@@ -295,8 +357,12 @@ void
 DefaultDOM<Impl>::stepRq(ThreadID tid)
 {
     if (rqList[tid]->empty()) return;
+    if (!unresolvedStores.empty() &&
+        getOldestStore()->seqNum <
+            (std::get<1>(rqList[tid]->front()))->seqNum) return;
     if (!(tagCheck(std::get<0>(rqList[tid]->front()), tid))) {
         std::get<1>(rqList[tid]->front())->cShadow = false;
+        std::get<1>(rqList[tid]->front())->dShadow = false;
         DPRINTF(DOM, "[tid:%i] Stepped ReleaseQueue, freeing"
                 "[sn:%llu].\n",
                 tid,
@@ -326,9 +392,18 @@ DefaultDOM<Impl>::clearDeadEntries()
             DynInstPtr inst = std::get<1>(rqList[i]->at(j));
             if (inst->isSquashed() || inst->isCommitted()) {
                 inst->cShadow = false;
+                inst->dShadow = false;
                 rqList[i]->erase(rqList[i]->begin() + j);
                 j--;
                 ++domStats.abnormalLoads;
+            }
+        }
+        for (int j = 0; j < unresolvedStores.size(); j++) {
+            DynInstPtr inst = unresolvedStores.at(i);
+            if (inst->isSquashed() || inst->isCommitted()) {
+                unresolvedStores.erase(unresolvedStores.begin() + i);
+                j--;
+                killed = true;
             }
         }
         if (killed) {
@@ -340,7 +415,7 @@ DefaultDOM<Impl>::clearDeadEntries()
                 sbHead[i] = (std::get<1>(sbList[i]->front()))
                     % maxNumSbEntries;
             }
-            restoreFromIndex(i);
+            //restoreFromIndex(i);
         }
     }
 }
@@ -358,10 +433,12 @@ DefaultDOM<Impl>::tick()
         for (int j = 0; j < width; j++) {
             stepSb(i);
         }
+        stepStores();
         DPRINTF(DebugDOM, "Trying to step RQ\n");
         for (int j = 0; j < width; j++) {
             stepRq(i);
         }
+        handleSpecialArmCase();
         if (rqList[i]->size() > 0) {
             DPRINTF(DebugDOM, "Current State for thread %i: \n"
         "Entries in SB: %i, [sn:%llu] at head\n"
@@ -399,7 +476,7 @@ DefaultDOM<Impl>::tick()
         }
         //assert(!(sbList[i]->size() == 0 && sbHead[i] != sbTail[i]));
         //assert(!((sbHead[i] == sbTail[i]) && (sbList[i]->size() > 0)));
-        //assert(!(stallCycles > 10000));
+        assert(!(stallCycles > 10000));
 
         if (sbList[i]->size() > 0) {
             DynInstPtr inst = std::get<0>(sbList[i]->front());

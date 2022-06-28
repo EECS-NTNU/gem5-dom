@@ -626,7 +626,7 @@ InstructionQueue<Impl>::insert(const DynInstPtr &new_inst)
     // register(s).
     addToProducers(new_inst);
 
-    assert(!(new_inst->isMemRef() && new_inst->isControl()));
+    //assert(!(new_inst->isMemRef() && new_inst->isControl()));
 
     if (new_inst->isMemRef()) {
         memDepUnit[new_inst->threadNumber].insert(new_inst);

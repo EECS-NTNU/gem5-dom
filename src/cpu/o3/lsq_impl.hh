@@ -752,8 +752,8 @@ LSQ<Impl>::pushRequest(const DynInstPtr& inst, bool isLoad, uint8_t *data,
             inst->effAddr = req->getVaddr();
             inst->effSize = size;
             inst->effAddrValid(true);
-            if (!isLoad) thread.at(inst->threadNumber)
-                                    .walkDShadows(inst);
+            //if (!isLoad) thread.at(inst->threadNumber)
+            //                        .walkDShadows(inst);
 
             if (cpu->checker) {
                 inst->reqToVerify = std::make_shared<Request>(*req->request());
@@ -793,7 +793,10 @@ LSQ<Impl>::PredictDataRequest::finish(const Fault &fault,
     numInTranslationFragments = 0;
     flags.set(Flag::TranslationFinished);
 
-    if (fault == NoFault) {
+    if (this->isReleased()) {
+        assert(!this->isAnyOutstandingRequest());
+        this->discard();
+    } else if (fault == NoFault) {
         setState(State::Request);
     } else {
         setState(State::Fault);

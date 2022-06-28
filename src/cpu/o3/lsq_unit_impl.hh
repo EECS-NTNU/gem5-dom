@@ -448,7 +448,6 @@ LSQUnit<Impl>::insertLoad(const DynInstPtr &load_inst)
 
     ++loads;
 
-    if (cpu->safeMode) updateDShadow(load_inst->lqIt->instPtr());
     iewStage->instQueue.propagateTaints(load_inst,
                                         load_inst->threadNumber);
 
@@ -848,29 +847,7 @@ template<class Impl>
 void
 LSQUnit<Impl>::updateDShadow(DynInstPtr &load_inst)
 {
-    DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]\n",
-            load_inst->seqNum);
-    auto store_it = load_inst->sqIt;
-    assert (store_it >= storeWBIt);
-    while (store_it != storeWBIt) {
-        store_it--;
-        assert(store_it->valid());
-        assert(store_it->instruction()->seqNum < load_inst->seqNum);
-        if (!store_it->instruction()->effAddrValid()) {
-            load_inst->dShadow = true;
-            return;
-        }
-    }
-    DPRINTF(DOM, "Cleared dShadow for [sn:%llu]\n",
-            load_inst->seqNum);
-    if (load_inst->dShadow) {
-        if (load_inst->cShadow) {
-            ++stats.dShadowClearedFirst;
-        } else {
-            ++stats.cShadowClearedFirst;
-        }
-    }
-    load_inst->dShadow = false;
+    panic("This isnt used anymore");
 }
 
 template<class Impl>
@@ -882,7 +859,7 @@ LSQUnit<Impl>::walkDShadows(const DynInstPtr &store_inst)
     DPRINTF(DebugDOM, "Walking younger loads for [sn:%llu]\n",
             store_inst->seqNum);
     while (load_it != loadQueue.end()) {
-        updateDShadow(load_it->instPtr());
+        //updateDShadow(load_it->instPtr());
         DPRINTF(DebugDOM, "D Shadow for [sn:%llu] now %d\n",
                 load_it->instPtr()->seqNum,
                 load_it->instPtr()->dShadow);
@@ -941,8 +918,8 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     req->initiateTranslation();
 
     if (!req->isMemAccessRequired()) {
-        DPRINTF(AddrPrediction, "Addr prediction faulted\n");
-        assert(!req->isAnyOutstandingRequest());
+        DPRINTF(AddrPrediction, "Addr prediction faulted/delayed\n");
+        assert(req->isDelayed() || (!req->isAnyOutstandingRequest()));
         req->discard();
         ++stats.failedTranslationsFromPredictions;
         return;

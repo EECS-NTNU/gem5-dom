@@ -47,8 +47,11 @@ class DefaultDOM
 
         void insertLoad(const DynInstPtr &inst, ThreadID tid);
         void insertBranch(const DynInstPtr &inst, ThreadID tid);
+        void insertStore(const DynInstPtr &inst);
         void safeBranch(const DynInstPtr &inst, ThreadID tid);
         void mispredictBranch(const DynInstPtr &inst, ThreadID tid);
+        void handleSpecialArmCase();
+        DynInstPtr getOldestStore();
 
         void squashInstruction(const DynInstPtr &inst, ThreadID tid);
         void squashThread(ThreadID tid);
@@ -68,6 +71,7 @@ class DefaultDOM
 
         void stepRq(ThreadID tid);
         void stepSb(ThreadID tid);
+        void stepStores();
 
         int getBranchIndex(const DynInstPtr &inst, ThreadID tid);
         int getLoadIndex(const DynInstPtr &inst, ThreadID tid);
@@ -78,6 +82,7 @@ class DefaultDOM
         std::vector<std::tuple<DynInstPtr, int, bool>>
             *sbList[Impl::MaxThreads];
         std::vector<std::tuple<int, DynInstPtr>> *rqList[Impl::MaxThreads];
+        std::vector<DynInstPtr> unresolvedStores;
 
         struct DOMStats : public Stats::Group
         {

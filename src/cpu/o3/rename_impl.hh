@@ -49,8 +49,8 @@
 #include "cpu/o3/rename.hh"
 #include "cpu/reg_class.hh"
 #include "debug/Activity.hh"
-#include "debug/Rename.hh"
 #include "debug/O3PipeView.hh"
+#include "debug/Rename.hh"
 #include "params/DerivO3CPU.hh"
 
 template <class Impl>
@@ -724,6 +724,8 @@ DefaultRename<Impl>::renameInsts(ThreadID tid)
 
         if (inst->isControl()) {
             dom_ptr->insertBranch(inst, inst->threadNumber);
+        } else if (inst->isStore()) {
+            dom_ptr->insertStore(inst);
         } else if (inst->isLoad()) {
             dom_ptr->insertLoad(inst, inst->threadNumber);
         }

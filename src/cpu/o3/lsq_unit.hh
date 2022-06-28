@@ -767,13 +767,13 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
 {
     LQEntry& load_req = loadQueue[load_idx];
     const DynInstPtr& load_inst = load_req.instruction();
-    if (cpu->safeMode) {
-        updateDShadow(load_req.instPtr());
-        DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]"
-            " with shadow value: %d\n",
-            load_inst->seqNum,
-            load_inst->dShadow);
-    }
+    //if (cpu->safeMode) {
+    //    updateDShadow(load_req.instPtr());
+    //    DPRINTF(DebugDOM, "Updating D Shadow for [sn:%llu]"
+    //        " with shadow value: %d\n",
+    //        load_inst->seqNum,
+    //        load_inst->dShadow);
+    //}
 
     load_req.setRequest(req);
     req->speculative = load_inst->underShadow();
@@ -1086,7 +1086,9 @@ LSQUnit<Impl>::read(LSQRequest *req, int load_idx)
     // and arbitrate between loads and stores.
 
     if (cpu->AP &&
-        load_inst->isPredicted()) {
+        load_inst->isPredicted() &&
+        //TODO: Is this correct?
+        !req->mainRequest()->isLLSC()) {
         stats.predResolutionTime.sample((curTick() - load_inst->recvPredTick)
             / 500);
         if (load_inst->effAddr == load_inst->predAddr &&

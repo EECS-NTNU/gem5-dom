@@ -291,6 +291,7 @@ class LSQ
         uint32_t _entryIdx;
 
         void markDelayed() override { flags.set(Flag::Delayed); }
+      public:
         bool isDelayed() { return flags.isSet(Flag::Delayed); }
 
       public:
