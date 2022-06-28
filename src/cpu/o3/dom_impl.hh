@@ -254,7 +254,7 @@ template <class Impl>
 void
 DefaultDOM<Impl>::handleSpecialArmCase()
 {
-    if (sbList[0]->empty()) return;
+    if (sbList[0]->empty() || unresolvedStores.empty()) return;
     DynInstPtr inst = std::get<0>(sbList[0]->front());
     if (inst->isLoad() &&
         unresolvedStores.front()->seqNum > inst->seqNum) {
