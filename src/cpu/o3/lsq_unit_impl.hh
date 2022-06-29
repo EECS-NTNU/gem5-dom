@@ -900,6 +900,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     if (packetSize == 0) {
         DPRINTF(AddrPredDebug, "Special case with zero size, "
                 "returning\n");
+        return;
     }
 
     DPRINTF(AddrPredDebug2, "Before allocation\n");
