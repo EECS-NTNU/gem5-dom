@@ -51,6 +51,7 @@
 #include "cpu/o3/lsq.hh"
 #include "cpu/o3/lsq_unit.hh"
 #include "debug/Activity.hh"
+#include "debug/AddrPredDebug2.hh"
 #include "debug/DebugDOM.hh"
 #include "debug/HtmCpu.hh"
 #include "debug/IEW.hh"
@@ -895,19 +896,30 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     }
 
     int packetSize = add_pred->getPacketSize(inst->instAddr());
+    if (packetSize == 0) {
+        DPRINTF(AddrPredDebug, "Special case with zero size, "
+                "returning\n")
+    }
+
+    DPRINTF(AddrPredDebug2, "Before allocation\n")
     if (!inst->predData){
         inst->predData = new uint8_t[packetSize];
         memset(inst->predData, 0, packetSize);
 
     }
 
+    DPRINTF(AddrPredDebug2, "Before flags\n")
     // Try to translate address. Drop it if deferred
     Request::Flags _flags = 0x0000;
     LSQRequest *req = new PredictDataRequest(this, inst, prediction,
                                             packetSize, _flags);
 
+
+    DPRINTF(AddrPredDebug2, "Before burst\n")
     bool needs_burst = transferNeedsBurst(prediction, packetSize, 64);
 
+
+    DPRINTF(AddrPredDebug2, "Before ifburst\n")
     if (needs_burst) {
         DPRINTF(AddrPrediction, "Dropping prediction as it is split\n");
         assert(!req->isAnyOutstandingRequest());
@@ -915,8 +927,12 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
         req->discard();
         return;
     }
+
+    DPRINTF(AddrPredDebug2, "Before translation\n")
     req->initiateTranslation();
 
+
+    DPRINTF(AddrPredDebug2, "Before delay\n")
     if (!req->isMemAccessRequired()) {
         DPRINTF(AddrPrediction, "Addr prediction faulted/delayed\n");
         assert(req->isDelayed() || (!req->isAnyOutstandingRequest()));

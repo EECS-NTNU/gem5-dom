@@ -157,7 +157,7 @@ DefaultDOM<Impl>::insertLoad(const DynInstPtr &inst, ThreadID tid)
 
     DPRINTF(DebugDOM, "Trying to insert load\n");
     assert(inst);
-    if ((!unresolvedStores.empty() &&
+    if (((!unresolvedStores.empty()) &&
         getOldestStore()->seqNum < inst->seqNum) ||
         sbHead[tid] != sbTail[tid]) {
         rqList[tid]->push_back({sbTail[tid] - 1, inst});
@@ -267,6 +267,7 @@ template <class Impl>
 typename Impl::DynInstPtr
 DefaultDOM<Impl>::getOldestStore()
 {
+    if (unresolvedStores.empty()) panic("what, we always check?");
     assert(!unresolvedStores.front()->effAddrValid());
     return unresolvedStores.front();
 }
