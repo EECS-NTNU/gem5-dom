@@ -911,8 +911,11 @@ template<class Impl>
 void
 LSQ<Impl>::PredictDataRequest::initiateTranslation()
 {
+    DPRINTF(AddrPredDebug2, "Before adding request\n");
     this->addRequest(_addr, _size, std::vector<bool>(_size, true));
+    DPRINTF(AddrPredDebug2, "Before setting state\n");
     setState(State::Translation);
+    DPRINTF(AddrPredDebug2, "Before setting flag\n");
     flags.set(Flag::TranslationStarted);
 
     numInTranslationFragments = 1;
