@@ -933,7 +933,7 @@ LSQUnit<Impl>::predictLoad(DynInstPtr &inst)
     req->initiateTranslation();
 
 
-    DPRINTF(AddrPredDebug2, "Before delay\n")
+    DPRINTF(AddrPredDebug2, "Before delay\n");
     if (!req->isMemAccessRequired()) {
         DPRINTF(AddrPrediction, "Addr prediction faulted/delayed\n");
         assert(req->isDelayed() || (!req->isAnyOutstandingRequest()));

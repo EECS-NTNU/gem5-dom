@@ -50,6 +50,7 @@
 #include "cpu/o3/cpu.hh"
 #include "cpu/o3/lsq.hh"
 #include "debug/AddrPredDebug.hh"
+#include "debug/AddrPredDebug2.hh"
 #include "debug/Drain.hh"
 #include "debug/Fetch.hh"
 #include "debug/HtmCpu.hh"
